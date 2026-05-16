@@ -141,11 +141,15 @@ jobs:
             exit 0
           fi
 
+          echo "=== git log ==="
+          git log --oneline -5
+          echo "=== HEAD message ==="
+          git log -1 --pretty=%B HEAD
+          echo "==============="
+
           commit_msg=$(git log -1 --pretty=%s | sed 's/^[^:]*: //')
           git commit \
             -S \
-            -m "$commit_msg" \
-            --gpg-sign
-
+            -m "$commit_msg"
           git push
           echo "Successfully pushed $pkgname $pkgver to AUR."
