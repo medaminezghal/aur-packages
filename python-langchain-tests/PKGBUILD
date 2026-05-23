@@ -1,0 +1,33 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=langchain-tests
+pkgname=python-$_name
+pkgver=1.1.9
+pkgrel=1
+pkgdesc="Standard tests for LangChain implementations."
+arch=('any')
+url="https://github.com/langchain-ai/langchain/tree/master/libs/standard-tests"
+license=('MIT')
+depends=('python' 'python-langchain-core' 'python-pytest' 'python-pytest-asyncio' 'python-httpx' 'python-syrupy' 'python-pytest-socket' 'python-pytest-recording' 'python-vcrpy' 'python-numpy')
+makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
+source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
+sha256sums=('a977a0c8f9a42ba2021a5ae59d468e4023f98a83818a3cb30e12c1dfab830203')
+
+build() {
+  cd "$srcdir"/${_name//-/_}-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$srcdir"/${_name//-/_}-$pkgver
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+}
+
+package() {
+  cd "$srcdir"/${_name//-/_}-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
