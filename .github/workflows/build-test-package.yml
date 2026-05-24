@@ -60,6 +60,7 @@ jobs:
         if: steps.pkg.outputs.skip != 'true'
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
+          chsh -s /bin/bash ab
           sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" gdb -batch -ex "run" -ex "bt full" -ex "quit" \
             --args paru -B . --noconfirm
 
