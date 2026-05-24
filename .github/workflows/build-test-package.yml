@@ -22,9 +22,6 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Initialize pacman keyring
-        run: pacman-key --init
-
       - name: Update system
         run: pacman -Syu --noconfirm
 
