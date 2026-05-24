@@ -59,6 +59,7 @@ jobs:
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
         run: |
+          ulimit -s
           chsh -s /bin/bash ab
           chown -R ab:ab "$GITHUB_WORKSPACE"
           sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" \
@@ -73,6 +74,7 @@ jobs:
                 --args test-env/bin/python -P -m pytest \
                 --disable-plugin-autoload \
                 -p recording -p httpbin -p pytest_mock
+              python -c "import orjson"
             " 2>&1 || true
           fi
 
