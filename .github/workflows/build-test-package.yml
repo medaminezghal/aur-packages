@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
-      options: --privileged --tmpfs /var/ab/.cache/paru/clone:rw,exec,size=10g
+      options: --privileged
     permissions:
       pull-requests: write
 
