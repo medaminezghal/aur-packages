@@ -59,19 +59,17 @@ jobs:
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
         run: |
-          ulimit -c unlimited
-          echo "/tmp/core.%e.%p" > /proc/sys/kernel/core_pattern
           chown -R ab:ab "$GITHUB_WORKSPACE"
           sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" \
             paru -B . --noconfirm 2>&1 || true
-          cat /proc/sys/kernel/core_pattern
-          find / -name "core.*" 2>/dev/null
-          # Find and analyze core dump
-          core=$(find /tmp -name "core.*" | head -n1)
-          if [[ -n "$core" ]]; then
-            gdb -batch -ex "bt full" -ex "quit" /usr/bin/python "$core"
-          else
-            echo "No core dump found"
+
+          src_dir=$(find /var/ab/.cache/paru/clone -name "pytest-recording-*" -type d | head -n1)
+          if [[ -n "$src_dir" ]]; then
+            sudo -u ab bash -c "
+              cd '$src_dir'
+              gdb -batch -ex 'run' -ex 'bt full' -ex 'quit' \
+                --args python -m pytest
+            " 2>&1 || true
           fi
 
       - name: Post result comment
