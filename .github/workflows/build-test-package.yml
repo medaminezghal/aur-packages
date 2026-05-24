@@ -61,8 +61,13 @@ jobs:
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
           chsh -s /bin/bash ab
-          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" gdb -batch -ex "run" -ex "bt full" -ex "quit" \
-            --args paru -B . --noconfirm
+          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" gdb -batch \
+                -ex "set follow-fork-mode child" \
+                -ex "set detach-on-fork off" \
+                -ex "run" \
+                -ex "bt full" \
+                -ex "quit" \
+                --args paru -B . --noconfirm 2>&1 || true
 
       - name: Post result comment
         if: always()
