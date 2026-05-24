@@ -60,12 +60,11 @@ jobs:
         if: steps.pkg.outputs.skip != 'true'
         run: |
           ulimit -s
-          getconf NAME_MAX /var/ab/.cache/paru/clone/
           chsh -s /bin/bash ab
           chown -R ab:ab "$GITHUB_WORKSPACE"
           sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" \
             paru -B . --noconfirm 2>&1 || true
-
+          getconf NAME_MAX /var/ab/.cache/paru/clone/
           src_dir=$(find /var/ab/.cache/paru/clone -name "pytest-recording-*" -type d -path "*/src/*" | head -n1)
           if [[ -n "$src_dir" ]]; then
             sudo -u ab bash -c "
