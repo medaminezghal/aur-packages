@@ -59,15 +59,19 @@ jobs:
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
         run: |
+          ulimit -c unlimited
+          echo "/tmp/core.%e.%p" > /proc/sys/kernel/core_pattern
           chown -R ab:ab "$GITHUB_WORKSPACE"
-          chsh -s /bin/bash ab
-          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" gdb -batch \
-                -ex "set follow-fork-mode child" \
-                -ex "set detach-on-fork off" \
-                -ex "run" \
-                -ex "bt full" \
-                -ex "quit" \
-                --args paru -B . --noconfirm 2>&1 || true
+          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" \
+            paru -B . --noconfirm 2>&1 || true
+
+          # Find and analyze core dump
+          core=$(find /tmp -name "core.*" | head -n1)
+          if [[ -n "$core" ]]; then
+            gdb -batch -ex "bt full" -ex "quit" /usr/bin/python "$core"
+          else
+            echo "No core dump found"
+          fi
 
       - name: Post result comment
         if: always()
