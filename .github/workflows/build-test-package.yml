@@ -78,7 +78,8 @@ jobs:
                 -ex 'quit' \
                 --args python -P -m pytest \
                     --disable-plugin-autoload \
-                    -p recording -p httpbin -p pytest_mock
+                    -p recording -p httpbin -p pytest_mock \
+                    -x -vv 2>&1 | tail -50
             " 2>&1 || true
           fi
 
