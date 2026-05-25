@@ -70,11 +70,15 @@ jobs:
             sudo -u ab bash -c "
               export DEBUGINFOD_URLS='https://debuginfod.archlinux.org'
               cd '$src_dir'
-              gdb -batch -ex 'set debuginfod enabled on' -ex 'run' -ex 'bt full' -ex 'quit' \
-                --args PYTHONPATH='$src_dir'/src python -P -m pytest \
-                --disable-plugin-autoload \
-                -p recording -p httpbin -p pytest_mock
-              python -c 'import orjson'
+              gdb -batch \
+                -ex 'set debuginfod enabled on' \
+                -ex "set environment PYTHONPATH $src_dir/src" \
+                -ex 'run' \
+                -ex 'bt full' \
+                -ex 'quit' \
+                --args python -P -m pytest \
+                    --disable-plugin-autoload \
+                    -p recording -p httpbin -p pytest_mock
             " 2>&1 || true
           fi
 
