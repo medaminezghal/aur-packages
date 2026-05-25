@@ -72,7 +72,7 @@ jobs:
               cd '$src_dir'
               gdb -batch \
                 -ex 'set debuginfod enabled on' \
-                -ex "set environment PYTHONPATH $src_dir/src" \
+                -ex 'set environment PYTHONPATH $src_dir/src' \
                 -ex 'run' \
                 -ex 'bt full' \
                 -ex 'quit' \
