@@ -2,7 +2,7 @@
 
 _name=langgraph-sdk
 pkgname=python-$_name
-pkgver=0.4.0
+pkgver=0.4.1
 pkgrel=1
 pkgdesc="SDK for interacting with LangGraph API."
 arch=('any')
@@ -12,7 +12,7 @@ depends=('python' 'python-httpx' 'python-orjson' 'python-langchain-protocol' 'py
 makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
 checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-pytest-mock' 'python-pydantic' 'python-starlette')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
-sha256sums=('fd84612d215d6dca11cdfc8c0835df2910c7e51a0b0150b950fc7a928c76a2eb')
+sha256sums=('c7a2bd4ae4abad2bd5fef7a624d768ea9a173ec8c0ab86cf7504f9c8552cd51b')
 
 build() {
   cd "$srcdir"/${_name//-/_}-$pkgver
