@@ -118,7 +118,7 @@ minimax=('python-livekit-agents' 'python-numpy')
 mistralai=('python-livekit-agents' 'python-mistralai' 'python-websockets')
 murf=('python-livekit-agents')
 neuphonic=('python-livekit-agents')
-nltk=('python-livekit-agents' 'python-nltk')
+nltk=('python-livekit-agents' 'python-nltk' 'nltk-data')
 nvidia=('python-livekit-agents' 'python-nvidia-riva-client' 'python-numpy: personaplex' 'python-sphn: personaplex')
 openai=('python-livekit-agents' 'python-numpy' 'python-pillow' 'python-openai' 'python-websockets' 'python-google-auth: vertex')
 perplexity=('python-livekit-agents' 'python-livekit-plugins-openai')
@@ -160,9 +160,9 @@ sha256sums=('ea7ad246deefbb7aac8c503946367a9071b012e1782e034e3d5e723cca194efd'
 
 prepare(){
   cp -f "$srcdir"/silero_vad.onnx "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/$_name1-silero/${_name1//-//}/silero/resources/silero_vad.onnx
-  cp -f "$srcdir"/long.mp3 "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/tests/long.mp3
-  cp -f "$srcdir"/change-sophie.opus "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/tests/change-sophie.opus
-  cp -f "$srcdir"/change-sophie.wav "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/tests/change-sophie.wav
+  cp -f "$srcdir"/long.mp3 "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/tests/long.mp3
+  cp -f "$srcdir"/change-sophie.opus "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/tests/change-sophie.opus
+  cp -f "$srcdir"/change-sophie.wav "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/tests/change-sophie.wav
 }
 
 build() {
@@ -185,7 +185,7 @@ check() {
   for _plugin in "${_plugins[@]}"; do
     test-env/bin/python -m installer $_name1/$_name1-$_plugin/dist/*.whl
   done
-  test-env/bin/python -m pytest "${pytest_options[@]}" tests aws sarvam
+  test-env/bin/python -m pytest "${pytest_options[@]}" tests $_name1/$_name1-aws/tests $_name1/$_name1-sarvam/tests
 }
 
 package_python-livekit-agents() {
