@@ -1,0 +1,291 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name0=livekit-agents
+_name1=livekit-plugins
+_plugins=(anam anthropic assemblyai asyncai avatario avatartalk aws azure baseten bey bithuman cambai cartesia cerebras clova deepgram did elevenlabs fal fireworksai fishaudio gladia gnani google gradium groq hamming hedra hume inworld keyframe langchain lemonslice liveavatar lmnt minimal minimax mistralai murf neuphonic nltk nvidia openai perplexity phonic resemble respeecher rime rtzr runway sarvam silero simli simplismart slng smallestai soniox speechify speechmatics spitch tavus telnyx trugen turn-detector ultravox upliftai xai)
+pkgbase=python-$_name0
+pkgname=(python-$_name0 ${_plugins[@]/#/python-$_name1-})
+pkgver=1.5.17
+pkgrel=1
+_plugins_pkgdesc=('Agent Framework plugin for anam.'
+                  'Agent Framework plugin for services from Anthropic.'
+                  'Agent Framework plugin for AssemblyAI.'
+                  'LiveKit Agents Plugin for AsyncAI.'
+                  'Agent Framework plugin for Avatario.'
+                  'Agent Framework plugin for AvatarTalk.'
+                  'LiveKit Agents Plugin for services from AWS.'
+                  'Agent Framework plugin for services from Azure.'
+                  'Agent Framework plugin for Baseten.'
+                  'Agent Framework plugin for services from Beyond Presence.'
+                  'Agent Framework plugin for services from BitHuman Avatar Rendering.'
+                  'LiveKit Agents plugin for Camb.ai TTS.'
+                  'LiveKit Agents Plugin for Cartesia.'
+                  'Cerebras inference plugin for LiveKit Agents.'
+                  'LiveKit Agents Plugin for LINE Clova STT.'
+                  "Agent Framework plugin for services using Deepgram's API."
+                  'Agent Framework plugin for D-ID avatar.'
+                  "Agent Framework plugin for voice synthesis with ElevenLabs' API."
+                  'fal plugin template for LiveKit Agents.'
+                  'LiveKit Agents Plugin for Fireworks AI.'
+                  "Agent Framework plugin for voice synthesis with Fish Audio's API."
+                  "Agent Framework plugin for services using Gladia's API."
+                  'LiveKit Agents plugin for Gnani Vachana speech AI — STT & TTS for Indian languages.'
+                  'Agent Framework plugin for services from Google Cloud.'
+                  'Agent Framework plugin for Gradium.'
+                  'Groq inference plugin for LiveKit Agents.'
+                  'Monitoring plugin for exporting LiveKit AgentSession call review payloads to Hamming.'
+                  'Agent Framework plugin for Hedra Avatar.'
+                  'Hume TTS plugin for LiveKit agents.'
+                  "Agent Framework plugin for voice synthesis and speech-to-text with Inworld's API."
+                  'Agent Framework plugin for Keyframe Labs avatars.'
+                  'LangChain/LangGraph plugin for LiveKit agents.'
+                  'Agent Framework plugin for LemonSlice.'
+                  'Agent Framework plugin for LiveAvatar.'
+                  'LMNT TTS plugin for LiveKit agents.'
+                  'Minimal plugin template for LiveKit Agents.'
+                  'LiveKit Agents Plugin for services from AWS.'
+                  'LiveKit Agents Plugin for services from Mistral AI.'
+                  'LiveKit Agents Plugin for Murf.'
+                  'Neuphonic inference plugin for LiveKit Agents.'
+                  'Agent Framework plugin for NLTK-based text processing.'
+                  'LiveKit Agents Plugin for services from nvidia.'
+                  'Agent Framework plugin for services from OpenAI.'
+                  'Perplexity LLM plugin for LiveKit Agents.'
+                  'Agent Framework plugin for services from Phonic.'
+                  'LiveKit Agents Plugin for Resemble AI.'
+                  'LiveKit Agents Plugin for Respeecher.'
+                  'LiveKit Agents Plugin for Rime.'
+                  'Agent Framework plugin for RTZR Streaming STT.'
+                  'Agent Framework plugin for Runway Characters Avatar.'
+                  "Agent Framework plugin for services using Sarvam.ai's API."
+                  'Agent Framework Plugin for Silero.'
+                  'Agent Framework plugin for Simli.'
+                  "Agent Framework plugin for services using SimpliSmart's API."
+                  "Agent Framework plugin for STT and TTS services using SLNG's gateway."
+                  'Agent Framework plugin for speech synthesis and recognition with Smallest AI.'
+                  "Agent Framework plugin for services using Soniox's API."
+                  "Agent Framework plugin for voice synthesis with Speechify's API."
+                  'Agent Framework plugin for Speechmatics.'
+                  'spitch plugin template for LiveKit Agents.'
+                  'Agent Framework plugin for Tavus.'
+                  'Telnyx implementation for LiveKit Agents.'
+                  'Livekit Agent framework plugin for realtime TruGen AI avatars.'
+                  'End of utterance detection for LiveKit Agents.'
+                  'Agent Framework plugin for services from Ultravox.'
+                  'Agent Framework plugin for speech synthesis with the Uplift AI.'
+                  'Agent Framework plugin for xAI.')
+arch=('x86_64' 'aarch64')
+_repo='https://github.com/livekit/agents'
+license=('Apache-2.0')
+depends=('python')
+anam=('python-livekit-agents')
+anthropic=('python-livekit-agents' 'python-anthropic' 'python-httpx')
+assemblyai=('python-livekit-agents')
+asyncai=('python-livekit-agents' 'python-aiohttp')
+avatario=('python-livekit-agents')
+avatartalk=('python-livekit-agents')
+aws=('python-livekit-agents' 'python-aioboto3' 'python-aws_sdk_transcribe_streaming' 'python-aws-sdk-bedrock-runtime: realtime' 'python-aws-sdk-signers: realtime' 'python-boto3: realtime')
+azure=('python-livekit-agents' 'python-azure-cognitiveservices-speech')
+baseten=('python-livekit-agents' 'python-aiohttp' 'python-livekit')
+bey=('python-livekit-agents')
+bithuman=('python-livekit-agents' 'python-bithuman')
+cambai=('python-livekit-agents' 'python-google-auth: vertex')
+cartesia=('python-livekit-agents')
+cerebras=('python-livekit-agents' 'python-numpy' 'python-livekit-plugins-openai' 'python-openai' 'python-msgpack')
+clova=('python-livekit-agents' 'python-pydub')
+deepgram=('python-livekit-agents' 'python-numpy')
+did=('python-livekit-agents')
+elevenlabs=('python-livekit-agents' 'python-numpy')
+fal=('python-livekit-agents' 'python-fal-client')
+fireworksai=('python-livekit-agents')
+fishaudio=('python-livekit-agents' 'python-numpy' 'python-msgpack')
+gladia=('python-livekit-agents' 'python-numpy' 'python-aiohttp')
+gnani=('python-livekit-agents' 'python-numpy' 'python-websockets')
+google=('python-google-auth' 'python-google-cloud-speech' 'python-google-cloud-texttospeech' 'python-google-genai' 'python-livekit-agents')
+gradium=('python-livekit-agents' 'python-aiohttp' 'python-livekit')
+groq=('python-livekit-agents' 'python-numpy' 'python-livekit-plugins-openai' 'python-aiohttp' 'python-livekit')
+hamming=('python-livekit-agents' 'python-aiohttp')
+hedra=('python-livekit-agents')
+hume=('python-aiohttp' 'python-livekit-agents')
+inworld=('python-livekit-agents')
+keyframe=('python-livekit-agents')
+langchain=('python-livekit-agents' 'python-langchain-core' 'python-langgraph')
+lemonslice=('python-livekit-agents')
+liveavatar=('python-livekit-agents')
+lmnt=('python-livekit-agents')
+minimal=('python-livekit-agents')
+minimax=('python-livekit-agents' 'python-numpy')
+mistralai=('python-livekit-agents' 'python-mistralai' 'python-websockets')
+murf=('python-livekit-agents')
+neuphonic=('python-livekit-agents')
+nltk=('python-livekit-agents' 'python-nltk')
+nvidia=('python-livekit-agents' 'python-nvidia-riva-client' 'python-numpy: personaplex' 'python-sphn: personaplex')
+openai=('python-livekit-agents' 'python-numpy' 'python-pillow' 'python-openai' 'python-websockets' 'python-google-auth: vertex')
+perplexity=('python-livekit-agents' 'python-livekit-plugins-openai')
+phonic=('python-livekit-agents' 'python-websockets' 'python-aiohttp' 'python-phonic')
+resemble=('python-livekit-agents')
+respeecher=('python-livekit-agents' 'python-aiohttp')
+rime=('python-livekit-agents' 'python-numpy')
+rtzr=('python-livekit-agents' 'python-httpx' 'python-aiohttp')
+runway=('python-livekit-agents')
+sarvam=('python-livekit-agents' 'python-numpy' 'python-livekit-plugins-openai')
+silero=('python-livekit-agents' 'python-onnxruntime' 'python-numpy')
+simli=('python-livekit-agents')
+simplismart=('python-livekit-agents' 'python-numpy')
+slng=('python-aiohttp' 'python-livekit-agents')
+smallestai=('python-livekit-agents' 'python-numpy')
+soniox=('python-livekit-agents')
+speechify=('python-livekit-agents' 'python-numpy')
+speechmatics=('python-livekit-agents' 'python-speechmatics-voice' 'python-certifi' 'python-onnxruntime' 'python-transformers')
+spitch=('python-livekit-agents' 'python-numpy' 'python-spitch')
+tavus=('python-livekit-agents')
+telnyx=('python-livekit-agents' 'python-livekit-api' 'python-aiohttp')
+trugen=('python-livekit-agents')
+turn_detector=('python-livekit-agents' 'python-transformers' 'python-numpy' 'python-onnxruntime' 'python-jinja')
+ultravox=('python-livekit-agents' 'python-numpy')
+upliftai=('python-livekit-agents' 'python-numpy')
+xai=('python-livekit-agents' 'python-livekit-plugins-openai')
+makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
+checkdepends=('python-scikit-learn' 'python-pytest' 'python-pytest-asyncio' 'python-jiwer' 'python-tiktoken' 'python-pytest-xdist')
+source=("$_repo/archive/refs/tags/$_name0@$pkgver.tar.gz"
+        "$_repo/raw/refs/tags/$_name0@$pkgver/$_name1/$_name1-silero/${_name1//-//}/silero/resources/silero_vad.onnx"
+        "$_repo/raw/refs/tags/$_name0@$pkgver/tests/long.mp3"
+        "$_repo/raw/refs/tags/$_name0@$pkgver/tests/change-sophie.opus"
+        "$_repo/raw/refs/tags/$_name0@$pkgver/tests/change-sophie.wav")
+sha256sums=('ea7ad246deefbb7aac8c503946367a9071b012e1782e034e3d5e723cca194efd'
+            '597d30b3ec076608d059477bb14cfeffdf951bf5cae370d38f65d33bbfe82004'
+            'a420326dbf4f37675bf14ae260fff776aee428ced887fc97e0936c36b96589f6'
+            '7a2eb5667dc35714b4cb70324d3722f89580885ee5e51be5f2c793e7893d9a24'
+            '16a978d4be2506cca5e25c5b7aa5b0e53451049d979684d9168c1a81beb4babd')
+
+prepare(){
+  cp -f "$srcdir"/silero_vad.onnx "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/$_name1-silero/${_name1//-//}/silero/resources/silero_vad.onnx
+  cp -f "$srcdir"/long.mp3 "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/tests/long.mp3
+  cp -f "$srcdir"/change-sophie.opus "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/tests/change-sophie.opus
+  cp -f "$srcdir"/change-sophie.wav "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/tests/change-sophie.wav
+}
+
+build() {
+  cd "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name0
+  python -m build --wheel --no-isolation
+  for _plugin in "${_plugins[@]}"; do
+    cd "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/$_name1-$_plugin
+    python -m build --wheel --no-isolation
+  done
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver
+  python -m venv --system-site-packages test-env
+  test-env/bin/python -m installer $_name0/dist/*.whl
+  for _plugin in "${_plugins[@]}"; do
+    test-env/bin/python -m installer $_name1/$_name1-$_plugin/dist/*.whl
+  done
+  test-env/bin/python -m pytest "${pytest_options[@]}" tests aws sarvam
+}
+
+package_python-livekit-agents() {
+  pkgdesc='A powerful framework for building realtime voice AI agents.'
+  url='https://github.com/livekit/agents/tree/main/livekit-agents'
+  depends+=('python-typer' 'python-click' 'python-certifi' 'python-livekit' 'python-livekit-api' 'python-livekit-protocol' 'python-livekit-blingfire' 'python-protobuf' 'python-pyjwt' 'python-watchfiles' 'python-psutil' 'python-aiohttp' 'python-typing_extensions' 'python-sounddevice' 'python-docstring-parser' 'python-colorama' 'python-av' 'python-numpy' 'python-pydantic' 'python-nest-asyncio' 'python-opentelemetry-api' 'python-opentelemetry-sdk' 'python-opentelemetry-exporter-otlp' 'python-prometheus_client' 'python-openai' 'python-aiofiles' 'python-json_repair')
+  optdepends=('python-mcp: mcp'
+              'python-numpy: codecs'
+              'python-pillow: images'
+              'python-livekit-plugins-anam: anam'
+              'python-livekit-plugins-anthropic: anthropic'
+              'python-livekit-plugins-assemblyai: assemblyai'
+              'python-livekit-plugins-asyncai: asyncai'
+              'python-livekit-plugins-avatario: avatario'
+              'python-livekit-plugins-avatartalk: avatartalk'
+              'python-livekit-plugins-aws: aws'
+              'python-livekit-plugins-azure: azure'
+              'python-livekit-plugins-baseten: baseten'
+              'python-livekit-plugins-bey: bey'
+              'python-livekit-plugins-bithuman: bithuman'
+              'python-livekit-plugins-browser: browser'
+              'python-livekit-plugins-cambai: cambai'
+              'python-livekit-plugins-cartesia: cartesia'
+              'python-livekit-plugins-cerebras: cerebras'
+              'python-livekit-plugins-clova: clova'
+              'python-livekit-plugins-deepgram: deepgram'
+              'python-livekit-plugins-elevenlabs: elevenlabs'
+              'python-livekit-plugins-fal: fal'
+              'python-livekit-plugins-fishaudio: fishaudio'
+              'python-livekit-plugins-fireworksai: fireworksai'
+              'python-livekit-plugins-gladia: gladia'
+              'python-livekit-plugins-gnani: gnani'
+              'python-livekit-plugins-google: google'
+              'python-livekit-plugins-groq: groq'
+              'python-livekit-plugins-hamming: hamming'
+              'python-livekit-plugins-hedra: hedra'
+              'python-livekit-plugins-hume: hume'
+              'python-livekit-plugins-inworld: inworld'
+              'python-livekit-plugins-keyframe: keyframe'
+              'python-livekit-plugins-langchain: langchain'
+              'python-livekit-plugins-lemonslice: lemonslice'
+              'python-livekit-plugins-liveavatar: liveavatar'
+              'python-livekit-plugins-lmnt: lmnt'
+              'python-livekit-plugins-minimax-ai: minimax'
+              'python-livekit-plugins-mistralai: mistralai'
+              'python-livekit-plugins-murf: murf'
+              'python-livekit-plugins-neuphonic: neuphonic'
+              'python-livekit-plugins-nltk: nltk'
+              'python-livekit-plugins-nvidia: nvidia'
+              'python-livekit-plugins-openai: openai'
+              'python-livekit-plugins-perplexity: perplexity'
+              'python-livekit-plugins-resemble: resemble'
+              'python-livekit-plugins-respeecher: respeecher'
+              'python-livekit-plugins-rime: rime'
+              'python-livekit-plugins-runway: runway'
+              'python-livekit-plugins-rtzr: rtzr'
+              'python-livekit-plugins-sarvam: sarvam'
+              'python-livekit-plugins-silero: silero'
+              'python-livekit-plugins-simli: simli'
+              'python-livekit-plugins-smallestai: smallestai'
+              'python-livekit-plugins-simplismart: simplismart'
+              'python-livekit-plugins-slng: slng'
+              'python-livekit-plugins-soniox: soniox'
+              'python-livekit-plugins-speechify: speechify'
+              'python-livekit-plugins-speechmatics: speechmatics'
+              'python-livekit-plugins-spitch: spitch'
+              'python-livekit-plugins-tavus: tavus'
+              'python-livekit-plugins-trugen: trugen'
+              'python-livekit-plugins-turn-detector: turn-detector'
+              'python-livekit-plugins-ultravox: ultravox'
+              'python-livekit-plugins-upliftai: upliftai'
+              'python-livekit-plugins-gradium: gradium'
+              'python-livekit-plugins-xai: xai'
+              'python-livekit-plugins-phonic: phonic'
+              'python-livekit-plugins-did: did')
+  cd "$srcdir"/${_name0//livekit-/}-$_name0-$pkgver
+  python -m installer --destdir="$pkgdir" $_name0/dist/*.whl
+}
+
+livekit-plugins(){
+  for ((i=0; i<${#_plugins[@]}; i++)); do
+    local _varname="${_plugins[i]//-/_}"
+    declare -n _all_deps="$_varname"
+
+    local _deps=()
+    local _optdeps=()
+    for dep in "${_all_deps[@]}"; do
+      [[ "$dep" == *:* ]] && _optdeps+="${dep@Q} " || _deps+="${dep@Q} "
+    done
+    unset -n _all_deps
+
+    eval "package_python-$_name1-${_plugins[i]}() {
+            pkgdesc=\"${_plugins_pkgdesc[i]}\"
+            url=\"$_repo/tree/main/$_name1/$_name1-${_plugins[i]}\"
+            depends=($_deps)
+            ${_optdeps_str:+optdepends=($_optdeps)}
+            cd \"\$srcdir\"/${_name0//livekit-/}-$_name0-$pkgver/$_name1/$_name1-${_plugins[i]}
+            python -m installer --destdir=\"\$pkgdir\" dist/*.whl
+          }"
+  done
+}
+
+livekit-plugins
