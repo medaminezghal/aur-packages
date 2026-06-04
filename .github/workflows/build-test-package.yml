@@ -56,6 +56,13 @@ jobs:
           echo "dir=$dir" >> "$GITHUB_OUTPUT"
           echo "Package to build: $dir"
 
+      - name: Configure git for CI
+        run: |
+          sudo -u ab git config --global http.version HTTP/1.1
+          sudo -u ab git config --global http.keepAliveIdle 60
+          sudo -u ab git config --global http.keepAliveInterval 10
+          sudo -u ab git config --global http.keepAliveCount 6
+
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
         run: |
