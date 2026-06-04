@@ -56,18 +56,16 @@ jobs:
           echo "dir=$dir" >> "$GITHUB_OUTPUT"
           echo "Package to build: $dir"
 
-      - name: Configure git for CI
-        run: |
-          sudo -u ab git config --global http.version HTTP/1.1
-          sudo -u ab git config --global http.keepAliveIdle 60
-          sudo -u ab git config --global http.keepAliveInterval 10
-          sudo -u ab git config --global http.keepAliveCount 6
-
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
-          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" paru -B . --noconfirm
+          for i in 1 2 3 4 5; do
+            sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" \
+              paru -B . --noconfirm && break
+            echo "Attempt $i failed, retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Post result comment
         if: always()
