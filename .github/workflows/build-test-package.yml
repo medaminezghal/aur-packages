@@ -62,10 +62,11 @@ jobs:
           chown -R ab:ab "$GITHUB_WORKSPACE"
           for i in 1 2 3 4 5; do
             sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" \
-              paru -B . --noconfirm && break
+              paru -B . --noconfirm && { success=true; break; }
             echo "Attempt $i failed, retrying in $((i * 5))s..."
             sleep $((i * 5))
           done
+          $success || exit 1
 
       - name: Post result comment
         if: always()
