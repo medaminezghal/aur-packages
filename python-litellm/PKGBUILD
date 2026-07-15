@@ -8,7 +8,7 @@
 _name=litellm
 pkgname=python-$_name
 pkgver=1.92.0
-pkgrel=3
+pkgrel=4
 pkgdesc='Library to easily interface with LLM API providers.'
 arch=('any')
 url='https://github.com/BerriAI/litellm'
