@@ -2,7 +2,7 @@
 
 _name=gradio
 pkgname=python-$_name
-pkgver=6.20.0
+pkgver=6.22.0
 pkgrel=1
 pkgdesc='Python library for easily interacting with trained machine learning models.'
 arch=('any')
@@ -15,7 +15,7 @@ optdepends=('python-authlib: oauth' 'python-itsdangerous: oauth'
             'python-mcp: mcp' 'python-pydantic: mcp'
             'ruff: needed for custom component docs generation')
 source=("$url/archive/refs/tags/$_name@$pkgver.tar.gz")
-sha256sums=('7e8ea14b2b0aba7d9a7e9975f427f458ec357c0c34a7a6bdcc1cb073cb27e67e')
+sha256sums=('5b75b944529a44a60d1a7a2e8b80fe7afbbce181221ff6c30d37eaff240d1522')
 
 prepare(){
   cd "$srcdir"/$_name-$_name-$pkgver
