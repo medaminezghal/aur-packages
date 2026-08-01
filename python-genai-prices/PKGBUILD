@@ -43,6 +43,8 @@ check() {
   cp -f prices/data.schema.json test-env/lib/python$python_version/data.schema.json
   cp -f prices/data.json test-env/lib/python$python_version/data.json
   cp -f prices/data_slim.json test-env/lib/python$python_version/data_slim.json
+  cp -f prices/units.yml test-env/lib/python$python_version/units.yml
+  cp -f prices/new_data/v2/data.json test-env/lib/python$python_version/new_data/v2/data.json
   test-env/bin/python -m installer packages/python/dist/*.whl
   test-env/bin/python -m installer prices/dist/*.whl
   test-env/bin/python -m pytest "${pytest_options[@]}" tests
