@@ -47,14 +47,6 @@ check() {
     --deselect google/genai/tests/afc/test_generate_content_stream_afc_thoughts.py
     --deselect google/genai/tests/operations/test_get.py
     --deselect google/genai/tests/interactions/test_paths.py
-    # Need to be fixed by developers
-    # --deselect google/genai/tests/types/test_types.py::test_generic_alias_complex_array_with_default_value
-    # --deselect google/genai/tests/types/test_types.py::test_generic_alias_complex_array_with_default_value_all_py_versions
-    # --deselect google/genai/tests/types/test_types.py::test_pydantic_model_in_union_type
-    # --deselect google/genai/tests/types/test_types.py::test_type_union
-    # --deselect google/genai/tests/types/test_types.py::test_type_union_all_py_versions
-    # --deselect google/genai/tests/types/test_types.py::test_type_union_with_default_value_all_py_versions
-    # --deselect google/genai/tests/client/test_retries.py::test_aiohttp_retries_failed_request_retries_unsuccessfully_mtls
   )
   cd "$srcdir"/${pkgname//google-/}-$pkgver
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" ${_name//-//}/tests
