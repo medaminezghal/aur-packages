@@ -17,12 +17,12 @@ sha256sums=('628fc34dbad90683e4e9718133aca4471793ac96fa94971f14a689b3cb88f6f0')
 
 prepare() {
   # Fix ValidationError
-  cd "$srcdir"/$_name-$pkgver
-  sed -i 's/no_color/color/g' packages/python/genai_prices/_cli.py
-  sed -i 's/no-color/color/g' packages/python/genai_prices/_cli.py
-  sed -i '137s/False/True/' packages/python/genai_prices/_cli.py
-  sed -i 's/not args.color/args.color/g' packages/python/genai_prices/_cli.py
-  sed -i 's/--no-color/--color/g' tests/test_cli.py
+  # cd "$srcdir"/$_name-$pkgver
+  # sed -i 's/no_color/color/g' packages/python/genai_prices/_cli.py
+  # sed -i 's/no-color/color/g' packages/python/genai_prices/_cli.py
+  # sed -i '137s/False/True/' packages/python/genai_prices/_cli.py
+  # sed -i 's/not args.color/args.color/g' packages/python/genai_prices/_cli.py
+  # sed -i 's/--no-color/--color/g' tests/test_cli.py
 }
 
 build() {
@@ -33,22 +33,12 @@ build() {
 }
 
 check() {
-  local python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
   local pytest_options=(
     -vv
     --disable-warnings
   )
   cd "$srcdir"/$_name-$pkgver
-  python -m venv --system-site-packages test-env
-  cp -f prices/data.schema.json test-env/lib/python$python_version/data.schema.json
-  cp -f prices/data.json test-env/lib/python$python_version/data.json
-  cp -f prices/data_slim.json test-env/lib/python$python_version/data_slim.json
-  cp -f prices/units.yml test-env/lib/python$python_version/units.yml
-  mkdir -p test-env/lib/python$python_version/new_data/v2
-  cp -f prices/new_data/v2/data.json test-env/lib/python$python_version/new_data/v2/data.json
-  test-env/bin/python -m installer packages/python/dist/*.whl
-  test-env/bin/python -m installer prices/dist/*.whl
-  test-env/bin/python -m pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD/prices:$PWD/packages/python pytest "${pytest_options[@]}" tests
 }
 
 package() {
