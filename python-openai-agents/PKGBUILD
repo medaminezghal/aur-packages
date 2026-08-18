@@ -45,6 +45,9 @@ check() {
     --disable-warnings
   )
   cd "$srcdir"/$_name-python-$pkgver
+  local wheel
+  wheel=$(ls dist/*.whl)
+  bsdtar -xf "$wheel" -C src '*.dist-info/*'
   PYTHONPATH=$PWD/src OPENAI_API_KEY=fake-for-tests pytest "${pytest_options[@]}" tests
 }
 
