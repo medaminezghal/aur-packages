@@ -51,7 +51,8 @@ check() {
     --deselect google/genai/tests/interactions/test_paths.py
   )
   cd "$srcdir"/${pkgname//google-/}-$pkgver
-  PYTHONPATH=$PWD pytest "${pytest_options[@]}" ${_name//-//}/tests
+  touch ${_name//-//}/tests/certificate_config.json"
+  GOOGLE_API_CERTIFICATE_CONFIG=${_name//-//}/tests/certificate_config.json PYTHONPATH=$PWD pytest "${pytest_options[@]}" ${_name//-//}/tests
 }
 
 package() {
