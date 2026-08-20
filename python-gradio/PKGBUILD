@@ -22,9 +22,9 @@ prepare(){
   # Remove tests that need docker
   rm -rf test/test_docker
   # Fix tests
-  sed -i 's/package_json\["dependencies"\]/package_json.setdefault("dependencies", {})/' gradio/cli/commands/components/_create_utils.py
-  sed -i 's/MultipartParser(boundary, callbacks)/MultipartParser(boundary, callbacks, max_header_size=float("inf"))/' gradio/route_utils.py
-  sed -i 's/            "TabbedInterface",/            "TabbedInterface",\n            "Workflow",/' gradio/utils.py
+  # sed -i 's/package_json\["dependencies"\]/package_json.setdefault("dependencies", {})/' gradio/cli/commands/components/_create_utils.py
+  # sed -i 's/MultipartParser(boundary, callbacks)/MultipartParser(boundary, callbacks, max_header_size=float("inf"))/' gradio/route_utils.py
+  # sed -i 's/            "TabbedInterface",/            "TabbedInterface",\n            "Workflow",/' gradio/utils.py
 }
 
 build() {
@@ -45,10 +45,6 @@ check() {
     # Need tokens
     --deselect test/test_buttons.py::TestOAuthButtons::test_login_button_warns_when_not_on_spaces
     --deselect test/test_external.py
-    # Need to be fixed by developers
-    --ignore test/test_pipelines.py
-    --deselect test/test_routes.py::test_deep_link_unique_per_session
-    --deselect test/test_routes.py::test_server_fn_passes_request
   )
   cd "$srcdir"/$_name-$_name-$pkgver
   ulimit -n 16384
