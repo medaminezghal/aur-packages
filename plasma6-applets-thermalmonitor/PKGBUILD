@@ -1,6 +1,6 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
-pkgname=plasma6-applets-thermal-monitor
+pkgname=plasma6-applets-thermalmonitor
 pkgver=0.2.8
 pkgrel=1
 pkgdesc="A KDE Plasmoid for displaying system temperatures."
