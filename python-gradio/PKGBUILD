@@ -30,6 +30,7 @@ prepare(){
   patch -Np1 -i ../13776.patch
   # Fix tests
   sed -i 's/package_json\["dependencies"\]/package_json.setdefault("dependencies", {})/' gradio/cli/commands/components/_create_utils.py
+  sed -i 's/            "TabbedInterface",/            "TabbedInterface",\n            "Workflow",/' gradio/utils.py
 }
 
 build() {
@@ -50,12 +51,14 @@ build() {
     ! -name '*.test.*'
     ! -name '*.stories.*'
     ! -name '*.spec.*' )
-  mkdir -p "$_fc/client"
-  ( cd js && for d in */; do d=${d%/}
-      case $d in _*|app|storybook|playwright-report|workbench|tooltils|component-test|core|spa) continue ;; esac
-      find "$d" "${_find[@]}" -exec cp --parents -t "$_fc" {} +
-    done )
-  ( cd client/js && find . "${_find[@]}" -exec cp --parents -t "$_fc/client" {} + )
+  mkdir -p $_fc
+  local d
+  for d in js/*/ client/js/; do
+    d=${d%/}
+    case ${d##*/} in _*|app|storybook|playwright-report|workbench|tooltils|component-test|core|spa) continue ;; esac
+    ( cd ${d%/*} && find ${d##*/} "${_find[@]}" -exec cp --parents -t $_fc {} + )
+  done
+  mv $_fc/js $_fc/client
   python -m build --wheel --no-isolation
 }
 
