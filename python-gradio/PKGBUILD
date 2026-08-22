@@ -33,7 +33,7 @@ prepare(){
   sed -i 's/            "TabbedInterface",/            "TabbedInterface",\n            "Workflow",/' gradio/utils.py
   sed -i "s/f\"{url}\//f\"{url.rstrip('\/')}\//g" test/test_routes.py
   sed -i "s/f\"{local_url}\//f\"{local_url.rstrip('\/')}\//g" test/test_routes.py
-
+  sed -i 's/"-map", "0:a:0", "-f", "md5", "-"/"-map", "0:a:0", "-c", "copy", "-f", "md5", "-"/' test/test_processing_utils.py
 }
 
 build() {
