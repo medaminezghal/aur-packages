@@ -31,6 +31,9 @@ prepare(){
   # Fix tests
   sed -i 's/package_json\["dependencies"\]/package_json.setdefault("dependencies", {})/' gradio/cli/commands/components/_create_utils.py
   sed -i 's/            "TabbedInterface",/            "TabbedInterface",\n            "Workflow",/' gradio/utils.py
+  sed -i "s/f\"{url}\//f\"{url.rstrip('\/')}\//g" test/test_routes.py
+  sed -i "s/f\"{local_url}\//f\"{local_url.rstrip('\/')}\//g" test/test_routes.py
+
 }
 
 build() {
