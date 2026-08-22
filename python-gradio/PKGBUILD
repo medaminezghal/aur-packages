@@ -28,6 +28,8 @@ prepare(){
   # Fix compatibility with transformers v5
   patch -Np1 -i ../13772.patch
   patch -Np1 -i ../13776.patch
+  # Fix tests
+  sed -i 's/package_json\["dependencies"\]/package_json.setdefault("dependencies", {})/' gradio/cli/commands/components/_create_utils.py
 }
 
 build() {
