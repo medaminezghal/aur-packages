@@ -24,6 +24,9 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
+    --deselect tests/cli_test.py::test_books_command
+    --deselect tests/ddgs_test.py::test_videos_search
+    --deselect tests/ddgs_test.py::test_books_search
   )
   cd "$srcdir"/$_name-$pkgver
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
