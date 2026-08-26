@@ -3,7 +3,7 @@
 _name=sqlite-vec
 pkgname=python-$_name
 pkgver=0.1.9
-pkgrel=1
+pkgrel=2
 pkgdesc='A vector search SQLite extension.'
 arch=('x86_64' 'aarch64')
 url='https://github.com/asg017/sqlite-vec'
@@ -50,16 +50,17 @@ def load(conn: sqlite3.Connection)  -> None:
 
   install -m644 dist/linux-$CARCH/$stem.so $staging/${_name//-/_}/$stem.so
 
-  printf '%s' "Metadata-Version: 2.1
-Name: $_name
-Version: $pkgver
-Home-page: https://github.com/asg017/sqlite-vec
+  { printf '%s' "Metadata-Version: 2.1
+Name: $name
+Version: $version
+Home-page: https://alexgarcia.xyz/sqlite-vec
 Author: Alex Garcia
 License: MIT License, Apache License, Version 2.0
 Description-Content-Type: text/markdown
 
-
-TODO readme" > $staging/$distinfo/METADATA
+"
+    cat README.md
+  } > $staging/$distinfo/METADATA
 
   printf '%s' "Wheel-Version: 1.0
 Generator: sqlite-dist 0.0.1-alpha.22
