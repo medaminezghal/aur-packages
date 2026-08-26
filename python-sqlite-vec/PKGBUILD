@@ -15,21 +15,18 @@ source=("$_name::git+$url.git#tag=v$pkgver")
 sha256sums=('d15838d73835fd0410ed60f8dec3aaa1129ec33342c42a5ba260dc92eca604e2')
 
 build_wheel() {
-  local platdir=dist/linux-$CARCH outdir=distx/pip extra=bindings/python/extra_init.py
-  local tag stem staging distinfo f
+  local outdir=distx/pip extra=bindings/python/extra_init.py stem=vec0
+  local tag staging distinfo f
 
   case "$CARCH" in
     x86_64)  tag='manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux1_x86_64' ;;
     aarch64) tag='manylinux_2_17_aarch64.manylinux2014_aarch64' ;;
   esac
 
-  stem=vec0
-
   staging=$(mktemp -d)
   distinfo=${_name//-/_}-$pkgver.dist-info
   mkdir -p $staging/${_name//-/_} $staging/$distinfo
 
-  # templates::base_init_py + the package's extra_init_py
   printf '%s' "
 from os import path
 import sqlite3
@@ -48,31 +45,29 @@ def load(conn: sqlite3.Connection)  -> None:
 
   conn.load_extension(loadable_path())
 
-" > "$staging/${_name//-/_}/__init__.py"
-  [[ -n $extra ]] && cat "$extra" >> "$staging/${_name//-/_}/__init__.py"
+" > $staging/${_name//-/_}/__init__.py
+  cat $extra >> $staging/${_name//-/_}/__init__.py
 
-  install -m644 "$platdir/$stem.so" "$staging/${_name//-/_}/$stem.so"
+  install -m644 dist/linux-$CARCH/$stem.so $staging/${_name//-/_}/$stem.so
 
-  # METADATA and WHEEL have no trailing newline upstream
   printf '%s' "Metadata-Version: 2.1
 Name: $_name
 Version: $pkgver
-Home-page: https://TODO.com
-Author: TODO
+Home-page: https://github.com/asg017/sqlite-vec
+Author: Alex Garcia
 License: MIT License, Apache License, Version 2.0
 Description-Content-Type: text/markdown
 
 
-TODO readme" > "$staging/$distinfo/METADATA"
+TODO readme" > $staging/$distinfo/METADATA
 
   printf '%s' "Wheel-Version: 1.0
 Generator: sqlite-dist 0.0.1-alpha.22
 Root-Is-Purelib: false
-Tag: py3-none-$tag" > "$staging/$distinfo/WHEEL"
+Tag: py3-none-$tag" > $staging/$distinfo/WHEEL
 
-  printf '%s\n' "${_name//-/_}" > "$staging/$distinfo/top_level.txt"
+  printf '%s\n' "${_name//-/_}" > $staging/$distinfo/top_level.txt
 
-  # RECORD: path,sha256=<urlsafe-base64, no padding>,<size>
   local -a members=(
     "${_name//-/_}/__init__.py"
     "${_name//-/_}/$stem.so"
@@ -81,21 +76,17 @@ Tag: py3-none-$tag" > "$staging/$distinfo/WHEEL"
     "$distinfo/top_level.txt"
   )
 
-  : > "$staging/$distinfo/RECORD"
+  : > $staging/$distinfo/RECORD
   for f in "${members[@]}"; do
-    printf '%s,sha256=%s,%s\n' "$f" \
-      "$(sha256sum "$staging/$f" | cut -d' ' -f1 | tr 'a-f' 'A-F' \
-         | basenc --base16 -d | basenc --base64url -w0 | tr -d '=')" \
-      "$(stat -c%s "$staging/$f")" >> "$staging/$distinfo/RECORD"
+    printf '%s,sha256=%s,%s\n' $f $(sha256sum $staging/$f | cut -d' ' -f1 | tr 'a-f' 'A-F' | basenc --base16 -d | basenc --base64url -w0 | tr -d '=') $(stat -c%s $staging/$f) >> $staging/$distinfo/RECORD
   done
-  printf '%s,,\n' "$distinfo/RECORD" >> "$staging/$distinfo/RECORD"
-  members+=("$distinfo/RECORD")
+  printf '%s,,\n' $distinfo/RECORD >> $staging/$distinfo/RECORD
+  members+=("$distinfo/RECORD)
 
-  # sqlite-dist stores members uncompressed, in the order listed in RECORD
-  mkdir -p "$outdir"
-  outdir=$(realpath "$outdir")
-  ( cd "$staging" && bsdtar -cf "$outdir/${_name//-/_}-$pkgver-py3-none-$tag.whl" \
-      --format zip --options zip:compression=store "${members[@]}" )
+  mkdir -p $outdir
+  outdir=$(realpath $outdir)
+  cd $staging
+  bsdtar -cf $outdir/${_name//-/_}-$pkgver-py3-none-$tag.whl --format zip --options zip:compression=store "${members[@]}"
 
   rm -rf "$staging"
 }
