@@ -51,8 +51,8 @@ def load(conn: sqlite3.Connection)  -> None:
   install -m644 dist/linux-$CARCH/$stem.so $staging/${_name//-/_}/$stem.so
 
   { printf '%s' "Metadata-Version: 2.1
-Name: $name
-Version: $version
+Name: $_name
+Version: $pkgver
 Home-page: https://alexgarcia.xyz/sqlite-vec
 Author: Alex Garcia
 License: MIT License, Apache License, Version 2.0
