@@ -27,7 +27,7 @@ build_wheel() {
 
   staging=$(mktemp -d)
   distinfo=${_name//-/_}-$pkgver.dist-info
-  mkdir -p $staging/$${_name//-/_} $staging/$distinfo
+  mkdir -p $staging/${_name//-/_} $staging/$distinfo
 
   # templates::base_init_py + the package's extra_init_py
   printf '%s' "
