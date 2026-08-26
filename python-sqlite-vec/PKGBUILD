@@ -69,11 +69,11 @@ Tag: py3-none-$tag" > $staging/$distinfo/WHEEL
   printf '%s\n' "${_name//-/_}" > $staging/$distinfo/top_level.txt
 
   local -a members=(
-    "${_name//-/_}/__init__.py"
-    "${_name//-/_}/$stem.so"
-    "$distinfo/METADATA"
-    "$distinfo/WHEEL"
-    "$distinfo/top_level.txt"
+    ${_name//-/_}/__init__.py
+    ${_name//-/_}/$stem.so
+    $distinfo/METADATA
+    $distinfo/WHEEL
+    $distinfo/top_level.txt
   )
 
   : > $staging/$distinfo/RECORD
@@ -81,7 +81,7 @@ Tag: py3-none-$tag" > $staging/$distinfo/WHEEL
     printf '%s,sha256=%s,%s\n' $f $(sha256sum $staging/$f | cut -d' ' -f1 | tr 'a-f' 'A-F' | basenc --base16 -d | basenc --base64url -w0 | tr -d '=') $(stat -c%s $staging/$f) >> $staging/$distinfo/RECORD
   done
   printf '%s,,\n' $distinfo/RECORD >> $staging/$distinfo/RECORD
-  members+=("$distinfo/RECORD)
+  members+=($distinfo/RECORD)
 
   mkdir -p $outdir
   outdir=$(realpath $outdir)
