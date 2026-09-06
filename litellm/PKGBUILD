@@ -32,7 +32,9 @@ depends=('python'
          'python-pydantic'
          'python-pydantic-settings'
          'python-jsonschema'
-         'python-boto3')
+         'python-boto3'
+         'glibc'
+         'libgcc')
 
 optdepends=('gunicorn: proxy'
             'uvicorn: proxy'
