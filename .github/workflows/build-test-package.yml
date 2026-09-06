@@ -17,7 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
-      options: --privileged
+      options: --privileged --cgroupns=host
+      volumes:
+        - /etc/machine-id:/etc/machine-id:ro
+        - /run/dbus:/run/dbus
     permissions:
       pull-requests: write
 
@@ -26,11 +29,17 @@ jobs:
         run: pacman -Syu --noconfirm
 
       - name: Install base tools
-        run: pacman -S --noconfirm --needed git sudo
+        run: pacman -S --noconfirm --needed git sudo devtools
 
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Setup chroot via paru
+        run: |
+          sed -i -E 's/^#(Chroot)/\1/' /etc/paru.conf
+          # for systemd-nspawn
+          echo 'ab ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
 
       - name: Fetch base branch
         run: |
