@@ -47,9 +47,7 @@ jobs:
           fi
 
           case "$provider" in
-            pypi)   pkgname="python-$project" ;;
-            github) pkgname="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')" ;;
-            gitlab) pkgname="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')" ;;
+            pypi|github|gitlab) pkgname="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')" ;;
             *)
               echo "::error::Unsupported provider: $provider"
               exit 1
@@ -82,7 +80,17 @@ jobs:
           current_pkgver=$(bash -c "source $pkgdir/PKGBUILD && echo \$pkgver")
           current_pkgrel=$(bash -c "source $pkgdir/PKGBUILD && echo \$pkgrel")
 
-          if [[ "$pkgver" == "$current_pkgver" ]]; then
+          # Skip if the incoming version is older than (or equal to) what's already packaged.
+          # vercmp returns: <0 if $1 < $2, 0 if equal, >0 if $1 > $2
+          cmp=$(vercmp "$pkgver" "$current_pkgver")
+
+          if (( cmp < 0 )); then
+            echo "Incoming version $pkgver is older than current $current_pkgver, skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if (( cmp == 0 )); then
             new_pkgrel=$((current_pkgrel + 1))
             sed -i "s/^pkgrel=.*/pkgrel=$new_pkgrel/" "$pkgdir/PKGBUILD"
             echo "bump_type=checksum" >> "$GITHUB_OUTPUT"
@@ -93,6 +101,8 @@ jobs:
             echo "bump_type=version" >> "$GITHUB_OUTPUT"
             echo "New version: $current_pkgver → $pkgver"
           fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
 
           tmpdir=$(mktemp -d)
           cp "$pkgdir"/* "$tmpdir/"
