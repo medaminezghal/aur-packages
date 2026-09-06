@@ -23,6 +23,7 @@ jobs:
         - /run/dbus:/run/dbus
     permissions:
       pull-requests: write
+      issues: write
 
     steps:
       - name: Update system
@@ -84,10 +85,18 @@ jobs:
             const pkg     = '${{ steps.pkg.outputs.dir }}' || 'unknown';
             const icon    = success ? '✅' : '❌';
             const status  = success ? 'Build and tests passed' : 'Build or tests failed';
+            const message = `## ${icon} PKGBUILD CI — ${status}
+
+            **Package:** \`${pkg}\`
+            *Commit: ${{ github.sha }}*`;
+
+            core.summary.addRaw(message);
+            core.summary.addEOL();
+            core.summary.write();
 
             github.rest.issues.createComment({
               owner:        context.repo.owner,
               repo:         context.repo.repo,
               issue_number: context.issue.number,
-              body: `## ${icon} PKGBUILD CI — ${status}\n\n**Package:** \`${pkg}\`\n*Commit: ${{ github.sha }}*`
+              body:         message,
             });
