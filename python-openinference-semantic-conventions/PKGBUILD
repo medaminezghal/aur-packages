@@ -26,7 +26,7 @@ check() {
     --disable-warnings
   )
   cd "$srcdir"/${_name//-semantic-conventions/}-$pkgname-v$pkgver/python/$_name
-  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
 }
 
 package() {
