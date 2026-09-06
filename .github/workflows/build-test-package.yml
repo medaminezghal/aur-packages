@@ -6,6 +6,12 @@ on:
     paths:
       - "*/PKGBUILD"
       - ".github/workflows/**"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Directory of PKGBUILD
+        type: string
+        required: true
 
 concurrency:
   group: ci-${{ github.event.pull_request.number }}
@@ -17,28 +23,39 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
-      options: --privileged
+      options: --privileged --cgroupns=host
+      volumes:
+        - /etc/machine-id:/etc/machine-id:ro
+        - /run/dbus:/run/dbus
     permissions:
       pull-requests: write
+      issues: write
 
     steps:
       - name: Update system
         run: pacman -Syu --noconfirm
 
       - name: Install base tools
-        run: pacman -S --noconfirm --needed git sudo
+        run: pacman -S --noconfirm --needed git sudo devtools
 
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
+      - name: Setup chroot via paru
+        run: |
+          sed -i -E 's/^#(Chroot)/\1/' /etc/paru.conf
+          # for systemd-nspawn
+          echo 'ab ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
+
       - name: Fetch base branch
         run: |
           git config --global safe.directory "$GITHUB_WORKSPACE"
-          git fetch origin main
+          git fetch origin ${{ github.head_ref }}
 
       - name: Find changed package
         id: pkg
+        if: '!inputs.package'
         run: |
           dir=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
                   -- '*/PKGBUILD' \
@@ -64,7 +81,7 @@ jobs:
         if: steps.pkg.outputs.skip != 'true'
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
-          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" paru -B . --noconfirm
+          sudo -u ab -D "$GITHUB_WORKSPACE/${{ inputs.package || steps.pkg.outputs.dir }}" paru -B . --noconfirm
 
       - name: Post result comment
         if: always()
@@ -72,13 +89,23 @@ jobs:
         with:
           script: |
             const success = '${{ job.status }}' === 'success';
-            const pkg     = '${{ steps.pkg.outputs.dir }}' || 'unknown';
+            const pkg     = '${{ inputs.package || steps.pkg.outputs.dir }}' || 'unknown';
             const icon    = success ? '✅' : '❌';
             const status  = success ? 'Build and tests passed' : 'Build or tests failed';
+            const message = `## ${icon} PKGBUILD CI — ${status}
 
-            github.rest.issues.createComment({
-              owner:        context.repo.owner,
-              repo:         context.repo.repo,
-              issue_number: context.issue.number,
-              body: `## ${icon} PKGBUILD CI — ${status}\n\n**Package:** \`${pkg}\`\n*Commit: ${{ github.sha }}*`
-            });
+            **Package:** \`${pkg}\`
+            *Commit: ${{ github.sha }}*`;
+
+            core.summary.addRaw(message);
+            core.summary.addEOL();
+            core.summary.write();
+
+            if (context.issue.number) {
+              github.rest.issues.createComment({
+                owner:        context.repo.owner,
+                repo:         context.repo.repo,
+                issue_number: context.issue.number,
+                body:         message,
+              });
+            }
