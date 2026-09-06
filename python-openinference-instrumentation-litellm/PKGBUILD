@@ -15,7 +15,7 @@ checkdepends=('python-litellm' 'python-fastapi' 'python-orjson' 'python-opentele
 source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz"
         "fix-duplicated-thinking-text.patch")
 sha256sums=('8357307f9a91fe92c468b6d0da2d7ed69cacf7cc0fbc4fe3359c2a905ec75ea2'
-            '128de4caaea1881bd068f2ada76822d03840ab4ba5fdf6cd043afb8fe2819dec')
+            '40007b9e2e2557deae751e058df6d0a289aea0721eca29e64f97318beb635474')
 
 prepare() {
   cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//instrumentation/}
