@@ -6,6 +6,12 @@ on:
     paths:
       - "*/PKGBUILD"
       - ".github/workflows/**"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Directory of PKGBUILD
+        type: string
+        required: true
 
 concurrency:
   group: ci-${{ github.event.pull_request.number }}
@@ -45,10 +51,11 @@ jobs:
       - name: Fetch base branch
         run: |
           git config --global safe.directory "$GITHUB_WORKSPACE"
-          git fetch origin main
+          git fetch origin ${{ github.head_ref }}
 
       - name: Find changed package
         id: pkg
+        if: '!inputs.package'
         run: |
           dir=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
                   -- '*/PKGBUILD' \
@@ -74,7 +81,7 @@ jobs:
         if: steps.pkg.outputs.skip != 'true'
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
-          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" paru -B . --noconfirm
+          sudo -u ab -D "$GITHUB_WORKSPACE/${{ inputs.package || steps.pkg.outputs.dir }}" paru -B . --noconfirm
 
       - name: Post result comment
         if: always()
@@ -82,7 +89,7 @@ jobs:
         with:
           script: |
             const success = '${{ job.status }}' === 'success';
-            const pkg     = '${{ steps.pkg.outputs.dir }}' || 'unknown';
+            const pkg     = '${{ inputs.package || steps.pkg.outputs.dir }}' || 'unknown';
             const icon    = success ? '✅' : '❌';
             const status  = success ? 'Build and tests passed' : 'Build or tests failed';
             const message = `## ${icon} PKGBUILD CI — ${status}
@@ -94,9 +101,11 @@ jobs:
             core.summary.addEOL();
             core.summary.write();
 
-            github.rest.issues.createComment({
-              owner:        context.repo.owner,
-              repo:         context.repo.repo,
-              issue_number: context.issue.number,
-              body:         message,
-            });
+            if (context.issue.number) {
+              github.rest.issues.createComment({
+                owner:        context.repo.owner,
+                repo:         context.repo.repo,
+                issue_number: context.issue.number,
+                body:         message,
+              });
+            }
