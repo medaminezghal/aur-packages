@@ -13,7 +13,7 @@ depends=('python')
 makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
 checkdepends=('python-pytest')
 source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
-sha256sums=('4c5c83427fae01021b2c9ba9d1e4426bb0044498f638bf9c90cac0d32c280614')
+sha256sums=('b727c98033658653ca412f673cdf51f6da17648ee579428ced19a8a9cb72489c')
 
 build() {
   cd "$srcdir"/${_name//-semantic-conventions/}-$pkgname-v$pkgver/python/$_name
