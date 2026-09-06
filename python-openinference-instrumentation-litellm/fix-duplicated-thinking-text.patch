@@ -1,21 +1,3 @@
-From: Arch package maintainer
-Subject: [PATCH] fix: do not re-append repeated thinking text from the signature chunk
-
-litellm >= ~1.91 repeats the complete thinking text in the final streaming
-chunk that carries the signature, instead of sending an empty "thinking"
-field as older versions did:
-
-    litellm 1.90.0: {'type': 'thinking', 'thinking': '', 'signature': '...'}
-    litellm 1.100.0: {'type': 'thinking', 'thinking': '<full text>', 'signature': '...'}
-
-_accumulate_thinking_blocks appends that text to the block it has already
-accumulated, so the reasoning content of streamed spans is duplicated.
-
-Skip the append when the incoming block carries a signature and its text is
-already at the end of what has been accumulated.
-
-Upstream tests pin litellm==1.84.0, so this is not caught by upstream CI.
-
 --- a/src/openinference/instrumentation/litellm/__init__.py
 +++ b/src/openinference/instrumentation/litellm/__init__.py
 @@ -966,7 +966,8 @@
