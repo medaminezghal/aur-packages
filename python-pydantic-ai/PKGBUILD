@@ -15,7 +15,7 @@ url='https://github.com/pydantic/pydantic-ai'
 license=('MIT')
 depends=('python')
 makedepends=('python-hatchling' 'python-uv-dynamic-versioning' 'python-build' 'python-installer' 'python-wheel' 'git')
-checkdepends=('python-anyio' 'python-asgi-lifespan' 'python-httpx' 'python-devtools' 'python-dirty-equals' 'python-ddgs' 'python-exa-py' 'python-tavily' 'python-markdownify' 'python-inline-snapshot' 'python-pytest' 'python-pytest-examples' 'python-pytest-mock' 'python-pytest-recording' 'python-pytest-xdist' 'python-genai-prices' 'python-brotli' 'python-opentelemetry-instrumentation-logging' 'python-fastmcp' 'python-mcp-types' 'python-blockbuster' 'ruff' 'deno')
+checkdepends=('python-anyio' 'python-asgi-lifespan' 'python-httpx' 'python-devtools' 'python-dirty-equals' 'python-ddgs' 'python-exa-py' 'python-tavily-python' 'python-markdownify' 'python-inline-snapshot' 'python-pytest' 'python-pytest-examples' 'python-pytest-mock' 'python-pytest-recording' 'python-pytest-xdist' 'python-genai-prices' 'python-brotli' 'python-opentelemetry-instrumentation-logging' 'python-fastmcp' 'python-mcp-types' 'python-blockbuster' 'ruff' 'deno')
 source=("$_name0::git+$url.git#tag=v$pkgver")
 sha256sums=('7ceabff3f520df5ea6443d60f557373de9620d534879bde87a49540e609186b4')
 
@@ -80,7 +80,7 @@ package_python-pydantic-ai-slim() {
               'python-sentence-transformers: sentence-transformers'
               'python-voyageai: voyageai'
               'python-ddgs: duckduckgo'
-              'python-tavily: tavily'
+              'python-tavily-python: tavily'
               'python-exa-py: exa'
               'python-markdownify: web-fetch'
               'python-rich: cli' 'python-prompt_toolkit: cli' 'python-argcomplete: cli' 'python-pyperclip: cli' 'python-pyyaml: cli'
@@ -140,7 +140,7 @@ package_python-pydantic-ai() {
               'python-ag-ui-protocol: ag-ui' 'python-starlette: ag-ui'
               'python-starlette: ui'
               'python-ddgs: duckduckgo'
-              'python-tavily: tavily'
+              'python-tavily-python: tavily'
               'python-exa-py: exa'
               'python-markdownify: web-fetch'
               'python-tenacity: retries' 'python-httpx: retries'
