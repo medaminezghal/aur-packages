@@ -14,6 +14,12 @@ checkdepends=('python-pytest')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/${_name}-python/${_name}_python-${pkgver}.tar.gz")
 sha256sums=('f00d1ecfe9a7ad82a7d6b84427faefe7448e9f16a8115ece3f5fbadc35752c4b')
 
+prepare() {
+  cd "$srcdir"/${_name}_python-$pkgver
+  sed -i 's/tests.request_intercept/.request_intercept/g' tests/test_custom_session.py
+  sed -i 's/tests.request_intercept/.request_intercept/g' tests/test_session_pooling.py
+}
+
 build() {
   cd "$srcdir"/${_name}_python-$pkgver
   python -m build --wheel --no-isolation
