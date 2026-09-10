@@ -46,16 +46,25 @@ jobs:
             exit 0
           fi
 
+          base="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')"
+
           case "$provider" in
-            pypi|github|gitlab) pkgname="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')" ;;
+            pypi)
+              if [[ -f "python-$base/PKGBUILD" ]]; then
+                pkgname="python-$base"
+              else
+                pkgname="$base"
+              fi
+              ;;
+            github|gitlab)
+              found=$(find . -maxdepth 1 -type d -name "*$base" | head -n1 | sed 's|^\./||')
+              pkgname="${found:-$base}"
+              ;;
             *)
               echo "::error::Unsupported provider: $provider"
               exit 1
               ;;
           esac
-
-          found=$(find . -maxdepth 1 -type d -name "*$pkgname" | head -n1 | sed 's|^\./||')
-          pkgname="${found:-$pkgname}"
 
           if [[ ! -d "$pkgname" || ! -f "$pkgname/PKGBUILD" ]]; then
             echo "Package '$pkgname' not in repo yet, skipping."
