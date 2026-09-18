@@ -21,7 +21,8 @@ checkdepends=('python-anyio'
               'python-inline-snapshot'
               'python-opentelemetry-sdk'
               'python-pytest'
-              'python-pytest-examples')
+              'python-pytest-examples'
+              'python-websockets')
 options=(!lto)
 source=("$_repo/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('653bc739256dc511fa7600d1f7ee0a2f392ccbe91018a99e0c62c496197728a9')
