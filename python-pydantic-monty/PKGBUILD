@@ -62,7 +62,7 @@ check() {
   test-env/bin/python -m installer crates/${_name0//pydantic-/}-$_name1/dist/*.whl
   test-env/bin/python -m installer packages/$_name0/dist/*.whl
   test-env/bin/python -m pytest "${pytest_options[@]}" crates/${_name0//pydantic-/}-python/tests
-  cargo test --locked --release -p ${_name0//pydantic-/}-$_name1
+  cargo test --locked --release -j 2 -p ${_name0//pydantic-/}-$_name1
 }
 
 package_python-pydantic-monty-client() {
