@@ -21,13 +21,7 @@ checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-pytest-timeout'
               'python-pytest-xdist'
-              'python-jsonschema'
-              'python-fastapi'
-              'uvicorn'
-              'ipython'
-              'python-pdbpp'
-              'python-pandas'
-              'python-polars')
+              'python-jsonschema')
 source=("$_name::git+$_repo.git#tag=v$pkgver")
 sha256sums=('7473db4c9aca69f45cd13c77b64edcc09b0f496a2013d18987a990490cde5850')
 
