@@ -8,10 +8,29 @@ pkgdesc='Calculate prices for calling LLM inference APIs.'
 arch=('any')
 url='https://github.com/pydantic/genai-prices'
 license=('MIT')
-depends=('python' 'python-httpx2' 'python-pydantic')
-makedepends=('python-hatchling' 'python-uv-dynamic-versioning' 'python-build' 'python-installer' 'python-wheel')
-checkdepends=('python-anyio' 'python-dirty-equals' 'python-inline-snapshot' 'python-pytest' 'python-pytest-recording' 'python-pydantic-settings' 'python-rich' 'python-rich-argparse' 'python-boto3' 'python-jsonschema' 'python-ruamel-yaml')
-optdepends=('python-pydantic-settings: cli' 'python-rich: cli' 'python-rich-argparse: cli')
+depends=('python'
+         'python-httpx2'
+         'python-pydantic')
+makedepends=('python-hatchling'
+             'python-uv-dynamic-versioning'
+             'python-build'
+             'python-installer'
+             'python-wheel'
+             'git')
+checkdepends=('python-anyio'
+              'python-dirty-equals'
+              'python-inline-snapshot'
+              'python-pytest'
+              'python-pytest-recording'
+              'python-pydantic-settings'
+              'python-rich'
+              'python-rich-argparse'
+              'python-boto3'
+              'python-jsonschema'
+              'python-ruamel-yaml')
+optdepends=('python-pydantic-settings: cli'
+            'python-rich: cli'
+            'python-rich-argparse: cli')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('6919fc36da9c5c28115fb7a5a62106215512d2bf393a851eb662c3959e188eeb')
 
