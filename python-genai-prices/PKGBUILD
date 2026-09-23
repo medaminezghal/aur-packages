@@ -31,12 +31,12 @@ checkdepends=('python-anyio'
 optdepends=('python-pydantic-settings: cli'
             'python-rich: cli'
             'python-rich-argparse: cli')
-source=("$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('6919fc36da9c5c28115fb7a5a62106215512d2bf393a851eb662c3959e188eeb')
+source=("$_name::git+$url.git#tag=v$pkgver")
+sha256sums=('40695748da4513f9e4022388d88b61bd50429711a8e3829e182ac8ea0f0b29d8')
 
 build() {
-    cd "$srcdir"/$_name-$pkgver
-    python -m build --wheel --no-isolation --skip-dependency-check packages/python
+  cd "$srcdir"/$_name
+  python -m build --wheel --no-isolation --skip-dependency-check packages/python
 }
 
 check() {
@@ -46,13 +46,13 @@ check() {
     # Package still doesn't exist in AUR
     --ignore tests/test_source_aws.py
   )
-  cd "$srcdir"/$_name-$pkgver
+  cd "$srcdir"/$_name
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer packages/python/dist/*.whl
   PYTHONPATH="$PWD/prices/src" test-env/bin/python -P -m pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name-$pkgver
+  cd "$srcdir"/$_name
   python -m installer --destdir="$pkgdir" packages/python/dist/*.whl
 }
