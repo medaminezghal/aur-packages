@@ -8,8 +8,8 @@ _name1=tasks
 _name0=fastmcp
 pkgbase=python-$_name0
 pkgname=(python-$_name0-$_name3 python-$_name0-$_name2 python-$_name0-$_name1 python-$_name0)
-pkgver=4.0.5
-pkgrel=2
+pkgver=4.0.9
+pkgrel=1
 arch=('any')
 _repo='https://github.com/PrefectHQ/fastmcp'
 license=('Apache-2.0')
@@ -70,7 +70,7 @@ checkdepends=('python-dirty-equals'
               'python-opentelemetry-exporter-otlp-proto-grpc'
               'python-pytest-examples')
 source=("$_name0::git+$_repo.git#tag=v$pkgver")
-sha256sums=('56462ad6249dc6640473a358e7f6f4f54b83e8e50489b157f0b33ba40d311a1f')
+sha256sums=('254ecb51dd9844ba3797cb09449dc2e6ff3b25e6f183b85d10cbeb099c499b41')
 
 build() {
   cd "$srcdir"/$_name0
