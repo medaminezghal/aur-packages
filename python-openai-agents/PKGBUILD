@@ -110,7 +110,7 @@ optdepends=('python-numpy: voice'
             'python-temporalio: temporal'
             'python-textual: temporal'
             'python-protobuf: temporal'
-            'python-protobuf: temporal')
+            'python-pygments: temporal')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('0e624e18230f880c08f7f92bc86b3bc25f7a906cd726d2768299728c610ed59c')
 
