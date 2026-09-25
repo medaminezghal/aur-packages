@@ -35,26 +35,51 @@ checkdepends=('python-pytest'
               'python-sqlalchemy'
               'python-docker'
               'python-runloop_api_client')
-optdepends=('python-numpy: voice' 'python-websockets: voice'
+optdepends=('python-numpy: voice'
+            'python-websockets: voice'
+
             'python-graphviz: viz'
+
             'litellm: litellm'
+
             'python-any-llm-sdk: any-llm'
+
             'python-websockets: realtime'
-            'python-sqlalchemy: sqlalchemy' 'python-asyncpg: sqlalchemy'
+
+            'python-sqlalchemy: sqlalchemy'
+            'python-asyncpg: sqlalchemy'
+
             'python-cryptography: encrypt'
+
             'python-redis: redis'
-            'python-dapr: dapr' 'python-grpcio: dapr'
+
+            'python-dapr: dapr'
+            'python-grpcio: dapr'
+
             'python-pymongo: mongodb'
+
             'python-docker: docker'
-            'python-blaxel: blaxel' 'python-aiohttp: blaxel'
+
+            'python-blaxel: blaxel'
+            'python-aiohttp: blaxel'
+
             'python-daytona: daytona'
+
             'python-aiohttp: cloudflare'
-            'python-e2b: e2b' 'python-e2b-code-interpreter: e2b'
+
+            'python-e2b: e2b'
+            'python-e2b-code-interpreter: e2b'
+
             'python-modal: modal'
+
             'python-runloop_api_client: runloop'
+
             'python-vercel: vercel'
+
             'python-boto3: s3'
-            'python-temporalio: temporal' 'python-textual: temporal')
+
+            'python-temporalio: temporal'
+            'python-textual: temporal')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('0e624e18230f880c08f7f92bc86b3bc25f7a906cd726d2768299728c610ed59c')
 
