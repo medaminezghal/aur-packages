@@ -8,9 +8,20 @@ pkgdesc='The Phonic Python library provides convenient access to the Phonic APIs
 arch=('any')
 url='https://github.com/Phonic-Co/phonic-python'
 license=('MIT')
-depends=('python' 'python-httpx' 'python-pydantic' 'python-pydantic-core' 'python-typing_extensions' 'python-websockets')
-makedepends=('python-poetry-core' 'python-build' 'python-installer' 'python-wheel')
-checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-pytest-xdist' 'python-dateutil')
+depends=('python'
+         'python-httpx'
+         'python-pydantic'
+         'python-pydantic-core'
+         'python-typing_extensions'
+         'python-websockets')
+makedepends=('python-poetry-core'
+             'python-build'
+             'python-installer'
+             'python-wheel')
+checkdepends=('python-pytest'
+              'python-pytest-asyncio'
+              'python-pytest-xdist'
+              'python-dateutil')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('67e83259c96b0e0f699b72d1c0826454a34985c869b892376a896428381d9d1a')
 
