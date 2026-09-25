@@ -9,7 +9,7 @@ _name0=fastmcp
 pkgbase=python-$_name0
 pkgname=(python-$_name0-$_name3 python-$_name0-$_name2 python-$_name0-$_name1 python-$_name0)
 pkgver=4.0.9
-pkgrel=1
+pkgrel=2
 arch=('any')
 _repo='https://github.com/PrefectHQ/fastmcp'
 license=('Apache-2.0')
@@ -20,42 +20,54 @@ makedepends=('python-hatchling'
              'python-installer'
              'python-wheel'
              'git')
-# checkdepends=('python-dirty-equals'
-#               'python-exceptiongroup'
-#               'python-httpx2'
-#               'python-mcp'
-#               'python-opentelemetry-api'
-#               'python-starlette'
-#               'python-authlib'
-#               'python-cyclopts'
-#               'python-griffelib'
-#               'python-jsonref'
-#               'python-jsonschema-path'
-#               'python-joserfc'
-#               'python-openapi-pydantic'
-#               'python-packaging'
-#               'python-py-key-value-aio'
-#               'python-aiofile'
-#               'python-anyio'
-#               'python-keyring'
-#               'python-cachetools'
-#               'python-pyperclip'
-#               'python-python-multipart'
-#               'python-pyyaml'
-#               'python-uncalled-for'
-#               'uvicorn'
-#               'python-watchfiles'
-#               'python-websockets'
-#               'python-anthropic'
-#               'python-prefab-ui'
-#               'python-azure-identity'
-#               'python-pyjwt'
-#               'python-pydantic-monty'
-#               'python-google-genai'
-#               'python-jsonref'    
-#               'python-openai'
-#               'python-cryptography'
-#               'python-pydocket')
+checkdepends=('python-dirty-equals'
+              'python-exceptiongroup'
+              'python-httpx2'
+              'python-mcp'
+              'python-opentelemetry-api'
+              'python-starlette'
+              'python-authlib'
+              'python-cyclopts'
+              'python-griffelib'
+              'python-jsonref'
+              'python-jsonschema-path'
+              'python-joserfc'
+              'python-openapi-pydantic'
+              'python-packaging'
+              'python-py-key-value-aio'
+              'python-aiofile'
+              'python-anyio'
+              'python-keyring'
+              'python-cachetools'
+              'python-pyperclip'
+              'python-python-multipart'
+              'python-pyyaml'
+              'python-uncalled-for'
+              'uvicorn'
+              'python-watchfiles'
+              'python-websockets'
+              'python-anthropic'
+              'python-prefab-ui'
+              'python-azure-identity'
+              'python-pyjwt'
+              'python-pydantic-monty'
+              'python-google-genai'
+              'python-jsonref'    
+              'python-openai'
+              'python-cryptography'
+              'python-pydocket'
+              'python-fastapi'
+              'python-opentelemetry-sdk'
+              'python-inline-snapshot'
+              'python-dirty-equals'
+              'python-psutil'
+              'python-pytest'
+              'python-pytest-asyncio'
+              'python-pytest-retry'
+              'python-pytest-timeout'
+              'python-pytest-xdist'
+              'python-opentelemetry-exporter-otlp-proto-grpc'
+              'python-pytest-examples')
 source=("$_name0::git+$_repo.git#tag=v$pkgver")
 sha256sums=('254ecb51dd9844ba3797cb09449dc2e6ff3b25e6f183b85d10cbeb099c499b41')
 
@@ -67,13 +79,19 @@ build() {
   python -m build --wheel --no-isolation
 }
 
-# check() {
-#   local pytest_options=(
-#     -vv
-#     --disable-warnings
-#   )
-#   cd "$srcdir"/$_name0
-# }
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$srcdir"/$_name0
+  python -m venv --system-site-packages test-env
+  test-env/bin/python -m installer ${_name0}_$_name3/dist/*.whl
+  test-env/bin/python -m installer ${_name0}_$_name2/dist/*.whl
+  test-env/bin/python -m installer ${_name0}_$_name1/dist/*.whl
+  test-env/bin/python -m installer dist/*.whl
+  test-env/bin/python -m pytest "${pytest_options[@]}" tests
+}
 
 package_python-fastmcp-slim() {
   pkgdesc='The dependency-slim FastMCP package.'
