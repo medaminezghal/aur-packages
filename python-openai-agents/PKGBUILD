@@ -15,7 +15,12 @@ depends=('python'
          'python-typing_extensions'
          'python-requests'
          'python-websockets'
-         'python-mcp')
+         'python-mcp'
+         'python-httpx2'
+         'python-pyjwt'
+         'python-python-multipart'
+         'python-starlette'
+         'python-urllib3')
 makedepends=('python-hatchling'
              'python-build'
              'python-installer'
