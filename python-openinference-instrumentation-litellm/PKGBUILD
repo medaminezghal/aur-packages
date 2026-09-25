@@ -9,9 +9,26 @@ arch=('any')
 _repo="https://github.com/Arize-ai/openinference"
 url="$_repo/tree/main/${pkgname/-//instrumentation/}"
 license=('Apache-2.0')
-depends=('python' 'python-opentelemetry-api' 'python-opentelemetry-sdk' 'python-opentelemetry-instrumentation' 'python-openinference-instrumentation' 'python-openinference-semantic-conventions' 'python-wrapt' 'python-setuptools')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
-checkdepends=('python-litellm' 'python-fastapi' 'python-orjson' 'python-opentelemetry-sdk' 'python-opentelemetry-instrumentation-httpx' 'python-pytest-recording' 'python-tenacity')
+depends=('python'
+         'python-opentelemetry-api'
+         'python-opentelemetry-sdk'
+         'python-opentelemetry-instrumentation'
+         'python-openinference-instrumentation'
+         'python-openinference-semantic-conventions'
+         'python-wrapt'
+         'python-setuptools')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer'
+             'python-wheel')
+checkdepends=('pytest-asyncio'
+              'python-litellm'
+              'python-fastapi'
+              'python-orjson'
+              'python-opentelemetry-sdk'
+              'python-opentelemetry-instrumentation-httpx'
+              'python-pytest-recording'
+              'python-tenacity')
 source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz"
         "fix-duplicated-thinking-text.patch"
         "litellm-1.101-streaming-cost.patch")
