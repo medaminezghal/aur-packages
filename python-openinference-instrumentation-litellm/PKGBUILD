@@ -21,7 +21,7 @@ makedepends=('python-hatchling'
              'python-build'
              'python-installer'
              'python-wheel')
-checkdepends=('pytest-asyncio'
+checkdepends=('python-pytest-asyncio'
               'python-litellm'
               'python-fastapi'
               'python-orjson'
