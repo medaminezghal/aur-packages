@@ -46,7 +46,6 @@ build() {
 }
 
 check() {
-  # Upstream's unit-test selection: integration and examples need a running Dapr runtime (dapr init)
   local pytest_options=(
     -vv
     --disable-warnings
