@@ -9,7 +9,10 @@ arch=('any')
 url='https://github.com/pydantic/logfire/tree/main/logfire-api'
 license=('MIT')
 depends=('python')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer'
+             'python-wheel')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('3b0b6130ff43fe3570aaaa86ca4db9527c697f11c30157a644a41e702987eb8b')
 
