@@ -34,7 +34,7 @@ checkdepends=('python-respx'
               'python-httpx-aiohttp'
               'npm'
               'nodejs'
-              'procps-ng')
+              'lsof')
 optdepends=('python-aiohttp: aiohttp'
             'python-httpx-aiohttp: aiohttp')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
@@ -47,15 +47,18 @@ build() {
 
 check() {
   export DEFER_PYDANTIC_BUILD=false
+  export npm_config_allow_scripts=false
+  export npm_config_yes=true
   local pytest_options=(
     -vv
     --disable-warnings
     -p 'no:benchmark'
   )
   cd "$srcdir"/${_name//runloop-/}-python-$pkgver
-  trap 'pkill -f steady' EXIT
   ./scripts/mock --daemon
+  local server_pid=$(lsof -t -i tcp:4010)
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
+  kill "${server_pid}"
 }
 
 package() {
