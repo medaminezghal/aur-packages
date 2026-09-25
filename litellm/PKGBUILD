@@ -64,13 +64,13 @@ optdepends=('gunicorn: proxy'
             'python-soundfile: proxy'
             'python-pyroscope-io: proxy'
             'python-expression: proxy'
-            
+
             'python-rich: cli'
             'python-pyyaml: cli'
             'python-requests: cli'
             'python-inquirerpy: cli'
             'python-keyring: cli'
-            
+
             'python-prisma: extra_proxy'
             'python-psycopg: extra_proxy'
             'python-azure-identity: extra_proxy'
@@ -80,9 +80,9 @@ optdepends=('gunicorn: proxy'
             'python-resend: extra_proxy'
             'python-redisvl: extra_proxy'
             'python-a2a-sdk: extra_proxy'
-            
+
             'python-numpydoc: utils'
-            
+
             'python-diskcache: caching'
 
             'python-mcp: mcp'
@@ -90,23 +90,23 @@ optdepends=('gunicorn: proxy'
             'python-pymongo: mongodb'
 
             'python-saml: saml'
-            
+
             'python-semantic-router: semantic-router'
             'python-aurelio-sdk: semantic-router'
-            
+
             'python-mlflow: mlflow'
-            
+
             'python-grpcio: grpc'
 
             'python-nvidia-riva-client: stt-nvidia-riva'
             'python-soundfile: stt-nvidia-riva'
             'python-audioread: stt-nvidia-riva'
             'python-numpy: stt-nvidia-riva'
-            
+
             'python-google-cloud-aiplatform: google'
 
             'python-aws-sdk-bedrock-runtime: bedrock-realtime'
-            
+
             'python-google-cloud-aiplatform: proxy-runtime'
             'python-google-genai: proxy-runtime'
             'python-anthropic: proxy-runtime'
