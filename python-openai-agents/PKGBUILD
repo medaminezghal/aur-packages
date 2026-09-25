@@ -30,25 +30,35 @@ checkdepends=('python-pytest'
               'python-pytest-mock'
               'python-pytest-xdist'
               'python-inline-snapshot'
+              'python-sounddevice'
+              'python-textual'
+              'python-websockets'
               'python-graphviz'
               'python-fastapi'
               'python-aiosqlite'
               'python-cryptography'
               'python-fakeredis'
+              'python-dapr'
+              'python-aiohttp'
+              'python-protobuf'
+              'python-grpcio'
               'python-pymongo'
+              'python-numpy'
               'litellm'
               'python-sqlalchemy'
               'python-docker'
-              'python-runloop_api_client'
-              'python-numpy')
+              'python-runloop_api_client')
 optdepends=('python-numpy: voice'
             'python-websockets: voice'
 
             'python-graphviz: viz'
 
-            'litellm: litellm'
+            'python-litellm: litellm'
+            'python-aiohttp: litellm'
+            'python-filelock: litellm'
 
             'python-any-llm-sdk: any-llm'
+            'python-pygments: any-llm'
 
             'python-websockets: realtime'
 
@@ -61,6 +71,8 @@ optdepends=('python-numpy: voice'
 
             'python-dapr: dapr'
             'python-grpcio: dapr'
+            'python-aiohttp: dapr'
+            'python-protobuf: dapr'
 
             'python-pymongo: mongodb'
 
@@ -70,22 +82,35 @@ optdepends=('python-numpy: voice'
             'python-aiohttp: blaxel'
 
             'python-daytona: daytona'
+            'python-aiohttp: daytona'
+            'python-protobuf: daytona'
 
             'python-aiohttp: cloudflare'
 
             'python-e2b: e2b'
             'python-e2b-code-interpreter: e2b'
+            'python-h2: e2b'
+            'python-protobuf: e2b'
+            'python-pygments: e2b'
 
             'python-modal: modal'
+            'python-aiohttp: modal'
+            'python-cbor2: modal'
+            'python-h2: modal'
+            'python-protobuf: modal'
+            'python-pygments: modal'
 
             'python-runloop_api_client: runloop'
 
             'python-vercel: vercel'
+            'python-cbor2: vercel'
 
             'python-boto3: s3'
 
             'python-temporalio: temporal'
-            'python-textual: temporal')
+            'python-textual: temporal'
+            'python-protobuf: temporal'
+            'python-protobuf: temporal')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('0e624e18230f880c08f7f92bc86b3bc25f7a906cd726d2768299728c610ed59c')
 
@@ -98,8 +123,6 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    # Tests upstream's GitHub Actions change-detection script (needs git and PyYAML), not the library
-    --ignore=tests/test_change_detection.py
   )
   cd "$srcdir"/$_name-python-$pkgver
   local wheel
