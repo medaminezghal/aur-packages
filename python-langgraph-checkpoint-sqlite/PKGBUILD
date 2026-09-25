@@ -19,7 +19,7 @@ makedepends=('python-hatchling'
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-pytest-mock'
-              'python-pytest-rerunfailures')
+              'python-pytest-retry')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('6fcb20db4c37ef7aad52f29b539eb98c38e2dad6fab7c2446a2a9db24f37a70e')
 
