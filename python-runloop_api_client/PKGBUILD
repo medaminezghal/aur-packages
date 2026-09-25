@@ -3,7 +3,7 @@
 _name=runloop-api-client
 pkgname=python-${_name//-/_}
 pkgver=1.32.0
-pkgrel=1
+pkgrel=2
 pkgdesc='The official Python library for the runloop API.'
 arch=('any')
 url='https://github.com/runloopai/api-client-python'
@@ -33,7 +33,8 @@ checkdepends=('python-respx'
               'python-aiohttp'
               'python-httpx-aiohttp'
               'npm'
-              'nodejs')
+              'nodejs'
+              'procps-ng')
 optdepends=('python-aiohttp: aiohttp'
             'python-httpx-aiohttp: aiohttp')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
