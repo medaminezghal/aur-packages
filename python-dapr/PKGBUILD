@@ -46,13 +46,13 @@ build() {
 }
 
 check() {
+  # Upstream's unit-test selection: integration and examples need a running Dapr runtime (dapr init)
   local pytest_options=(
     -vv
     --disable-warnings
-    # Upstream's unit-test selection: integration and examples need a running Dapr runtime (dapr init)
+    --import-mode=importlib
     --ignore=tests/integration
     --ignore=tests/examples
-    --import-mode=importlib
   )
   cd "$srcdir"/$_name
   python -m venv --system-site-packages test-env
