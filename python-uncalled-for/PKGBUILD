@@ -1,18 +1,18 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
-_name=fal-client
+_name=uncalled-for
 pkgname=python-$_name
-pkgver=1.0.3
+pkgver=0.4.0
 pkgrel=1
-pkgdesc='Python client for fal.ai.'
+pkgdesc="Async dependency injection for Python functions."
 arch=('any')
-url='https://github.com/fal-ai/fal/tree/main/projects/fal_client'
-license=('Apache-2.0')
-depends=('python' 'python-aiofiles' 'python-asyncstdlib' 'python-httpx' 'python-httpx-sse' 'python-msgpack' 'python-websockets')
-makedepends=('python-setuptools' 'python-setuptools-scm' 'python-build' 'python-installer' 'python-wheel')
-checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-pytest-mock' 'python-pillow')
+license=('MIT')
+url="https://github.com/chrisguidry/uncalled-for/"
+depends=('python')
+makedepends=('python-hatchling' 'python-hatch-vcs' 'python-build' 'python-installer' 'python-wheel')
+checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-pytest-randomly' 'python-pytest-timeout')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
-sha256sums=('f0f0920eae871900e4efea1865be28d4a607a779d43d47a53a8498d2ce9691cd')
+sha256sums=('335b95bd2422332ec210d518f314a16e4c640921c39fc8bf2ad095bd3538f4af')
 
 build() {
   cd "$srcdir"/${_name//-/_}-$pkgver
@@ -23,6 +23,9 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
+    --override-ini="addopts="
+    --timeout=30
+    --import-mode=importlib
   )
   cd "$srcdir"/${_name//-/_}-$pkgver
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
