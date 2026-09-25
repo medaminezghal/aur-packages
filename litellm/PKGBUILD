@@ -11,8 +11,27 @@ pkgdesc='Library to easily interface with LLM API providers.'
 arch=('any')
 url='https://github.com/BerriAI/litellm'
 license=('MIT')
-makedepends=('python-maturin' 'python-build' 'python-installer' 'python-wheel')
-depends=('python' 'python-fastuuid' 'python-httpx' 'python-openai' 'python-dotenv' 'python-tiktoken' 'python-importlib-metadata' 'python-tokenizers' 'python-click' 'python-jinja' 'python-aiohttp' 'python-pydantic' 'python-pydantic-settings' 'python-jsonschema' 'python-boto3' 'glibc' 'libgcc')
+makedepends=('python-maturin'
+             'python-build'
+             'python-installer'
+             'python-wheel')
+depends=('python'
+         'python-fastuuid'
+         'python-httpx'
+         'python-openai'
+         'python-dotenv'
+         'python-tiktoken'
+         'python-importlib-metadata'
+         'python-tokenizers'
+         'python-click'
+         'python-jinja'
+         'python-aiohttp'
+         'python-pydantic'
+         'python-pydantic-settings'
+         'python-jsonschema'
+         'python-boto3'
+         'glibc'
+         'libgcc')
 optdepends=('gunicorn: proxy'
             'uvicorn: proxy'
             'python-granian: proxy'
@@ -84,6 +103,7 @@ optdepends=('gunicorn: proxy'
             'python-numpy: stt-nvidia-riva'
             
             'python-google-cloud-aiplatform: google'
+
             'python-aws-sdk-bedrock-runtime: bedrock-realtime'
             
             'python-google-cloud-aiplatform: proxy-runtime'
