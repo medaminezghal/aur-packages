@@ -57,7 +57,7 @@ check() {
   cd "$srcdir"/${_name//runloop-/}-python-$pkgver
   ./scripts/mock --daemon
   local server_pid=$(lsof -t -i tcp:4010)
-  PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests || { kill "${server_pid}"; return 1; }
   kill "${server_pid}"
 }
 
