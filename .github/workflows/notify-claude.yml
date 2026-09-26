@@ -1,0 +1,40 @@
+name: Notify Claude routine
+
+on:
+  workflow_run:
+    workflows: ["Build and check in clean chroot", "Publish to AUR"]
+    types: [completed]
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    steps:
+      - name: Fire routine
+        env:
+          URL: ${{ secrets.CLAUDE_ROUTINE_URL }}
+          TOKEN: ${{ secrets.CLAUDE_ROUTINE_TOKEN }}
+          EVENT: ${{ github.event_name }}
+          WF_NAME: ${{ github.event.workflow_run.name }}
+          WF_RUN: ${{ github.event.workflow_run.html_url }}
+          WF_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          PR_NUM: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [ "$EVENT" = "workflow_run" ]; then
+            TEXT="Workflow '$WF_NAME' failed on branch $WF_BRANCH: $WF_RUN"
+          else
+            TEXT="PR #$PR_NUM merged into main: $PR_TITLE"
+          fi
+          jq -n --arg text "$TEXT" '{text: $text}' |
+          curl -sS --fail -X POST "$URL" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "anthropic-beta: experimental-cc-routine-2026-04-01" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "Content-Type: application/json" \
+            --data-binary @-
