@@ -1,0 +1,58 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=dapr-cli
+pkgver=1.18.2
+pkgrel=1
+pkgdesc='Command-line tools for Dapr.'
+arch=('x86_64' 'aarch64')
+url='https://github.com/dapr/cli'
+license=('Apache-2.0')
+depends=('glibc')
+makedepends=('go'
+             'git')
+optdepends=('docker: container runtime for dapr init'
+            'podman: container runtime for dapr init')
+source=("$pkgname::git+$url.git#tag=v$pkgver")
+sha256sums=('2d6c7185555683ce401615117d7992bd710a8496438bc2fd2a3c1099c35b5d0c')
+
+prepare() {
+  cd "$srcdir"/$pkgname
+  export GOPATH="$srcdir"
+  go mod download -modcacherw
+}
+
+build() {
+  cd "$srcdir"/$pkgname
+  export CGO_CPPFLAGS="$CPPFLAGS"
+  export CGO_CFLAGS="$CFLAGS"
+  export CGO_CXXFLAGS="$CXXFLAGS"
+  export CGO_LDFLAGS="$LDFLAGS"
+  export GOPATH="$srcdir"
+  export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+  local ldflags=(
+    -linkmode=external
+    -X main.version=$pkgver
+    -X main.apiVersion=1.0
+    -X ${url#https://}/pkg/standalone.gitcommit=$(git rev-parse HEAD)
+    -X ${url#https://}/pkg/standalone.gitversion=$(git rev-parse --short=7 HEAD)
+  )
+  go build -ldflags "${ldflags[*]}" -o build/dapr .
+  for shell in bash zsh fish; do
+    build/dapr completion $shell > build/dapr.$shell
+  done
+}
+
+check() {
+  cd "$srcdir"/$pkgname
+  export GOPATH="$srcdir"
+  export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+  go test ./pkg/...
+}
+
+package() {
+  cd "$srcdir"/$pkgname
+  install -Dm755 build/dapr "$pkgdir"/usr/bin/dapr
+  install -Dm644 build/dapr.bash "$pkgdir"/usr/share/bash-completion/completions/dapr
+  install -Dm644 build/dapr.zsh "$pkgdir"/usr/share/zsh/site-functions/_dapr
+  install -Dm644 build/dapr.fish "$pkgdir"/usr/share/fish/vendor_completions.d/dapr.fish
+}
