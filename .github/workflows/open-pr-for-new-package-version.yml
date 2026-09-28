@@ -26,10 +26,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup git identity
-        run: |
-          git config --global user.name  "Mohamed Amine Zghal"
-          git config --global user.email "medaminezghal@outlook.com"
-          git config --global safe.directory "$GITHUB_WORKSPACE"
+        run: git config --global safe.directory "$GITHUB_WORKSPACE"
 
       - name: Resolve package name
         id: resolve
@@ -141,11 +138,20 @@ jobs:
             echo "No generic sources to checksum, keeping existing checksums."
           fi
 
+      - name: Generate app token
+        if: steps.resolve.outputs.skip == 'false'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+  
       - name: Create pull request
         if: steps.resolve.outputs.skip == 'false'
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.PAT }}
+          token: ${{ steps.app-token.outputs.token }}
+          sign-commits: true
           branch: bump/${{ steps.resolve.outputs.pkgname }}-${{ steps.resolve.outputs.pkgver }}
           commit-message: "${{ steps.resolve.outputs.pkgname }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
           title: "${{ steps.resolve.outputs.pkgname }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
