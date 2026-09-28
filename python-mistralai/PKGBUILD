@@ -18,7 +18,10 @@ depends=('python'
          'python-opentelemetry-api'
          'python-opentelemetry-semantic-conventions'
          'python-jsonpath-python')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer'
+             'python-wheel')
 checkdepends=('python-pyyaml'
               'python-msgpack'
               'python-opentelemetry-instrumentation-httpx'
