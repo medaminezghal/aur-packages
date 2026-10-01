@@ -17,8 +17,12 @@ depends=('python'
          'python-cryptography'
          'python-proto-plus'
          'python-protobuf')
-makedepends=('python-setuptools' 'python-build' 'python-installer' 'python-wheel')
-checkdepends=('python-pytest' 'python-pytest-asyncio')
+makedepends=('python-setuptools'
+             'python-build'
+             'python-installer'
+             'python-wheel')
+checkdepends=('python-pytest'
+              'python-pytest-asyncio')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('c9a50f609ae0ccd0465a91029333848011ba713fadf189bdd110ec07c3d22cc1')
 
