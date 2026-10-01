@@ -14,7 +14,6 @@ depends=('python'
          'python-grpcio'
          'python-grpcio-status'
          'python-google-auth'
-         'python-cryptography'
          'python-proto-plus'
          'python-protobuf')
 makedepends=('python-setuptools'
@@ -34,7 +33,6 @@ build() {
 check() {
   local pytest_options=(
     -vv
-    # Need Google Project ID
     --deselect tests/system/smoke_test.py
   )
   cd "$srcdir"/${_name//-/_}-$pkgver
