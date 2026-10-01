@@ -10,12 +10,11 @@ url='https://github.com/googleapis/google-cloud-python/tree/main/packages/google
 license=('Apache-2.0')
 depends=('python'
          'python-google-api-core'
+         'python-grpcio'
          'python-grpcio-status'
          'python-google-auth'
-         'python-grpcio'
          'python-proto-plus'
-         'python-protobuf'
-         'python-cryptography')
+         'python-protobuf')
 makedepends=('python-setuptools'
              'python-build'
              'python-installer'
