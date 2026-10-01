@@ -94,6 +94,9 @@ optdepends=('gunicorn: proxy'
 
             'python-saml: saml'
             
+            'python-semantic-router: semantic-router'
+            'python-aurelio-sdk: semantic-router'
+            
             'python-mlflow: mlflow'
             
             'python-grpcio: grpc'
