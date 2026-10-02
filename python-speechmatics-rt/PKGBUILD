@@ -8,7 +8,9 @@ pkgdesc="Speechmatics Real-Time API Client."
 arch=('any')
 url="https://github.com/speechmatics/speechmatics-python-sdk/tree/main/sdk/rt"
 license=('MIT')
-depends=('python' 'python-websockets')
+depends=('python'
+         'python-websockets'
+         'python-typing_extensions')
 makedepends=('python-setuptools'
              'python-build'
              'python-installer'
