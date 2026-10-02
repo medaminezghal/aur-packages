@@ -24,6 +24,7 @@ makedepends=('python-setuptools'
              'python-installer'
              'python-wheel')
 checkdepends=('python-certifi'
+              'python-httpx2'
               'python-pillow'
               'python-pyopenssl'
               'python-pytest'
