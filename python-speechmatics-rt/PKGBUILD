@@ -9,7 +9,10 @@ arch=('any')
 url="https://github.com/speechmatics/speechmatics-python-sdk/tree/main/sdk/rt"
 license=('MIT')
 depends=('python' 'python-websockets')
-makedepends=('python-setuptools' 'python-build' 'python-installer' 'python-wheel')
+makedepends=('python-setuptools'
+             'python-build'
+             'python-installer'
+             'python-wheel')
 optdepends=('python-aiohttp: jwt')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('51b8f2724ad07173d32441670a08668861999fd742c84cc63c8569908f1e1621')
