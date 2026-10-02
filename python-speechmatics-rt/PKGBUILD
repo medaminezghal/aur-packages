@@ -19,11 +19,6 @@ optdepends=('python-aiohttp: jwt')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('51b8f2724ad07173d32441670a08668861999fd742c84cc63c8569908f1e1621')
 
-prepare() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
-  rm ${_name//-rt/}/__init__.py
-}
-
 build() {
   cd "$srcdir"/${_name//-/_}-$pkgver
   python -m build --wheel --no-isolation
