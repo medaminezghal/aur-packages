@@ -8,8 +8,18 @@ pkgdesc='Python library for easily interacting with trained machine learning mod
 arch=('any')
 url="https://github.com/gradio-app/gradio/tree/main/client/python"
 license=('Apache-2.0')
-depends=('python' 'python-fsspec' 'python-httpx' 'python-huggingface-hub' 'python-packaging' 'python-typing_extensions')
-makedepends=('python-hatchling' 'python-hatch-requirements-txt' 'python-hatch-fancy-pypi-readme' 'python-build' 'python-installer' 'python-wheel')
+depends=('python'
+         'python-fsspec'
+         'python-httpx'
+         'python-huggingface-hub'
+         'python-packaging'
+         'python-typing_extensions')
+makedepends=('python-hatchling'
+             'python-hatch-requirements-txt'
+             'python-hatch-fancy-pypi-readme'
+             'python-build'
+             'python-installer'
+             'python-wheel')
 optdepends=('python-discord: Chat with discord bot')
 source=("https://files.pythonhosted.org/packages/source/${_name:0:1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('5b568b8189b86cfdacab39fecc2ee66900348cdd83a1c0bb968a98c83eafc198')
