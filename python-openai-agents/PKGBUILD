@@ -15,7 +15,12 @@ depends=('python'
          'python-typing_extensions'
          'python-requests'
          'python-websockets'
-         'python-mcp')
+         'python-mcp'
+         'python-httpx2'
+         'python-pyjwt'
+         'python-multipart'
+         'python-starlette'
+         'python-urllib3')
 makedepends=('python-hatchling'
              'python-build'
              'python-installer'
@@ -30,6 +35,7 @@ checkdepends=('python-pytest'
               'python-aiosqlite'
               'python-cryptography'
               'python-fakeredis'
+              'python-aiohttp'
               'python-pymongo'
               'litellm'
               'python-sqlalchemy'
@@ -41,8 +47,11 @@ optdepends=('python-numpy: voice'
             'python-graphviz: viz'
 
             'litellm: litellm'
+            'python-aiohttp: litellm'
+            'python-filelock: litellm'
 
             'python-any-llm-sdk: any-llm'
+            'python-pygments: any-llm'
 
             'python-websockets: realtime'
 
@@ -55,6 +64,8 @@ optdepends=('python-numpy: voice'
 
             'python-dapr: dapr'
             'python-grpcio: dapr'
+            'python-aiohttp: dapr'
+            'python-protobuf: dapr'
 
             'python-pymongo: mongodb'
 
@@ -64,22 +75,35 @@ optdepends=('python-numpy: voice'
             'python-aiohttp: blaxel'
 
             'python-daytona: daytona'
+            'python-aiohttp: daytona'
+            'python-protobuf: daytona'
 
             'python-aiohttp: cloudflare'
 
             'python-e2b: e2b'
             'python-e2b-code-interpreter: e2b'
+            'python-h2: e2b'
+            'python-protobuf: e2b'
+            'python-pygments: e2b'
 
             'python-modal: modal'
+            'python-aiohttp: modal'
+            'python-cbor2: modal'
+            'python-h2: modal'
+            'python-protobuf: modal'
+            'python-pygments: modal'
 
             'python-runloop_api_client: runloop'
 
             'python-vercel: vercel'
+            'python-cbor2: vercel'
 
             'python-boto3: s3'
 
             'python-temporalio: temporal'
-            'python-textual: temporal')
+            'python-textual: temporal'
+            'python-protobuf: temporal'
+            'python-pygments: temporal')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('8bf58e72c0cd668aac53b310f0f997ea2075e5e2ec6b9a242755a019e8659613')
 
