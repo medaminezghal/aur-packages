@@ -24,7 +24,8 @@ makedepends=('python-hatchling'
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-httpx'
-              'python-hypothesis')
+              'python-hypothesis'
+              'python-trio')
 source=("$_name::git+$_repo.git#tag=$_name-v$pkgver")
 sha256sums=('695350b46128db0074f51ebbc51da72bf6ef47637b6d1592b65fe07a7f37b272')
 
@@ -39,7 +40,7 @@ check() {
     --disable-warnings
   )
   cd "$srcdir"/$_name/src/$_name
-  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD:$srcdir/$_name pytest "${pytest_options[@]}" tests
 }
 
 package() {
