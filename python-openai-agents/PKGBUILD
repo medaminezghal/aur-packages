@@ -18,7 +18,7 @@ depends=('python'
          'python-mcp'
          'python-httpx2'
          'python-pyjwt'
-         'python-multipart'
+         'python-python-multipart'
          'python-starlette'
          'python-urllib3')
 makedepends=('python-hatchling'
@@ -58,6 +58,7 @@ optdepends=('python-numpy: voice'
             'python-websockets: realtime'
 
             'python-sqlalchemy: sqlalchemy'
+            'python-greenlet'
             'python-asyncpg: sqlalchemy'
 
             'python-cryptography: encrypt'
@@ -97,7 +98,7 @@ optdepends=('python-numpy: voice'
 
             'python-runloop_api_client: runloop'
 
-            'python-vercel: vercel'
+            'python-vercel-sandbox: vercel'
             'python-cbor2: vercel'
 
             'python-boto3: s3'
