@@ -35,6 +35,7 @@ prepare() {
 build() {
   cd "$srcdir"/$_name
   export RUSTFLAGS="$RUSTFLAGS -Clink-arg=-fuse-ld=mold"
+  export AWS_LC_SYS_NO_JITTER_ENTROPY=1
   python -m build --wheel --no-isolation crates/${_name//-rs/-py}
   python -m build --wheel --no-isolation crates/${_name//-rs/-testsuite-pyo3}
 }
