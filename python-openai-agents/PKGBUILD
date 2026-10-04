@@ -41,6 +41,7 @@ checkdepends=('python-pytest'
               'python-numpy'
               'litellm'
               'python-sqlalchemy'
+              'python-greenlet'
               'python-docker'
               'python-runloop_api_client')
 optdepends=('python-numpy: voice'
@@ -58,7 +59,7 @@ optdepends=('python-numpy: voice'
             'python-websockets: realtime'
 
             'python-sqlalchemy: sqlalchemy'
-            'python-greenlet'
+            'python-greenlet: sqlalchemy'
             'python-asyncpg: sqlalchemy'
 
             'python-cryptography: encrypt'
