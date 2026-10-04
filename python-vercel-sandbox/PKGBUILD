@@ -40,7 +40,7 @@ check() {
     --disable-warnings
   )
   cd "$srcdir"/$_name/src/$_name
-  PYTHONPATH=$PWD:$srcdir/$_name pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
 }
 
 package() {
