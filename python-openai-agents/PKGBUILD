@@ -43,7 +43,8 @@ checkdepends=('python-pytest'
               'python-sqlalchemy'
               'python-greenlet'
               'python-docker'
-              'python-runloop_api_client')
+              'python-runloop_api_client'
+              'git')
 optdepends=('python-numpy: voice'
             'python-websockets: voice'
 
