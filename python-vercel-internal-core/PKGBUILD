@@ -21,7 +21,7 @@ checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-httpx'
               'python-hypothesis')
-source=("$_name::git+$url.git#tag=$_name-v$pkgver")
+source=("$_name::git+$_repo.git#tag=$_name-v$pkgver")
 sha256sums=('8decb2baa29333c549c350136119cac08ba5509301d183e34b6291574018488c')
 
 build() {
