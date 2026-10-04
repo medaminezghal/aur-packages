@@ -17,7 +17,8 @@ depends=('python'
 makedepends=('python-hatchling'
              'python-build'
              'python-installer'
-             'python-wheel')
+             'python-wheel'
+             'git')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-httpx'
