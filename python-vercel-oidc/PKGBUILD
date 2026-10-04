@@ -38,7 +38,7 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_namesrc/$_name
+  cd "$srcdir"/$_name/src/$_name
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
 }
 
