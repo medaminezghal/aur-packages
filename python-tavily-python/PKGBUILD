@@ -9,9 +9,17 @@ pkgdesc="Python wrapper for the Tavily API."
 arch=('any')
 url="https://github.com/tavily-ai/tavily-python"
 license=('MIT')
-depends=('python' 'python-requests' 'python-tiktoken' 'python-httpx')
-makedepends=('python-setuptools' 'python-build' 'python-installer' 'python-wheel' 'git')
-checkdepends=('python-pytest' 'python-typing_extensions')
+depends=('python'
+         'python-requests'
+         'python-tiktoken'
+         'python-httpx')
+makedepends=('python-setuptools'
+             'python-build'
+             'python-installer'
+             'python-wheel'
+             'git')
+checkdepends=('python-pytest'
+              'python-typing_extensions')
 source=("$_name::git+$url.git#commit=$_commit")
 sha256sums=('58195bf0ef6728bd4725ff9b6502a1dbfb0cfc4f1395407038131008d8dc88d1')
 
