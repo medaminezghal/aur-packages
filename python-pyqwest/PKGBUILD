@@ -17,6 +17,7 @@ makedepends=('python-maturin'
              'python-build'
              'python-installer'
              'python-wheel'
+             'clang'
              'git')
 checkdepends=('python-aiohttp'
               'python-anyio'
