@@ -10,9 +10,9 @@ _repo="https://github.com/Arize-ai/openinference"
 url="$_repo/tree/main/${pkgname/-//}"
 license=('Apache-2.0')
 depends=('python'
+         'python-openinference-semantic-conventions'
          'python-opentelemetry-api'
          'python-opentelemetry-sdk'
-         'python-openinference-semantic-conventions'
          'python-wrapt')
 makedepends=('python-hatchling'
              'python-build'
