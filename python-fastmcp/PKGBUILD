@@ -82,7 +82,8 @@ package_python-fastmcp-slim() {
             'python-pydantic'
             'python-email-validator'
             'python-pydantic-settings'
-            'python-dotenv' 'python-rich'
+            'python-dotenv'
+            'python-rich'
             'python-typing_extensions')
   optdepends=('python-anthropic: anthropic'
   
