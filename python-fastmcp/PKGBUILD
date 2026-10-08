@@ -106,6 +106,8 @@ package_python-fastmcp-slim() {
               
               'python-pydantic-monty: code-mode'
               
+              'python-typesafe-sdk: jev'
+              
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
@@ -251,6 +253,8 @@ package_python-fastmcp() {
               'python-pyjwt: azure'
               
               'python-pydantic-monty: code-mode'
+              
+              'python-typesafe-sdk: jev'
               
               'python-google-genai: gemini'
               'python-jsonref: gemini'
