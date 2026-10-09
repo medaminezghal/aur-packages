@@ -27,7 +27,8 @@ checkdepends=('python-anyio'
               'python-rich-argparse'
               'python-boto3'
               'python-jsonschema'
-              'python-ruamel-yaml')
+              'python-ruamel-yaml'
+              'jq')
 optdepends=('python-pydantic-settings: cli'
             'python-rich: cli'
             'python-rich-argparse: cli')
