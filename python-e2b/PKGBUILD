@@ -1,0 +1,58 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=e2b
+pkgname=python-$_name
+pkgver=2.52.0
+pkgrel=1
+pkgdesc='E2B SDK that give agents cloud environments.'
+arch=('any')
+url='https://github.com/e2b-dev/E2B'
+license=('MIT')
+depends=('python'
+         'python-dateutil'
+         'python-wcmatch'
+         'python-protobuf-py'
+         'python-httpx'
+         'python-h2'
+         'python-attrs'
+         'python-packaging'
+         'python-typing_extensions'
+         'python-dockerfile-parse'
+         'python-rich'
+         'python-connectrpc'
+         'python-pyqwest')
+makedepends=('python-uv-build'
+             'python-build'
+             'python-installer'
+             'python-wheel'
+             'git')
+checkdepends=('python-pytest'
+              'python-pytest-asyncio'
+              'python-pytest-timeout')
+source=("$_name::git+$url.git#tag=@$_name/python-sdk@$pkgver")
+sha256sums=('52c5bf5e96e3cebfb3586f10a8824b3308dec6f2d0d6960ecc397cdc9b5cdc69')
+
+prepare() {
+  cd "$srcdir"/$_name/packages/python-sdk
+  # Use the uv_build version shipped by Arch
+  sed -i 's/uv_build>=0.10.0,<0.11.0/uv_build/' pyproject.toml
+}
+
+build() {
+  cd "$srcdir"/$_name/packages/python-sdk
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$srcdir"/$_name/packages/python-sdk
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+}
+
+package() {
+  cd "$srcdir"/$_name/packages/python-sdk
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
