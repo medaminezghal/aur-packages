@@ -10,7 +10,8 @@ arch=('any')
 url="https://github.com/mistralai/client-python"
 license=('MIT')
 depends=('python'
-         'python-httpx'
+         'python-eval-type-backport'
+         'python-httpx2'
          'python-pydantic'
          'python-dateutil'
          'python-typing-inspection'
@@ -37,6 +38,8 @@ checkdepends=('python-pyyaml'
 optdepends=('python-google-auth: gcp'
             'python-requests: gcp'
 
+            'python-mcp: mcp'
+
             'python-mcp: agents'
             'python-griffe: agents'
             'python-authlib: agents'
@@ -47,8 +50,8 @@ optdepends=('python-google-auth: gcp'
             'python-opentelemetry-exporter-otlp-proto-http: telemetry'
 
             'python-azure-storage-blob: workflow_payload_offloading_azure'
-            'python-azure-identity: workflow_payload_offloading_azure'
             'python-aiohttp: workflow_payload_offloading_azure'
+            'python-azure-identity: workflow_payload_offloading_azure'
 
             'python-gcloud-aio-storage: workflow_payload_offloading_gcs'
 
