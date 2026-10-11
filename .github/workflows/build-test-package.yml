@@ -14,10 +14,17 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  REPO_NAME: aur-packages
+  RELEASE_TAG: repo
+
 jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
       options: --privileged --cgroupns=host
@@ -30,7 +37,7 @@ jobs:
         run: pacman -Syu --noconfirm
 
       - name: Install base tools
-        run: pacman -S --noconfirm --needed git sudo devtools
+        run: pacman -S --noconfirm --needed git sudo devtools github-cli
 
       - uses: actions/checkout@v5
         with:
@@ -71,6 +78,28 @@ jobs:
 
           echo "dir=$dir" >> "$GITHUB_OUTPUT"
           echo "Package to build: $dir"
+
+      - name: Wait for pacman repository updates
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          while :; do
+            if ! pending=$(gh run list -R "$GITHUB_REPOSITORY" \
+                             --workflow publish-to-repo.yml --limit 100 \
+                             --json status \
+                             -q '[.[] | select(.status != "completed")] | length'); then
+              echo "::warning::Could not query publish-to-repo runs, not waiting."
+              break
+            fi
+            [[ "$pending" == 0 ]] && break
+            echo "$pending repository update(s) running or queued, waiting..."
+            sleep 30
+          done
+
+      - name: Add pacman repository
+        if: steps.pkg.outputs.skip != 'true'
+        run: .github/scripts/add-pacman-repo.sh
 
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
