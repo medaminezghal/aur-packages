@@ -97,7 +97,10 @@ jobs:
             sudo -u ab -D "$GITHUB_WORKSPACE/$dir" paru -B . --noconfirm --nocheck
             sudo -u ab -D "$GITHUB_WORKSPACE/$dir" makepkg --packagelist \
               | while read -r file; do
-                  [[ -f "$file" ]] && echo "$file"
+                  # --packagelist also lists a debug package that is not built for arch=any
+                  if [[ -f "$file" ]]; then
+                    echo "$file"
+                  fi
                 done >> "$RUNNER_TEMP/packages"
           done
           cat "$RUNNER_TEMP/packages"
