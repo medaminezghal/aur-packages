@@ -47,8 +47,7 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    -k
-    "not (api_sync or api_async or ((sandbox_sync or sandbox_async) and not (test_config_propagation or test_connect_in_ or test_connect_normalizes or test_instance_connect or test_wait_for_status or test_sync_client_lifecycle)) or ((template_sync or template_async) and (test_make_symlink or test_run_cmd or test_background_build or test_build.py or test_exists or TestTagsIntegration or (test_traces_on and not (credentials or absolute_path or add_mcp_server)))))"
+    -k "not (api_sync or api_async or ((sandbox_sync or sandbox_async) and not (test_config_propagation or test_connect_in_ or test_connect_normalizes or test_instance_connect or test_wait_for_status or test_sync_client_lifecycle)) or ((template_sync or template_async) and (test_make_symlink or test_run_cmd or test_background_build or test_build.py or test_exists or TestTagsIntegration or (test_traces_on and not (credentials or absolute_path or add_mcp_server)))))"
   )
   cd "$srcdir"/$_name/packages/python-sdk
   python -m venv --system-site-packages test-env
