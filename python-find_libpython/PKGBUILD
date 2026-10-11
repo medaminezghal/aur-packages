@@ -15,7 +15,7 @@ makedepends=('python-setuptools'
              'python-installer')
 checkdepends=('python-pytest')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sum=('47935e2d0a7442d5097f74a20483297f2d5d2faf76160354b6416034494d2858')
+sha256sums=('47935e2d0a7442d5097f74a20483297f2d5d2faf76160354b6416034494d2858')
 
 build() {
   cd "$srcdir"/$_name-$pkgver
