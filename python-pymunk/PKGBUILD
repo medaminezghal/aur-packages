@@ -2,7 +2,7 @@
 
 _name=pymunk
 pkgname=python-$_name
-pkgver=7.3.0
+pkgver=7.3.1
 pkgrel=1
 pkgdesc='Pymunk is a easy-to-use pythonic 2D physics library.'
 arch=('any')
@@ -14,8 +14,8 @@ checkdepends=('python-pyglet' 'python-pygame' 'python-pillow' 'python-matplotlib
 optdepends=('python-pyglet' 'python-pygame' 'python-matplotlib')
 source=("$url/archive/refs/tags/$pkgver.tar.gz"
         "https://github.com/viblo/Munk2D/archive/refs/tags/2.0.1.tar.gz")
-sha256sums=('a9a1a2fba430356e39e69a56219a7e26b8bd41ecc323ef0c4ec9090df0cfbc60'
-            '622fd376e95d3adf49ff8681081ec6b4cc6b082649164633ae4ce7b86c9cce93')
+sha256sums=('bca3d4b3da475e242d95b17d01404c3aa8afc235ae09850765a8e721dfeb2bd0'
+            '0c89f9f202d40b9249078a73637b5cea7ea3de9361e11bbf299a040f267145d6')
 
 prepare(){
   cd "$srcdir"
