@@ -47,135 +47,51 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    --deselect tests/async/api_async/test_sbx_info.py::test_get_info
-    --deselect tests/async/api_async/test_sbx_kill.py::test_kill_existing_sandbox
-    --deselect tests/async/api_async/test_sbx_kill.py::test_kill_non_existing_sandbox
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_paused_sandboxes
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_running_sandboxes
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_sandboxes
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_sandboxes_started_after
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_sandboxes_with_filter
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_sandboxes_with_order
-    --deselect tests/async/api_async/test_sbx_list.py::test_list_sandboxes_with_template_filter
-    --deselect tests/async/api_async/test_sbx_list.py::test_paginate_iterator
-    --deselect tests/async/api_async/test_sbx_list.py::test_paginate_paused_sandboxes
-    --deselect tests/async/api_async/test_sbx_list.py::test_paginate_running_and_paused_sandboxes
-    --deselect tests/async/api_async/test_sbx_list.py::test_paginate_running_sandboxes
-    --deselect tests/async/api_async/test_sbx_snapshot.py::test_pause_sandbox
-    --deselect tests/async/api_async/test_sbx_snapshot.py::test_resume_sandbox
-    --deselect tests/async/sandbox_async/commands/test_cmd_connect.py::test_connect_to_non_existing_process
-    --deselect tests/async/sandbox_async/commands/test_cmd_connect.py::test_connect_to_process
-    --deselect tests/async/sandbox_async/commands/test_cmd_kill.py::test_kill_non_existing_process
-    --deselect tests/async/sandbox_async/commands/test_cmd_kill.py::test_kill_process
-    --deselect tests/async/sandbox_async/commands/test_cmd_list.py::test_kill_process
-    --deselect tests/async/sandbox_async/commands/test_env_vars.py::test_bash_command_scoped_env_vars
-    --deselect tests/async/sandbox_async/commands/test_env_vars.py::test_command_envs
-    --deselect tests/async/sandbox_async/commands/test_env_vars.py::test_python_command_scoped_env_vars
-    --deselect tests/async/sandbox_async/commands/test_env_vars.py::test_sandbox_envs
-    --deselect tests/async/sandbox_async/commands/test_run.py::test_run
-    --deselect tests/async/sandbox_async/commands/test_run.py::test_run_with_broken_utf8
-    --deselect tests/async/sandbox_async/commands/test_run.py::test_run_with_multiline_string
-    --deselect tests/async/sandbox_async/commands/test_run.py::test_run_with_special_characters
-    --deselect tests/async/sandbox_async/commands/test_run.py::test_run_with_timeout
-    --deselect tests/async/sandbox_async/commands/test_run.py::test_run_with_too_short_timeout
-    --deselect tests/async/sandbox_async/commands/test_sandbox_killed_during_run.py::test_kill_sandbox_while_command_is_running
-    --deselect tests/async/sandbox_async/commands/test_send_stdin.py::test_close_stdin_via_command_handle
-    --deselect tests/async/sandbox_async/commands/test_send_stdin.py::test_send_bytes_stdin_to_process
-    --deselect tests/async/sandbox_async/commands/test_send_stdin.py::test_send_multiline_string_to_process
-    --deselect tests/async/sandbox_async/commands/test_send_stdin.py::test_send_special_characters_to_process
-    --deselect tests/async/sandbox_async/commands/test_send_stdin.py::test_send_stdin_to_process
-    --deselect tests/async/sandbox_async/commands/test_send_stdin.py::test_send_stdin_via_command_handle
-    --deselect tests/async/sandbox_async/files/test_content_encoding.py::test_read_bytes_with_gzip
-    --deselect tests/async/sandbox_async/files/test_content_encoding.py::test_write_and_read_with_gzip
-    --deselect tests/async/sandbox_async/files/test_content_encoding.py::test_write_files_with_gzip
-    --deselect tests/async/sandbox_async/files/test_content_encoding.py::test_write_gzip_read_plain
-    --deselect tests/async/sandbox_async/files/test_exists.py::test_exists
-    --deselect tests/async/sandbox_async/files/test_files_list.py::test_directory_entry_details
-    --deselect tests/async/sandbox_async/files/test_files_list.py::test_file_entry_details
-    --deselect tests/async/sandbox_async/files/test_files_list.py::test_list_directory
-    --deselect tests/async/sandbox_async/files/test_files_list.py::test_list_directory_error_cases
-    --deselect tests/async/sandbox_async/files/test_files_list.py::test_mixed_entries
-    --deselect tests/async/sandbox_async/files/test_info.py::test_file_symlink
-    --deselect tests/async/sandbox_async/files/test_info.py::test_get_info_of_directory
-    --deselect tests/async/sandbox_async/files/test_info.py::test_get_info_of_file
-    --deselect tests/async/sandbox_async/files/test_info.py::test_get_info_of_nonexistent_directory
-    --deselect tests/async/sandbox_async/files/test_info.py::test_get_info_of_nonexistent_file
-    --deselect tests/async/sandbox_async/files/test_make_dir.py::test_make_directory
-    --deselect tests/async/sandbox_async/files/test_make_dir.py::test_make_directory_already_exists
-    --deselect tests/async/sandbox_async/files/test_make_dir.py::test_make_nested_directory
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_metadata_set_via_xattrs_surfaced_in_get_info
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_metadata_surfaced_after_rename
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_metadata_surfaced_when_listing
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_overwriting_clears_stale_metadata
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_write_file_with_metadata
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_write_file_with_metadata_octet_stream
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_write_file_without_metadata
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_write_files_applies_metadata_to_every_file
-    --deselect tests/async/sandbox_async/files/test_metadata.py::test_write_rejects_invalid_metadata
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_empty_file
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_file
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_file_as_stream
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_file_as_stream_context_manager
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_file_as_stream_partial_then_close
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_file_as_stream_with_gzip
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_non_existing_file
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_non_existing_file_as_stream
-    --deselect tests/async/sandbox_async/files/test_read.py::test_read_non_existing_file_catches_with_deprecated_not_found_exception
-    --deselect tests/async/sandbox_async/files/test_remove.py::test_remove_file
-    --deselect tests/async/sandbox_async/files/test_remove.py::test_remove_non_existing_file
-    --deselect tests/async/sandbox_async/files/test_rename.py::test_rename_file
-    --deselect tests/async/sandbox_async/files/test_rename.py::test_rename_non_existing_file
-    --deselect tests/async/sandbox_async/files/test_secured.py::test_download_url_with_expired_signing
-    --deselect tests/async/sandbox_async/files/test_secured.py::test_download_url_with_signing
-    --deselect tests/async/sandbox_async/files/test_secured.py::test_download_url_with_signing_and_expiration
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_directory_changes
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_directory_changes_with_entry_info
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_directory_changes_with_network_mounts_allowed
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_file
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_file_with_secured_envd
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_non_existing_directory
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_recursive_directory_after_nested_folder_addition
-    --deselect tests/async/sandbox_async/files/test_watch.py::test_watch_recursive_directory_changes
-    --deselect tests/async/sandbox_async/files/test_write.py::test_overwrite_file
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_binary_file
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_files_with_different_data_types
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_io_with_octet_stream
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_io_with_octet_stream_and_gzip
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_multiple_files
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_text_file
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_text_io_with_octet_stream
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_to_non_existing_directory
-    --deselect tests/async/sandbox_async/files/test_write.py::test_write_with_secured_envd
-    --deselect tests/async/sandbox_async/pty/test_pty_connect.py::test_connect_to_pty
-    --deselect tests/async/sandbox_async/pty/test_pty_create.py::test_pty_create
-    --deselect tests/async/sandbox_async/pty/test_pty_kill.py::test_kill_non_existing_pty
-    --deselect tests/async/sandbox_async/pty/test_pty_kill.py::test_kill_pty
-    --deselect tests/async/sandbox_async/pty/test_resize.py::test_resize
-    --deselect tests/async/sandbox_async/pty/test_send_input.py::test_send_input
+    --deselect tests/async/api_async
+    --deselect tests/async/sandbox_async/commands
+    --deselect tests/async/sandbox_async/files
+    --deselect tests/async/sandbox_async/pty
+    --deselect tests/async/sandbox_async/test_create.py
+    --deselect tests/async/sandbox_async/test_fork.py
+    --deselect tests/async/sandbox_async/test_host.py
+    --deselect tests/async/sandbox_async/test_internet_access.py
+    --deselect tests/async/sandbox_async/test_kill.py
+    --deselect tests/async/sandbox_async/test_metrics.py
+    --deselect tests/async/sandbox_async/test_secure.py
+    --deselect tests/async/sandbox_async/test_snapshot.py
+    --deselect tests/async/sandbox_async/test_snapshot_api.py
+    --deselect tests/async/sandbox_async/test_snapshot_filesystem_only.py
+    --deselect tests/async/sandbox_async/test_timeout.py
+    --deselect tests/async/template_async/methods/test_make_symlink.py
+    --deselect tests/async/template_async/methods/test_run_cmd.py
+    --deselect tests/async/template_async/test_background_build.py
+    --deselect tests/async/template_async/test_build.py
+    --deselect tests/async/template_async/test_exists.py
+    --deselect tests/sync/api_sync
+    --deselect tests/sync/sandbox_sync/commands
+    --deselect tests/sync/sandbox_sync/files
+    --deselect tests/sync/sandbox_sync/pty
+    --deselect tests/sync/sandbox_sync/test_create.py
+    --deselect tests/sync/sandbox_sync/test_fork.py
+    --deselect tests/sync/sandbox_sync/test_host.py
+    --deselect tests/sync/sandbox_sync/test_internet_access.py
+    --deselect tests/sync/sandbox_sync/test_kill.py
+    --deselect tests/sync/sandbox_sync/test_metrics.py
+    --deselect tests/sync/sandbox_sync/test_secure.py
+    --deselect tests/sync/sandbox_sync/test_snapshot.py
+    --deselect tests/sync/sandbox_sync/test_snapshot_api.py
+    --deselect tests/sync/sandbox_sync/test_snapshot_filesystem_only.py
+    --deselect tests/sync/sandbox_sync/test_timeout.py
+    --deselect tests/sync/template_sync/methods/test_make_symlink.py
+    --deselect tests/sync/template_sync/methods/test_run_cmd.py
+    --deselect tests/sync/template_sync/test_background_build.py
+    --deselect tests/sync/template_sync/test_build.py
+    --deselect tests/sync/template_sync/test_exists.py
     --deselect tests/async/sandbox_async/test_connect.py::test_connect
     --deselect tests/async/sandbox_async/test_connect.py::test_connect_extends_timeout_on_running_sandbox
     --deselect tests/async/sandbox_async/test_connect.py::test_connect_to_paused_sandbox_resumes
     --deselect tests/async/sandbox_async/test_connect.py::test_connect_with_secure
     --deselect tests/async/sandbox_async/test_connect.py::test_resume_does_not_shorten_timeout_on_running_sandbox
-    --deselect tests/async/sandbox_async/test_create.py::test_auto_pause_filesystem_only_reboots
-    --deselect tests/async/sandbox_async/test_create.py::test_auto_pause_without_auto_resume_requires_connect
-    --deselect tests/async/sandbox_async/test_create.py::test_auto_resume_wakes_on_http_request
-    --deselect tests/async/sandbox_async/test_create.py::test_invalid_on_timeout_type_does_not_crash
-    --deselect tests/async/sandbox_async/test_create.py::test_keep_memory_none_defaults_to_full_memory
-    --deselect tests/async/sandbox_async/test_create.py::test_mcp_gateway_start_failure_kills_created_sandbox
-    --deselect tests/async/sandbox_async/test_create.py::test_metadata
-    --deselect tests/async/sandbox_async/test_create.py::test_start
-    --deselect tests/async/sandbox_async/test_fork.py::test_fork
-    --deselect tests/async/sandbox_async/test_fork.py::test_fork_by_id
-    --deselect tests/async/sandbox_async/test_fork.py::test_fork_killed_sandbox
-    --deselect tests/async/sandbox_async/test_fork.py::test_fork_multiple
-    --deselect tests/async/sandbox_async/test_host.py::test_ping_server
-    --deselect tests/async/sandbox_async/test_internet_access.py::test_internet_access_default
-    --deselect tests/async/sandbox_async/test_internet_access.py::test_internet_access_disabled
-    --deselect tests/async/sandbox_async/test_internet_access.py::test_internet_access_enabled
-    --deselect tests/async/sandbox_async/test_kill.py::test_kill
-    --deselect tests/async/sandbox_async/test_metrics.py::test_sbx_metrics
-    --deselect tests/async/sandbox_async/test_metrics.py::test_sbx_metrics_time_range
     --deselect tests/async/sandbox_async/test_network.py::test_allow_public_traffic_false
     --deselect tests/async/sandbox_async/test_network.py::test_allow_public_traffic_true
     --deselect tests/async/sandbox_async/test_network.py::test_allow_specific_ip_with_deny_all
@@ -187,36 +103,6 @@ check() {
     --deselect tests/async/sandbox_async/test_network.py::test_mask_request_host
     --deselect tests/async/sandbox_async/test_network.py::test_update_network_applies_restrictions
     --deselect tests/async/sandbox_async/test_network.py::test_update_network_clears_existing_rules
-    --deselect tests/async/sandbox_async/test_secure.py::test_connect_to_secured
-    --deselect tests/async/sandbox_async/test_secure.py::test_start_secured
-    --deselect tests/async/sandbox_async/test_snapshot.py::test_snapshot
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_create_multiple_sandboxes_from_snapshot
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_create_named_snapshot
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_create_sandbox_from_snapshot
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_create_snapshot
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_create_snapshot_class_method
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_delete_snapshot
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_list_snapshots
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_list_snapshots_filtered_by_name
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_list_snapshots_for_sandbox
-    --deselect tests/async/sandbox_async/test_snapshot_api.py::test_snapshot_preserves_filesystem
-    --deselect tests/async/sandbox_async/test_snapshot_filesystem_only.py::test_pause_filesystem_only
-    --deselect tests/async/sandbox_async/test_timeout.py::test_get_timeout
-    --deselect tests/async/sandbox_async/test_timeout.py::test_shorten_then_lengthen_timeout
-    --deselect tests/async/sandbox_async/test_timeout.py::test_shorten_timeout
-    --deselect tests/async/template_async/methods/test_make_symlink.py::test_make_symlink
-    --deselect tests/async/template_async/methods/test_make_symlink.py::test_make_symlink_force
-    --deselect tests/async/template_async/methods/test_run_cmd.py::test_run_command
-    --deselect tests/async/template_async/methods/test_run_cmd.py::test_run_command_as_different_user
-    --deselect tests/async/template_async/methods/test_run_cmd.py::test_run_command_as_user_that_does_not_exist
-    --deselect tests/async/template_async/test_background_build.py::test_build_in_background_should_start_build_and_return_info
-    --deselect tests/async/template_async/test_build.py::test_build_template
-    --deselect tests/async/template_async/test_build.py::test_build_template_from_base_template
-    --deselect tests/async/template_async/test_build.py::test_build_template_with_resolve_symlinks
-    --deselect tests/async/template_async/test_build.py::test_build_template_with_skip_cache
-    --deselect tests/async/template_async/test_build.py::test_build_template_with_symlinks
-    --deselect tests/async/template_async/test_exists.py::test_check_base_template_name_exists
-    --deselect tests/async/template_async/test_exists.py::test_check_non_existing_name
     --deselect tests/async/template_async/test_stacktrace.py::test_traces_on_apt_install
     --deselect tests/async/template_async/test_stacktrace.py::test_traces_on_bun_install
     --deselect tests/async/template_async/test_stacktrace.py::test_traces_on_copy
@@ -248,137 +134,11 @@ check() {
     --deselect tests/async/template_async/test_tags.py::TestTagsIntegration::test_build_template_with_tags_assign_and_delete
     --deselect tests/async/template_async/test_tags.py::TestTagsIntegration::test_rejects_invalid_tag_format_missing_alias
     --deselect tests/async/template_async/test_tags.py::TestTagsIntegration::test_rejects_invalid_tag_format_missing_tag
-    --deselect tests/sync/api_sync/test_sbx_info.py::test_get_info
-    --deselect tests/sync/api_sync/test_sbx_kill.py::test_kill_existing_sandbox
-    --deselect tests/sync/api_sync/test_sbx_kill.py::test_kill_non_existing_sandbox
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_paused_sandboxes
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_running_sandboxes
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_sandboxes
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_sandboxes_started_after
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_sandboxes_with_filter
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_sandboxes_with_order
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_list_sandboxes_with_template_filter
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_paginate_iterator
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_paginate_paused_sandboxes
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_paginate_running_and_paused_sandboxes
-    --deselect tests/sync/api_sync/test_sbx_list.py::test_paginate_running_sandboxes
-    --deselect tests/sync/api_sync/test_sbx_snapshot.py::test_pause_sandbox
-    --deselect tests/sync/api_sync/test_sbx_snapshot.py::test_resume_sandbox
-    --deselect tests/sync/sandbox_sync/commands/test_cmd_connect.py::test_connect_to_non_existing_process
-    --deselect tests/sync/sandbox_sync/commands/test_cmd_connect.py::test_connect_to_process
-    --deselect tests/sync/sandbox_sync/commands/test_cmd_kill.py::test_kill_non_existing_process
-    --deselect tests/sync/sandbox_sync/commands/test_cmd_kill.py::test_kill_process
-    --deselect tests/sync/sandbox_sync/commands/test_cmd_list.py::test_kill_process
-    --deselect tests/sync/sandbox_sync/commands/test_env_vars.py::test_bash_command_scoped_env_vars
-    --deselect tests/sync/sandbox_sync/commands/test_env_vars.py::test_command_envs
-    --deselect tests/sync/sandbox_sync/commands/test_env_vars.py::test_python_command_scoped_env_vars
-    --deselect tests/sync/sandbox_sync/commands/test_env_vars.py::test_sandbox_envs
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run_with_broken_utf8
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run_with_multiline_string
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run_with_special_characters
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run_with_timeout
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run_with_too_short_timeout
-    --deselect tests/sync/sandbox_sync/commands/test_run.py::test_run_with_too_short_timeout_iterating
-    --deselect tests/sync/sandbox_sync/commands/test_sandbox_killed_during_run.py::test_kill_sandbox_while_command_is_running
-    --deselect tests/sync/sandbox_sync/commands/test_send_stdin.py::test_close_stdin_via_command_handle
-    --deselect tests/sync/sandbox_sync/commands/test_send_stdin.py::test_send_bytes_stdin_to_process
-    --deselect tests/sync/sandbox_sync/commands/test_send_stdin.py::test_send_multiline_string_to_process
-    --deselect tests/sync/sandbox_sync/commands/test_send_stdin.py::test_send_special_characters_to_process
-    --deselect tests/sync/sandbox_sync/commands/test_send_stdin.py::test_send_stdin_to_process
-    --deselect tests/sync/sandbox_sync/commands/test_send_stdin.py::test_send_stdin_via_command_handle
-    --deselect tests/sync/sandbox_sync/files/test_content_encoding.py::test_read_bytes_with_gzip
-    --deselect tests/sync/sandbox_sync/files/test_content_encoding.py::test_write_and_read_with_gzip
-    --deselect tests/sync/sandbox_sync/files/test_content_encoding.py::test_write_files_with_gzip
-    --deselect tests/sync/sandbox_sync/files/test_content_encoding.py::test_write_gzip_read_plain
-    --deselect tests/sync/sandbox_sync/files/test_exists.py::test_exists
-    --deselect tests/sync/sandbox_sync/files/test_files_list.py::test_directory_entry_details
-    --deselect tests/sync/sandbox_sync/files/test_files_list.py::test_file_entry_details
-    --deselect tests/sync/sandbox_sync/files/test_files_list.py::test_list_directory
-    --deselect tests/sync/sandbox_sync/files/test_files_list.py::test_list_directory_error_cases
-    --deselect tests/sync/sandbox_sync/files/test_files_list.py::test_mixed_entries
-    --deselect tests/sync/sandbox_sync/files/test_info.py::test_file_symlink
-    --deselect tests/sync/sandbox_sync/files/test_info.py::test_get_info_of_directory
-    --deselect tests/sync/sandbox_sync/files/test_info.py::test_get_info_of_file
-    --deselect tests/sync/sandbox_sync/files/test_info.py::test_get_info_of_nonexistent_directory
-    --deselect tests/sync/sandbox_sync/files/test_info.py::test_get_info_of_nonexistent_file
-    --deselect tests/sync/sandbox_sync/files/test_make_dir.py::test_make_directory
-    --deselect tests/sync/sandbox_sync/files/test_make_dir.py::test_make_directory_already_exists
-    --deselect tests/sync/sandbox_sync/files/test_make_dir.py::test_make_nested_directory
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_metadata_set_via_xattrs_surfaced_in_get_info
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_metadata_surfaced_after_rename
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_metadata_surfaced_when_listing
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_overwriting_clears_stale_metadata
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_write_file_with_metadata
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_write_file_with_metadata_octet_stream
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_write_file_without_metadata
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_write_files_applies_metadata_to_every_file
-    --deselect tests/sync/sandbox_sync/files/test_metadata.py::test_write_rejects_invalid_metadata
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_empty_file
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_file
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_file_as_stream
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_file_as_stream_context_manager
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_file_as_stream_partial_then_close
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_file_as_stream_with_gzip
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_non_existing_file
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_non_existing_file_as_stream
-    --deselect tests/sync/sandbox_sync/files/test_read.py::test_read_non_existing_file_catches_with_deprecated_not_found_exception
-    --deselect tests/sync/sandbox_sync/files/test_remove.py::test_remove_file
-    --deselect tests/sync/sandbox_sync/files/test_remove.py::test_remove_non_existing_file
-    --deselect tests/sync/sandbox_sync/files/test_rename.py::test_rename_file
-    --deselect tests/sync/sandbox_sync/files/test_rename.py::test_rename_non_existing_file
-    --deselect tests/sync/sandbox_sync/files/test_secured.py::test_download_url_with_expired_signing
-    --deselect tests/sync/sandbox_sync/files/test_secured.py::test_download_url_with_signing
-    --deselect tests/sync/sandbox_sync/files/test_secured.py::test_download_url_with_signing_and_expiration
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_directory_changes
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_directory_changes_with_entry_info
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_directory_changes_with_network_mounts_allowed
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_file
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_file_with_secured_envd
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_iterated
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_non_existing_directory
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_recursive_directory_after_nested_folder_addition
-    --deselect tests/sync/sandbox_sync/files/test_watch.py::test_watch_recursive_directory_changes
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_overwrite_file
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_binary_file
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_files_with_different_data_types
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_io_with_octet_stream
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_io_with_octet_stream_and_gzip
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_multiple_files
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_text_file
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_text_io_with_octet_stream
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_to_non_existing_directory
-    --deselect tests/sync/sandbox_sync/files/test_write.py::test_write_with_secured_envd
-    --deselect tests/sync/sandbox_sync/pty/test_pty.py::test_pty
-    --deselect tests/sync/sandbox_sync/pty/test_pty_connect.py::test_connect_to_pty
-    --deselect tests/sync/sandbox_sync/pty/test_pty_kill.py::test_kill_non_existing_pty
-    --deselect tests/sync/sandbox_sync/pty/test_pty_kill.py::test_kill_pty
-    --deselect tests/sync/sandbox_sync/pty/test_resize.py::test_resize
-    --deselect tests/sync/sandbox_sync/pty/test_send_input.py::test_send_input
     --deselect tests/sync/sandbox_sync/test_connect.py::test_connect
     --deselect tests/sync/sandbox_sync/test_connect.py::test_connect_extends_timeout_on_running_sandbox
     --deselect tests/sync/sandbox_sync/test_connect.py::test_connect_to_paused_sandbox_resumes
     --deselect tests/sync/sandbox_sync/test_connect.py::test_connect_with_secure
     --deselect tests/sync/sandbox_sync/test_connect.py::test_resume_does_not_shorten_timeout_on_running_sandbox
-    --deselect tests/sync/sandbox_sync/test_create.py::test_auto_pause_filesystem_only_reboots
-    --deselect tests/sync/sandbox_sync/test_create.py::test_auto_pause_without_auto_resume_requires_connect
-    --deselect tests/sync/sandbox_sync/test_create.py::test_auto_resume_wakes_on_http_request
-    --deselect tests/sync/sandbox_sync/test_create.py::test_invalid_on_timeout_type_does_not_crash
-    --deselect tests/sync/sandbox_sync/test_create.py::test_keep_memory_none_defaults_to_full_memory
-    --deselect tests/sync/sandbox_sync/test_create.py::test_mcp_gateway_start_failure_kills_created_sandbox
-    --deselect tests/sync/sandbox_sync/test_create.py::test_metadata
-    --deselect tests/sync/sandbox_sync/test_create.py::test_start
-    --deselect tests/sync/sandbox_sync/test_fork.py::test_fork
-    --deselect tests/sync/sandbox_sync/test_fork.py::test_fork_by_id
-    --deselect tests/sync/sandbox_sync/test_fork.py::test_fork_killed_sandbox
-    --deselect tests/sync/sandbox_sync/test_fork.py::test_fork_multiple
-    --deselect tests/sync/sandbox_sync/test_host.py::test_ping_server
-    --deselect tests/sync/sandbox_sync/test_internet_access.py::test_internet_access_default
-    --deselect tests/sync/sandbox_sync/test_internet_access.py::test_internet_access_disabled
-    --deselect tests/sync/sandbox_sync/test_internet_access.py::test_internet_access_enabled
-    --deselect tests/sync/sandbox_sync/test_kill.py::test_kill
-    --deselect tests/sync/sandbox_sync/test_metrics.py::test_sbx_metrics
-    --deselect tests/sync/sandbox_sync/test_metrics.py::test_sbx_metrics_time_range
     --deselect tests/sync/sandbox_sync/test_network.py::test_allow_public_traffic_false
     --deselect tests/sync/sandbox_sync/test_network.py::test_allow_public_traffic_true
     --deselect tests/sync/sandbox_sync/test_network.py::test_allow_specific_ip_with_deny_all
@@ -390,35 +150,6 @@ check() {
     --deselect tests/sync/sandbox_sync/test_network.py::test_mask_request_host
     --deselect tests/sync/sandbox_sync/test_network.py::test_update_network_applies_restrictions
     --deselect tests/sync/sandbox_sync/test_network.py::test_update_network_clears_existing_rules
-    --deselect tests/sync/sandbox_sync/test_secure.py::test_connect_to_secured
-    --deselect tests/sync/sandbox_sync/test_secure.py::test_start_secured
-    --deselect tests/sync/sandbox_sync/test_snapshot.py::test_snapshot
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_create_multiple_sandboxes_from_snapshot
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_create_named_snapshot
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_create_sandbox_from_snapshot
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_create_snapshot
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_create_snapshot_class_method
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_delete_snapshot
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_list_snapshots
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_list_snapshots_filtered_by_name
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_list_snapshots_for_sandbox
-    --deselect tests/sync/sandbox_sync/test_snapshot_api.py::test_snapshot_preserves_filesystem
-    --deselect tests/sync/sandbox_sync/test_snapshot_filesystem_only.py::test_pause_filesystem_only
-    --deselect tests/sync/sandbox_sync/test_timeout.py::test_get_timeout
-    --deselect tests/sync/sandbox_sync/test_timeout.py::test_shorten_then_lengthen_timeout
-    --deselect tests/sync/sandbox_sync/test_timeout.py::test_shorten_timeout
-    --deselect tests/sync/template_sync/methods/test_make_symlink.py::test_make_symlink
-    --deselect tests/sync/template_sync/methods/test_make_symlink.py::test_make_symlink_force
-    --deselect tests/sync/template_sync/methods/test_run_cmd.py::test_run_command
-    --deselect tests/sync/template_sync/methods/test_run_cmd.py::test_run_command_as_different_user
-    --deselect tests/sync/template_sync/methods/test_run_cmd.py::test_run_command_as_user_that_does_not_exist
-    --deselect tests/sync/template_sync/test_background_build.py::test_build_in_background_should_start_build_and_return_info
-    --deselect tests/sync/template_sync/test_build.py::test_build_template
-    --deselect tests/sync/template_sync/test_build.py::test_build_template_from_base_template
-    --deselect tests/sync/template_sync/test_build.py::test_build_template_with_resolve_symlinks
-    --deselect tests/sync/template_sync/test_build.py::test_build_template_with_symlinks
-    --deselect tests/sync/template_sync/test_exists.py::test_check_base_template_name_exists
-    --deselect tests/sync/template_sync/test_exists.py::test_check_non_existing_name
     --deselect tests/sync/template_sync/test_stacktrace.py::test_traces_on_apt_install
     --deselect tests/sync/template_sync/test_stacktrace.py::test_traces_on_bun_install
     --deselect tests/sync/template_sync/test_stacktrace.py::test_traces_on_copy
