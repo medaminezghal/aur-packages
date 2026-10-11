@@ -2,7 +2,7 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=jsonpath-python
-pkgname="python-$_name
+pkgname=python-$_name
 pkgver=1.1.6
 pkgrel=3
 pkgdesc="A more powerful JSONPath implementation in modern python."
