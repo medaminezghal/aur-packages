@@ -21,6 +21,8 @@ fingerprint=$(gpg --batch --with-colons --import-options show-only --import "$ke
   | awk -F: '$1 == "fpr" { print $10; exit }')
 [[ -n "$fingerprint" ]] || { echo "::error::Could not read the repository signing key"; exit 1; }
 
+# Signing the key locally needs a local master key; --init only creates one if missing.
+pacman-key --init
 pacman-key --add "$key"
 pacman-key --lsign-key "$fingerprint"
 

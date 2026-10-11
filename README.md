@@ -11,4 +11,12 @@ SigLevel = Required
 Server = https://github.com/medaminezghal/aur-packages/releases/download/repo
 ```
 
-The signing key is published as `aur-packages.asc` in the same release. File names of packages with an epoch use `_` instead of `:`, because GitHub renames release assets containing `:`.
+Before syncing, import and locally sign the signing key (published as `aur-packages.asc` in the same release), otherwise pacman rejects the database with "unknown trust":
+
+```sh
+curl -fsSLO https://github.com/medaminezghal/aur-packages/releases/download/repo/aur-packages.asc
+sudo pacman-key --add aur-packages.asc
+sudo pacman-key --lsign-key 2EECE5156D8DE0C50636E37621707FBE029E96B5
+```
+
+File names of packages with an epoch use `_` instead of `:`, because GitHub renames release assets containing `:`.
