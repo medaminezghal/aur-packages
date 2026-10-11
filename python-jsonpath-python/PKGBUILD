@@ -13,7 +13,8 @@ depends=('python')
 makedepends=('python-hatchling'
              'python-build'
              'python-installer')
-checkdepends=('python-pytest')
+checkdepends=('python-pytest'
+              'python-pytest-benchmark')
 source=("$_name::git+$url.git#tag=$pkgver")
 sha256sums=('9e0ae4577526317249c34f7ed9ac27a710c4bdf927798e249bcba3e2ce6e9d04')
 
