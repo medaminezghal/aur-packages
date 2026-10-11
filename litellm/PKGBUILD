@@ -5,7 +5,7 @@
 # Contributor: Sir-Photch <sir-photch@posteo.me>
 
 pkgname=litellm
-pkgver=1.104.0
+pkgver=1.104.2
 pkgrel=1
 pkgdesc='Library to easily interface with LLM API providers.'
 arch=('any')
@@ -19,6 +19,7 @@ depends=('python'
          'python-fastuuid'
          'python-filelock'
          'python-httpx'
+         'python-h2'
          'python-openai'
          'python-dotenv'
          'python-pyyaml'
@@ -137,7 +138,7 @@ optdepends=('gunicorn: proxy'
 provides=("python-${pkgname}")
 options=(!lto !strip)
 source=("https://files.pythonhosted.org/packages/source/${pkgname::1}/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-sha256sums=('df550ab471974edefd7cb0cc6b88b42db453f0de6b91db3cc570f5e1e8d8b173')
+sha256sums=('f766de3dd38b977ca70f17f409df04c0a9a3e90aed82582a965d348b6e2fe399')
 
 prepare() {
   cd "${srcdir}"/${pkgname}-${pkgver}/
