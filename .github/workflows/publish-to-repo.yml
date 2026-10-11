@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: read
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
       options: --privileged --cgroupns=host
@@ -86,15 +87,70 @@ jobs:
         if: steps.pkg.outputs.skip != 'true'
         run: .github/scripts/add-pacman-repo.sh
 
-      - name: Build packages
+      - name: Download tested packages
+        id: tested
         if: steps.pkg.outputs.skip != 'true'
         env:
           DIRS: ${{ steps.pkg.outputs.dirs }}
+          GH_TOKEN: ${{ github.token }}
+          REPO_ID: ${{ github.repository_id }}
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
           : > "$RUNNER_TEMP/packages"
+          untested=()
           for dir in $DIRS; do
-            sudo -u ab -D "$GITHUB_WORKSPACE/$dir" paru -B . --noconfirm --nocheck
+            # The build check names its artifact after the directory's contents.
+            name="pkg-$(git rev-parse "HEAD:$dir")"
+
+            # Only runs on this repository's own branches: a fork's PR runs the fork's copy
+            # of the workflow, so what it uploads can't be trusted.
+            run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=$name&per_page=100" \
+                    -q "[.artifacts[]
+                         | select((.expired | not) and .workflow_run.head_repository_id == $REPO_ID)]
+                        | sort_by(.created_at) | last | .workflow_run.id // empty") || run=
+
+            dest="$RUNNER_TEMP/tested/$dir"
+            if [[ -z "$run" ]] \
+               || ! gh run download "$run" -R "$GITHUB_REPOSITORY" -n "$name" -D "$dest"; then
+              echo "No tested build of $dir, it will be built."
+              untested+=("$dir")
+              continue
+            fi
+
+            # Use it only if it holds every package the PKGBUILD makes (a debug package may be missing).
+            pkgbase=$(sudo -u ab -D "$GITHUB_WORKSPACE/$dir" bash -c 'source PKGBUILD; echo "${pkgbase:-$pkgname}"')
+            files=()
+            complete=true
+            while read -r file; do
+              base=$(basename "$file")
+              base=${base//:/_}
+              if [[ -f "$dest/$base" ]]; then
+                files+=("$dest/$base")
+              elif [[ "$base" != "$pkgbase-debug-"* ]]; then
+                complete=false
+              fi
+            done < <(sudo -u ab -D "$GITHUB_WORKSPACE/$dir" makepkg --packagelist)
+
+            if ! $complete || (( ${#files[@]} == 0 )); then
+              echo "::warning::Tested build of $dir does not match its PKGBUILD, it will be built."
+              untested+=("$dir")
+              continue
+            fi
+
+            echo "Using tested build of $dir from run $run"
+            printf '%s\n' "${files[@]}" >> "$RUNNER_TEMP/packages"
+          done
+          echo "untested=${untested[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Build untested packages
+        if: steps.tested.outputs.untested != ''
+        env:
+          DIRS: ${{ steps.tested.outputs.untested }}
+        run: |
+          read -ra dirs <<< "$DIRS"
+          # One call for all of them, so dependencies built along the way are built only once.
+          sudo -u ab -D "$GITHUB_WORKSPACE" paru -B "${dirs[@]}" --noconfirm
+          for dir in "${dirs[@]}"; do
             sudo -u ab -D "$GITHUB_WORKSPACE/$dir" makepkg --packagelist \
               | while read -r file; do
                   # --packagelist also lists a debug package that is not built for arch=any
@@ -103,7 +159,6 @@ jobs:
                   fi
                 done >> "$RUNNER_TEMP/packages"
           done
-          cat "$RUNNER_TEMP/packages"
 
       - name: Setup GPG
         if: steps.pkg.outputs.skip != 'true'
@@ -138,5 +193,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          cat "$RUNNER_TEMP/packages"
           mapfile -t packages < "$RUNNER_TEMP/packages"
           .github/scripts/update-pacman-repo.sh "${packages[@]}"

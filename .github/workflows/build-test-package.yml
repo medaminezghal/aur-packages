@@ -109,6 +109,38 @@ jobs:
           chown -R ab:ab "$GITHUB_WORKSPACE"
           sudo -u ab -D "$GITHUB_WORKSPACE/$PKG" paru -B . --noconfirm
 
+      - name: Collect built packages
+        id: built
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          PKG: ${{ inputs.package || steps.pkg.outputs.dir }}
+        run: |
+          git config --global safe.directory "$GITHUB_WORKSPACE"
+          mkdir -p built-packages
+          sudo -u ab -D "$GITHUB_WORKSPACE/$PKG" makepkg --packagelist \
+            | while read -r file; do
+                # --packagelist also lists a debug package that is not built for arch=any
+                if [[ -f "$file" ]]; then
+                  # Artifacts can't hold ':' (epoch); the repository stores the same '_' name.
+                  base=$(basename "$file")
+                  cp "$file" "built-packages/${base//:/_}"
+                fi
+              done
+          ls built-packages
+
+          # Named after the package directory's contents, so the publish workflow finds it
+          # for the same PKGBUILD however the PR is merged.
+          echo "name=pkg-$(git rev-parse "HEAD:$PKG")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload built packages
+        if: steps.pkg.outputs.skip != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.built.outputs.name }}
+          path: built-packages
+          if-no-files-found: error
+          compression-level: 0
+
       - name: Write result summary
         if: always()
         uses: actions/github-script@v8
