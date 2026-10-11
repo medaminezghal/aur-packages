@@ -1,0 +1,82 @@
+# Maintenance routine rules
+
+Rules for the automated maintenance routine of this repo. The routine reads
+this file from `origin/main` at the start of every run and follows it together
+with its own prompt. The prompt holds the fixed parts (setup, hard rules, run
+order); this file holds the parts that change as the owner corrects the
+routine. If the two conflict, the prompt wins.
+
+To change a rule: edit this file on main, or let Claude open a
+`rules/<topic>` PR editing only this file. A change takes effect on the first
+run after it is merged.
+
+## Package-specific notes
+- python-logfire: don't touch it (the owner handles it).
+- The owner's own "Add <package>" work-in-progress PRs (#435 pydantic-ai,
+  #140 livekit-agents): don't change them except to re-run CI or comment.
+- Tests that need Docker: remove them the owner's way, as in python-gradio:
+  `rm -rf <docker test folder>` in prepare() with the comment
+  `# Remove tests that need docker`.
+- python-groq / python-spitch: apply the mock-server check() convention
+  (Layout conventions) on their next update PR.
+
+## Dependency rules (apply to every PR you touch, including new-version bump PRs)
+Read upstream's metadata at EXACTLY the packaged version/tag/commit (clone the tag, don't use main — main can differ a lot from the latest release). Also read how the source and tests actually use each dependency before adding or keeping it.
+Determine the Python version Arch currently ships: `curl -s "https://archlinux.org/packages/search/json/?name=python&repo=Core"` (or repo=Extra), take pkgver and use its major.minor (call it $ARCH_PY). Never assume a fixed version; it changes over time (3.14 now, 3.15 later).
+
+1. depends = exactly upstream's declared runtime dependencies for that version: add new ones, remove dropped ones, don't add undeclared ones. Keep non-Python system deps the PKGBUILD already has (glibc, libgcc, ...) after the Python ones.
+   Evaluate every environment marker against $ARCH_PY on Linux, then classify it before acting:
+   a. Platform markers (`sys_platform == "win32"`, `platform_system`, `os_name`, ...) that are false on Linux: never add; remove if present.
+   b. Backward-compat markers (`python_version < "3.x"`) on packages that only exist to backport features into old Pythons (python-exceptiongroup, python-eval-type-backport, python-tomli, python-importlib-metadata when gated, python-async-timeout, python-backports.*, typing_extensions only when gated to old Pythons): never add; remove if present, unless the source/tests really import them on $ARCH_PY.
+   c. Upper-bound Python markers (`python_version < "3.14"`, `python_full_version < "3.14"`) on packages that add real functionality (e.g. semantic-router, aurelio-sdk): these only mean upstream hasn't declared support for Arch's Python yet. Arch/AUR packages are routinely patched to work on the current Python, so KEEP these entries (depends, optdepends and checkdepends) and add them when upstream lists them. Never remove one because of the marker. If you cannot tell whether it works on $ARCH_PY, keep the existing entry and mention it in the PR comment for the owner.
+   d. Lower-bound markers (`python_version >= "3.12"`) that are true on $ARCH_PY: keep/add as normal. If false, treat as (b).
+   Unconditional dependencies that are merely unnecessary in practice are the owner's call: keep them.
+   Cleanup: in every PR you touch, REMOVE entries already in the PKGBUILD that fall under (a) or (b), even if the owner added them, unless the source/tests really import them on $ARCH_PY. Mention the removals in the "Fix dependencies" commit message. Never apply this cleanup to class (c).
+2. optdepends = every upstream extra that adds real functionality, with its full dependency list, as `'<pkg>: <extra>'`, extras and entries in upstream's order (an entry appears once per extra that lists it). Look for extras EVERYWHERE before concluding there are none: pyproject [project.optional-dependencies], [tool.poetry.extras], setup.cfg [options.extras_require], setup.py extras_require, and the PyPI metadata of that version (https://pypi.org/pypi/<name>/<version>/json: requires_dist entries with `extra ==`, provides_extra). Never stop at the first place that has none.
+   Inner extras: when an upstream entry itself carries an extra, e.g. `SQLAlchemy[asyncio]` (asyncio → greenlet), add the package that extra pulls in directly under that dependency with the same tag, in the order the dependency's own metadata lists it:
+   ```
+   'python-sqlalchemy: sqlalchemy'
+   'python-greenlet: sqlalchemy'
+   'python-asyncpg: sqlalchemy'
+   ```
+   Do the same in depends and checkdepends (put the inner dependency right after its parent). Read the dependency's own metadata (PyPI requires_dist with `extra == "<name>"`) to find what the inner extra pulls in. Inner extras are declared, so they are never a rule-8 case.
+   Do NOT list in optdepends: (a) extras/entries that are only test/dev/lint/docs/typing/release tools (extras like `dev`, `test`, `tests`, `testing`, `lint`, `docs`) or that are already in checkdepends; (b) build-only tools (hatchling, setuptools, wheel, ...) since the package installs a prebuilt wheel; (c) entries under marker classes (a) or (b) of rule 1. Entries with only an upper-bound Python marker (class c) ARE listed. Exception: a pytest plugin (or any package that integrates with a tool) lists that tool (e.g. python-pytest) as optdepends, since it is a real integration target. Before adding any optdepends entry, ask "does the installed package use this at runtime?" by reading the source.
+3. Names only, NEVER version constraints. Map each PyPI project name to the Arch package name and VERIFY it exists AND is the right project (Arch repos: https://archlinux.org/packages/search/json/?name=<n>; AUR: https://aur.archlinux.org/rpc/v5/info?arg[]=<n>). Usually `python-<name>` (the owner's existing spellings such as `python-pyyaml`, `python-typing_extensions` are fine when a package provides them). But the name is not always that: PyPI names that start with "python-" or collide with other projects map differently, and two DIFFERENT PyPI projects can map to similar-looking Arch names. Example: PyPI `python-multipart` (module `python_multipart`, used by Starlette/FastAPI) is Arch `python-python-multipart`, while PyPI `multipart` is a different project and is Arch `python-multipart`. Always start from the exact PyPI project name upstream declares, then confirm the Arch/AUR package is that project: check its url/description and `provides`. An existing `python-<name>` is NEVER proof that it is the right package, and never rename a correct entry just because a similar name exists. If only a bare-name package exists but it provides `python-<name>` (e.g. `litellm` provides `python-litellm`), use `python-<name>`.
+   If the package does not exist in Arch or the AUR:
+   - optdepends: add it anyway under its natural `python-<name>` name (it is only a hint); if upstream renamed the project, REPLACE the old entry with the new name (e.g. `python-vercel` → `python-vercel-sandbox`). Do not open a packaging PR just for that.
+   - depends, or checkdepends needed to run the tests: add it, and open a new PR `bump/add-<pkgname>` titled `Add <pkgname> package` to package it (follow these rules for its own dependencies). Mention it in the dependent PR's comment.
+   A missing package is never a reason to remove an entry already in the PKGBUILD or to skip one upstream declares.
+   Known mappings: python-psycopg already includes `psycopg[c]`, which replaces `psycopg[binary]` — never flag `psycopg-binary` as missing and never add it.
+4. All arrays keep upstream's order (the order in the source at that tag).
+5. checkdepends: first only the dependencies needed to RUN THE TESTS from upstream's test/dev dependency group (drop linting, type checking/stubs, docs, examples, coverage, pre-commit, release tools, backports for old Pythons (class b) and anything whose marker is false on Linux), in upstream's order — verify by what the tests actually import. Then, after the last test dependency, the optional (extra) dependencies the tests need, in extras order, skipping ones already listed (with their inner-extra dependencies, rule 2). System tools the tests need (git, npm, lsof, ...) at the end. IMPORTANT: "verify by what the tests actually import" is a filter on upstream's own declared groups (drop what's unused) — it is NOT authorization to add a package upstream never declares anywhere, even if a test imports it and even if adding it makes the test pass. That case is rule 8's, not this one. Don't add a system tool either if it doesn't actually get anything passing on its own (i.e. a rule-8 blocker on the same test remains unresolved) — a change that fixes nothing is not a fix, don't push it.
+6. pytest_options: `-vv`, `--disable-warnings`, then all other options (`--override-ini="addopts="` when upstream's config forces coverage, followed by the non-coverage options addopts contained in the same order; `--import-mode=...`, `-p ...`, etc.), and only LAST any --ignore/--deselect that is allowed. NO comments in check()/build()/package() or inside arrays.
+7. The owner sometimes copy-pastes or edits by hand: if you see an obvious slip with a clear correct replacement (misspelled name, an entry duplicated where upstream has a different one, an optdepends entry missing its ": tag"), fix it (commit "Fix dependencies").
+8. If a failure comes from something upstream uses but doesn't declare anywhere (dev group, any extra including inner extras, setup.cfg, PyPI metadata — checked all of it) — e.g. a test imports a module that only arrives transitively — or from another maintainer's package missing a dependency, don't add workarounds, don't add the undeclared package to depends/checkdepends/optdepends yourself, and don't skip/ignore/deselect the affected test either. Find the exact cause (upstream's CI workflow and uv.lock/requirements show how it arrives there), leave the PKGBUILD untouched, and comment it on the PR with the exact package and test(s) affected for the owner to decide. It is fine for CI to stay red on that PR until the owner decides.
+9. Excluding tests that need a real API key (only the exception in the routine prompt): put the exclusions in the single `pytest_options` array, after all other options, and never add a second pytest command or any other mechanism to run tests that an exclusion also caught.
+   - If every test in a folder (or file) needs the key, deselect the whole folder (or file) with one `--deselect <path>`. Deselect individual tests only where a folder or file also holds tests that run offline. Never list every test of a folder one by one.
+   - `--ignore=<file or folder>` is allowed when the key is needed at import/collection time (a module-level client or `os.environ["..."]`), because the file errors during collection and `--deselect`/`-k` cannot help. Ignore only the files that fail at collection for that reason, and verify it from the collection error.
+   - `-k "not <expr>"` is allowed for these exclusions when the excluded tests share something (a name part, a marker, a class) and one expression replaces many `--deselect` lines. `-k` matches substrings of the whole node id, so check that the expression excludes exactly the key-dependent tests: compare `pytest --collect-only -q` with and without it, and list any offline test it catches in the PR comment.
+   - `--deselect` is a prefix match on the node id and pytest has no exact form (`::` suffixes, `--ignore` and `--ignore-glob` do not help). If deselecting a key-dependent test also drops offline tests whose names start with the same text, first try a `-k` expression that separates them. If none does, accept it and mention those tests in the PR comment. Do not work around it with an extra pytest command.
+
+## Layout conventions
+- Comments ONLY in prepare(), directly above the sed/patch/rm line they explain (short: what changed and why). Nowhere else.
+- SYNTAX PASS, MANDATORY on every PR you touch, for EVERY array, not only the ones you edited: depends, makedepends, checkdepends, optdepends (also `depends+=(` in split-package functions) → one entry per line, aligned under the first entry; single-entry arrays stay on one line; 2-space indentation inside functions. Put pure formatting in its own "Update syntax" commit. Verify with `grep -nE "^[a-z]*depends(\+)?=\('[^']+' '" PKGBUILD` (must print nothing).
+- optdepends: one entry per line, aligned; entries with the same tag (text after ": ") directly together; ONE empty line where the tag changes. A line with only spaces already counts as empty — leave it. If an array is already one entry per line, only insert missing empty lines; don't rewrite the rest. python-fastmcp's PKGBUILD is the reference.
+- After editing arrays, `source` the old and new PKGBUILD in bash and confirm the arrays contain exactly the intended entries, and that `git diff` has no whitespace-only hunks.
+- Commit messages: "Update syntax" (formatting only, separate commit), "Fix tests", "Fix dependencies", "Fix dependency name", "Update check".
+- Test environment (python-jsonschema-rs's PKGBUILD is the reference): run tests WITHOUT a venv (e.g. `PYTHONPATH=... pytest` / `python -m pytest` on the built/source tree) unless one is really needed (e.g. the package needs its installed metadata/entry points, or test-only packages must be installed). When needed: `python -m venv --system-site-packages test-env`, `test-env/bin/python -m installer dist/*.whl`, then `test-env/bin/python -P -m pytest ...`. Packages needed only for tests (not for production) that live in the upstream repo (sub-packages, test-suite crates, ext packages) are built as extra wheels in build() (`python -m build --wheel --no-isolation <subdir>`) and installed into the venv with installer in check() — never via PYTHONPATH hacks, and never installed in package(). When a sub-package path shares a part with the package name, write it with the name variable (`ext/$_name-ext-fastapi`, `crates/${_name//-rs/-py}`), not literally.
+- New PRs you open: `bump/<pkgname>-<pkgver>` + `<pkgname>: Update to version <pkgver>` (pkgver set, pkgrel=1, checksums like `makepkg -g`); same-version fix: `bump/fix-tests-<pkgname>` / `bump/fix-dependencies-<pkgname>` + `<pkgname>: Fix tests` / `<pkgname>: Fix dependencies`, pkgrel+1; new package: `bump/add-<pkgname>` + `Add <pkgname> package`. PR body says why and links the run/PR it unblocks.
+- Mock-server checks (Stainless `scripts/mock --daemon`): python-groq style — `local server_pid=$(lsof -t -i tcp:4010)`, `pytest ... || { kill "${server_pid}"; return 1; }`, `kill "${server_pid}"`, `npm_config_allow_scripts=false` and `npm_config_yes=true` exported, `lsof` in checkdepends; never `trap ... EXIT` in a PKGBUILD function.
+- Git sources: checksum = `git -c core.abbrev=no archive --format tar <tag-or-commit> | sha256sum`.
+- Before pushing a new package or a check() change, dry-run the PKGBUILD's own prepare/build/check (source it in bash with `set -eE`, srcdir set) against a checkout of the tag when feasible.
+
+## Pre-push checklist (before EVERY push)
+- (a) Each dependency was checked against how the source/tests use it, not only against metadata.
+- (b) All markers evaluated and classified (rule 1 a–d) for $ARCH_PY / Linux (Arch's current Python, looked up this run); only class a/b entries removed, class c kept.
+- (c) optdepends contains no test/dev/build-only entries and nothing already in checkdepends (except real tool integrations like a pytest plugin).
+- (d) All four dependency arrays are one entry per line, aligned (grep check from Layout conventions).
+- (e) Old and new PKGBUILD sourced and arrays compared, and every removed entry justified by a specific rule.
+- (f) `git diff` has no whitespace-only hunks.
+- (g) The target PR is still open and its branch current, and the owner's latest commits on it were read and kept.
+- (h) Commit verified after the push.
+- (i) For every added or changed dependency name, the Arch/AUR package was verified to be the exact PyPI project upstream declares (url/description/provides), not just a similarly named one; inner extras were added under their parent (rule 2); packages missing from Arch/AUR were handled per rule 3.
