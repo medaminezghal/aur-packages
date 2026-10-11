@@ -36,8 +36,8 @@ for f in "$db" "$files_db"; do
   fi
 done
 
-# Map each package name to the file name the repository currently holds for it.
-declare -A old=()
+# Map each package name to the file name and pkgbase the repository currently holds for it.
+declare -A old=() old_base=()
 if [[ -f "$work/$db" ]]; then
   mkdir "$work/dbx"
   bsdtar -xf "$work/$db" -C "$work/dbx"
@@ -45,11 +45,13 @@ if [[ -f "$work/$db" ]]; then
     name=$(sed -n '/^%NAME%$/{n;p;q}' "$desc")
     file=$(sed -n '/^%FILENAME%$/{n;p;q}' "$desc")
     old[$name]=$file
+    old_base[$name]=$(sed -n '/^%BASE%$/{n;p;q}' "$desc")
   done
 fi
 
 new_pkgs=()
 to_delete=()
+declare -A new_names=() new_bases=()
 for pkg in "$@"; do
   info=$(bsdtar -xOf "$pkg" .PKGINFO)
   if grep -qxF 'xdata = pkgtype=debug' <<< "$info"; then
@@ -57,6 +59,9 @@ for pkg in "$@"; do
     continue
   fi
   name=$(sed -n 's/^pkgname = //p' <<< "$info")
+  pkgbase=$(sed -n 's/^pkgbase = //p' <<< "$info")
+  new_names[$name]=1
+  new_bases[${pkgbase:-$name}]=1
 
   # GitHub renames release assets with ':' (epoch), so store them with '_'.
   # repo-add records this file name, which is the name pacman downloads.
@@ -76,7 +81,20 @@ if (( ${#new_pkgs[@]} == 0 )); then
   exit 0
 fi
 
+# Packages no longer built by a published pkgbase (removed from a split pkgname=()).
+dropped=()
+for name in "${!old[@]}"; do
+  if [[ -n "${new_bases[${old_base[$name]:-$name}]:-}" && -z "${new_names[$name]:-}" ]]; then
+    dropped+=("$name")
+    to_delete+=("${old[$name]}" "${old[$name]}.sig")
+  fi
+done
+
 (cd "$work" && repo-add --sign --key "$GPG_KEY" "$db" "${new_pkgs[@]}")
+if (( ${#dropped[@]} > 0 )); then
+  (cd "$work" && repo-remove --sign --key "$GPG_KEY" "$db" "${dropped[@]}")
+  printf 'Removed from repository: %s\n' "${dropped[@]}"
+fi
 
 # Plain copies under the names pacman requests (release assets can't be symlinks).
 for f in "$REPO_NAME.db" "$REPO_NAME.files"; do
