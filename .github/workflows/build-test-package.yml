@@ -3,9 +3,6 @@ name: Build and check in clean chroot
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "*/PKGBUILD"
-      - ".github/workflows/**"
   workflow_dispatch:
     inputs:
       package:
