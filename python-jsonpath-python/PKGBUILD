@@ -12,7 +12,8 @@ license=('MIT')
 depends=('python')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer')
+             'python-installer'
+             'git')
 checkdepends=('python-pytest'
               'python-pytest-benchmark')
 source=("$_name::git+$url.git#tag=$pkgver")
