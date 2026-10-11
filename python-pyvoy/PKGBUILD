@@ -28,20 +28,21 @@ checkdepends=('python-anyio'
               'python-trio'
               'python-trustme'
               'python-websockets')
-source=("$_name::git+$url.git#tag=v$pkgver")
-sha256sums=('6a4cbbb61306f23637fc72c5466192d9a41213c51bd5f75ab119d3d591171f4d')
+source=("$_name::git+$url.git#tag=v$pkgver"
+        "kosoku::git+https://github.com/curioswitch/kosoku.git#tag=v0.1.0")
+sha256sums=('6a4cbbb61306f23637fc72c5466192d9a41213c51bd5f75ab119d3d591171f4d'
+            '25e224e48912006aa913351fdb24a505bc6689634140bda5a41d649849791455')
 
 prepare() {
   cd "$srcdir"/$_name
-  # Remove the autobahn fuzzing test, it needs docker
-  sed -i '/^from kosoku import run_fuzzingclient$/d' tests/test_websockets.py
-  sed -i '/^@pytest.mark.parametrize("cases", cases)$/,/^    )$/d' tests/test_websockets.py
   # Tests expect RemoteProtocolError from newer pyqwest, same as upstream fix in curioswitch/pyvoy#322
   sed -i 's/\bReadError\b/RemoteProtocolError/g' tests/test_kitchensink.py
 }
 
 build() {
   cd "$srcdir"/$_name
+  python -m build --wheel --no-isolation
+  cd "$srcdir"/kosoku
   python -m build --wheel --no-isolation
 }
 
@@ -53,6 +54,7 @@ check() {
   cd "$srcdir"/$_name
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer dist/*.whl
+  test-env/bin/python -m installer "$srcdir"/kosoku/dist/*.whl
   test-env/bin/python -P -m pytest "${pytest_options[@]}" tests
 }
 
