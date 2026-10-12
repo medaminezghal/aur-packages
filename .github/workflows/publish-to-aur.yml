@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "*/PKGBUILD"
+      - ".*/PKGBUILD"
 
 jobs:
   publish:
@@ -30,10 +31,20 @@ jobs:
         run: |
           git config --global safe.directory "$GITHUB_WORKSPACE"
 
-          dir=$(git diff-tree --no-commit-id -r --name-only HEAD^1 HEAD \
-                  -- '*/PKGBUILD' \
+          changed=$(git diff-tree --no-commit-id -r --name-only HEAD^1 HEAD \
+                      -- '*/PKGBUILD')
+
+          # Folders starting with "." hold dependencies maintained by others on the AUR:
+          # they are published to the pacman repository only.
+          dir=$(grep -v '^\.' <<< "$changed" \
                 | head -n1 \
                 | sed 's|/PKGBUILD||')
+
+          if [[ -z "$dir" && -n "$changed" ]]; then
+            echo "Only dot folders changed, nothing to publish to the AUR."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
           [[ -n "$dir" ]] || { echo "::error::No PKGBUILD change detected"; exit 1; }
           if [[ ! -f "$dir/PKGBUILD" ]]; then
