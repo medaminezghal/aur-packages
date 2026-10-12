@@ -14,11 +14,11 @@ depends=('python'
          'python-sqlite-vec')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-pytest-mock'
+              'python-langgraph-checkpoint-conformance'
               'python-pytest-retry')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('4e3f376fa6f192d6ad2a1a4643b039986f1593552ef870e9e45281575de6fbf2')
