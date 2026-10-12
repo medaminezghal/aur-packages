@@ -1,0 +1,48 @@
+# Maintainer: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: Antonio Rojas <arojas@archlinux.org>
+# Contributor: Jed Brown <jed@jedbrown.org>
+# Contributor: George Eleftheriou <eleftg@gmail.com>
+# Contributor: mickele
+# Contributor: gborzi
+# Contributor: abenson
+# Contributor: Jakub Klinkovský <j.l.k cat gmx dog com>
+# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+_base=METIS
+pkgname=${_base,,}
+pkgver=5.2.1
+pkgrel=4
+arch=('x86_64')
+pkgdesc="Serial Graph Partitioning and Fill-reducing Matrix Ordering"
+url="https://github.com/KarypisLab/${_base}"
+license=('Apache-2.0')
+depends=('glibc'
+         'gklib')
+makedepends=('cmake'
+             'git')
+options=(docs)
+source=("$_base::git+$url.git#tag=v$pkgver")
+sha256sums=('8c6994fdb6d844f87f6e9405a133f303ed89a64eaecdffdba7c74992aa907a3c')
+
+prepare() {
+  cd $_base
+  # Increase CMake version
+  sed -i 's/2.8/3.10/' CMakeLists.txt
+  echo "target_link_libraries(metis PUBLIC \"-lGKlib\")" >>"libmetis/CMakeLists.txt"
+  # Avoid crash with illegal instruction
+  sed -i 's|march=native|march=nocona|g' conf/gkbuild.cmake
+}
+
+build() {
+  cd $_base
+  make config \
+    shared=1 \
+    cc=gcc \
+    prefix=/usr \
+    gklib_path=/usr
+}
+
+package() {
+  cd $_base
+  make install DESTDIR="${pkgdir}"
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
