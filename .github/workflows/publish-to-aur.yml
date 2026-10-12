@@ -31,22 +31,21 @@ jobs:
         run: |
           git config --global safe.directory "$GITHUB_WORKSPACE"
 
-          changed=$(git diff-tree --no-commit-id -r --name-only HEAD^1 HEAD \
-                      -- '*/PKGBUILD')
-
-          # Folders starting with "." hold dependencies maintained by others on the AUR:
-          # they are published to the pacman repository only.
-          dir=$(grep -v '^\.' <<< "$changed" \
+          dir=$(git diff-tree --no-commit-id -r --name-only HEAD^1 HEAD \
+                  -- '*/PKGBUILD' \
                 | head -n1 \
                 | sed 's|/PKGBUILD||')
 
-          if [[ -z "$dir" && -n "$changed" ]]; then
-            echo "Only dot folders changed, nothing to publish to the AUR."
+          [[ -n "$dir" ]] || { echo "::error::No PKGBUILD change detected"; exit 1; }
+
+          # Folders starting with "." hold dependencies maintained by others on the AUR:
+          # they are published to the pacman repository only.
+          if [[ "$dir" == .* ]]; then
+            echo "$dir is published to the pacman repository only, skipping AUR publish."
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          [[ -n "$dir" ]] || { echo "::error::No PKGBUILD change detected"; exit 1; }
           if [[ ! -f "$dir/PKGBUILD" ]]; then
             echo "PKGBUILD deleted — skipping AUR publish. Handle deletion manually on AUR."
             echo "skip=true" >> "$GITHUB_OUTPUT"
