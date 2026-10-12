@@ -47,11 +47,13 @@ jobs:
 
           case "$provider" in
             pypi)
-              if [[ -f "python-$base/PKGBUILD" ]]; then
-                pkgname="python-$base"
-              else
-                pkgname="$base"
-              fi
+              pkgname="$base"
+              for cand in "python-$base" ".python-$base" ".$base"; do
+                if [[ -f "$cand/PKGBUILD" ]]; then
+                  pkgname="$cand"
+                  break
+                fi
+              done
               ;;
             github|gitlab)
               found=$(find . -maxdepth 1 -type d -name "*$base" | head -n1 | sed 's|^\./||')
@@ -71,6 +73,7 @@ jobs:
 
           echo "skip=false"    >> "$GITHUB_OUTPUT"
           echo "pkgname=$pkgname" >> "$GITHUB_OUTPUT"
+          echo "name=${pkgname#.}"  >> "$GITHUB_OUTPUT"
           echo "pkgver=$pkgver"   >> "$GITHUB_OUTPUT"
           echo "provider=$provider" >> "$GITHUB_OUTPUT"
           echo "Resolved: $pkgname $pkgver (provider: $provider)"
@@ -152,15 +155,15 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           sign-commits: true
-          branch: bump/${{ steps.resolve.outputs.pkgname }}-${{ steps.resolve.outputs.pkgver }}
-          commit-message: "${{ steps.resolve.outputs.pkgname }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
-          title: "${{ steps.resolve.outputs.pkgname }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
+          branch: bump/${{ steps.resolve.outputs.name }}-${{ steps.resolve.outputs.pkgver }}
+          commit-message: "${{ steps.resolve.outputs.name }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
+          title: "${{ steps.resolve.outputs.name }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
           body: |
             Automated version bump triggered by newreleases.io
 
             | Field | Value |
             |---|---|
-            | Package | `${{ steps.resolve.outputs.pkgname }}` |
+            | Package | `${{ steps.resolve.outputs.name }}` |
             | Provider | `${{ steps.resolve.outputs.provider }}` |
             | New version | `${{ steps.resolve.outputs.pkgver }}` |
             | Bump type | `${{ steps.bump.outputs.bump_type }}` |
