@@ -26,10 +26,10 @@ options=('!lto')
 source=("$_name::git+$url.git#tag=v$pkgver")
 sha256sums=('3906634820f9e6e02d5c9c9c6c2deebb9ff164e7fcdac4d4015ca7e5997477f2')
 
-build() (
+build() {
   cd "$srcdir"/$_name/bindings/python
   python -m build --wheel --no-isolation
-)
+}
 
 check() {
   local pytest_options=(
