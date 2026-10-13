@@ -6,7 +6,7 @@
 # Contributor: gborzi
 # Contributor: abenson
 # Contributor: Jakub Klinkovský <j.l.k cat gmx dog com>
-# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=METIS
 pkgname=${_name,,}
