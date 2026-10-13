@@ -26,12 +26,16 @@ sha256sums=('8c6994fdb6d844f87f6e9405a133f303ed89a64eaecdffdba7c74992aa907a3c')
 
 prepare() {
   cd "$srcdir"/$_name
-  # Increase CMake version
-  sed -i 's/2.8/3.10/' CMakeLists.txt
-  # Link libmetis against GKlib
-  echo "target_link_libraries(metis PUBLIC \"-lGKlib\")" >> libmetis/CMakeLists.txt
-  # Avoid crash with illegal instruction
-  sed -i 's|march=native|march=nocona|g' conf/gkbuild.cmake
+  # Increase the minimum CMake version
+  git cherry-pick -n 350931887dfc00c2e3cb7551c5abf30e0297126a
+  # Link libmetis to GKlib for shared library builds
+  git cherry-pick -n d35827857a71f0579b1d46e4c15935af3e4f8927
+  # Fix integer divide-by-zero in METIS_PartGraphKway when nparts==1
+  git cherry-pick -n 0f8c9af5a16d8990c34e4b278f05f2be74499057
+  # Fix off-by-one errors in CheckInputGraphWeights
+  git cherry-pick -n b08e28b2ee147489f152336c96f08e523f642afc
+  # Raise an error on over-partitioning instead of silently returning
+  git cherry-pick -n 80e661f039a38be900d36817c43a9c39f43e3b7e
 }
 
 build() {
@@ -40,7 +44,8 @@ build() {
     shared=1 \
     cc=gcc \
     prefix=/usr \
-    gklib_path=/usr
+    gklib_path=/usr \
+    valgrind=1
 }
 
 package() {
