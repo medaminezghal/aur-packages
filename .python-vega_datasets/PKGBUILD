@@ -1,6 +1,6 @@
 # Maintainer: Carlos Aznarán <caznaranl@uni.pe>
 # Contributor: Jagannathan Tiruvallur Eachambadi <jagannathante@gmail.com>
-# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=vega_datasets
 pkgname=python-$_name
