@@ -19,6 +19,7 @@ makedepends=('python-maturin'
              'clang'
              'git')
 checkdepends=('python-aiohttp'
+              'python-aiodns'
               'python-anyio'
               'python-asgiref'
               'python-brotli'
