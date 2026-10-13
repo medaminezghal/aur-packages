@@ -53,6 +53,7 @@ build() {
     -DSPM_PROTOBUF_PROVIDER=package \
     -DSPM_ABSL_PROVIDER=package \
     -Wno-dev
+  cmake --build build --parallel "$(nproc)" --target sentencepiece-static
   cmake --build build --parallel "$(nproc)"
   mkdir build/root
   DESTDIR=build/root cmake --install build --prefix /
