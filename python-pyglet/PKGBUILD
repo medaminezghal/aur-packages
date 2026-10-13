@@ -29,8 +29,8 @@ source=("$pkgbase::git+$url.git#tag=v$pkgver")
 sha256sums=('9f91f40608e3e2604bf8a7a7d5e07dcda9afc893292fa52e6823d27b7a0a1625')
 
 build() {
-    cd "$srcdir/$pkgbase"
-    python -m build --wheel --no-isolation
+  cd "$srcdir/$pkgbase"
+  python -m build --wheel --no-isolation
 }
 
 check() {
@@ -44,14 +44,14 @@ check() {
 }
 
 package_python-pyglet() {
-    depends=('python'
-             'glu'
-             'fontconfig'
-             'freetype2')
-    optdepends=('ffmpeg: provides audio&video support'
+  depends=('python'
+           'glu'
+           'fontconfig'
+           'freetype2')
+  optdepends=('ffmpeg: provides audio&video support'
 
-                'openal: live audio')
-    cd "$srcdir/$pkgbase"
-    python -m installer --destdir="$pkgdir" dist/*.whl
-    install -D -m644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+              'openal: live audio')
+  cd "$srcdir/$pkgbase"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -D -m644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
