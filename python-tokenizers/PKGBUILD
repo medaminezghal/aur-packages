@@ -22,7 +22,6 @@ depends=('python-huggingface-hub'
          'libstdc++'
          'glibc')
 makedepends=('git'
-             'cargo'
              'python-build'
              'python-installer'
              'python-maturin')
