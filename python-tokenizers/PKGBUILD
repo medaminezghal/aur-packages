@@ -2,7 +2,7 @@
 # Contributor: Filip Graliński <filipg@amu.edu.pl>
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
-_name="tokenizers"
+_name=tokenizers
 pkgname=python-$_name
 pkgver=0.23.3
 pkgrel=1
