@@ -17,6 +17,7 @@ run after it is merged.
 - Tests that need Docker: remove them the owner's way, as in python-gradio:
   `rm -rf <docker test folder>` in prepare() with the comment
   `# Remove tests that need docker`.
+- kahip: on its next update PR, change the owner's header line from `# Contributor:` to `# Maintainer:` (not in a separate PR).
 - python-groq / python-spitch: apply the mock-server check() convention
   (Layout conventions) on their next update PR.
 
