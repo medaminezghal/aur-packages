@@ -18,6 +18,7 @@ run after it is merged.
   `rm -rf <docker test folder>` in prepare() with the comment
   `# Remove tests that need docker`.
 - kahip: on its next update PR, change the owner's header line from `# Contributor:` to `# Maintainer:` (not in a separate PR).
+- kahip: on its next update PR (not before, a header-only change would publish to the AUR), change the owner's header line from `# Contributor:` to `# Maintainer:`.
 - python-groq / python-spitch: apply the mock-server check() convention
   (Layout conventions) on their next update PR.
 
