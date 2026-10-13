@@ -26,8 +26,9 @@ prepare() {
   git cherry-pick -n aadab159a00028e47fb5725e05b5eb7732bb6ee2
   # Fix heap buffer overflow in regex backreference substitution
   git cherry-pick -n e2856c2f595b153ca1ce9258c5301dbabc4f39f5
-  # Use the baseline x86-64 flags instead of -march=native
-  sed -i 's|-march=native|-march=x86-64 -mtune=generic|' GKlibSystem.cmake
+  # Add the VALGRIND option (baseline -march=x86-64 -mtune=generic)
+  git cherry-pick -n 0c233a174a36500d32c9e98a7cfc47a2c61a5196
+  git cherry-pick -n a7f8172703cf6e999dd0710eb279bba513da4fec
 }
 
 build() {
@@ -37,6 +38,7 @@ build() {
     -DCMAKE_BUILD_TYPE=None \
     -DBUILD_SHARED_LIBS=ON \
     -DOPENMP=ON \
+    -DVALGRIND=ON \
     -Wno-dev
   cmake --build build
 }
