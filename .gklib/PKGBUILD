@@ -1,23 +1,24 @@
 # Maintainer: Carlos Aznarán <caznaranl@uni.pe>
 # Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
-_base=GKlib
-pkgname=${_base,,}
+
+_name=GKlib
+pkgname=${_name,,}
 pkgver=5.1.1
 pkgrel=6
 pkgdesc="A library of various helper routines and frameworks used by many of the lab's software"
 arch=('x86_64')
-url="https://github.com/KarypisLab/${_base}"
+url="https://github.com/KarypisLab/$_name"
 license=('Apache-2.0')
 depends=('glibc'
          'libgcc'
          'libgomp')
 makedepends=('cmake'
              'git')
-source=("$_base::git+$url.git#tag=METIS-v$pkgver-DistDGL-0.5")
+source=("$_name::git+$url.git#tag=METIS-v$pkgver-DistDGL-0.5")
 sha256sums=('42235a855d6f37688840864f22d3a3010d5aee7c3dbb6f349e93af565bda7c4b')
 
 prepare() {
-  cd $_base
+  cd "$srcdir"/$_name
   # https://github.com/KarypisLab/METIS/issues/54
   git cherry-pick -n 33b8c8bb8dada74b824badff961532f11d0d5e1c
   git cherry-pick -n 1403a04bc40a306d09adfccced7d903d69de040a
@@ -30,7 +31,7 @@ prepare() {
 }
 
 build() {
-  cd $_base
+  cd "$srcdir"/$_name
   make config \
     cc=gcc \
     prefix=/usr \
@@ -38,7 +39,7 @@ build() {
 }
 
 package() {
-  cd $_base
-  make install DESTDIR="${pkgdir}"
-  install -Dm 644 LICENSE.txt -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  cd "$srcdir"/$_name
+  make install DESTDIR="$pkgdir"
+  install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
 }
