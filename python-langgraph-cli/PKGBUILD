@@ -16,8 +16,7 @@ depends=('python'
          'python-dotenv')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-pytest-mock'
