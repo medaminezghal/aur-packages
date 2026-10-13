@@ -27,7 +27,7 @@ source=("$_name::git+$url.git#tag=v$pkgver")
 sha256sums=('3906634820f9e6e02d5c9c9c6c2deebb9ff164e7fcdac4d4015ca7e5997477f2')
 
 build() (
-  cd "$srcdire"/$_name/bindings/python
+  cd "$srcdir"/$_name/bindings/python
   python -m build --wheel --no-isolation
 )
 
@@ -36,7 +36,7 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdire"/$_name/bindings/python
+  cd "$srcdir"/$_name/bindings/python
   export HF_HOME="$srcdir"/hf-home
   export RUN_SLOW=1
   make test-data
@@ -47,7 +47,7 @@ check() {
 }
 
 package() {
-  cd "$srcdire"/$_name
+  cd "$srcdir"/$_name
   install -Dm 644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   cd "bindings/python"
   python -m installer --destdir="$pkgdir" dist/*.whl
