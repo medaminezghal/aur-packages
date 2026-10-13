@@ -65,7 +65,7 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
 
 ## Layout conventions
 - PKGBUILD layout (new packages and every PR you touch, in an "Update syntax" commit):
-  * Header: keep every existing Maintainer/Contributor line, add the owner's line `# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>` (or `# Maintainer:` when the owner maintains/co-maintains it on the AUR) after them, then ONE empty line.
+  * Header: keep every existing Maintainer/Contributor line, add the owner's line `# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>` after them (always `Maintainer`, never `Contributor`, also in dot folders), then ONE empty line.
   * Variables in the ArchWiki PKGBUILD order (https://wiki.archlinux.org/title/PKGBUILD), with NO empty lines between them: pkgbase, pkgname, pkgver, pkgrel, epoch, pkgdesc, arch, url, license, groups, depends, makedepends, checkdepends, optdepends, provides, conflicts, replaces, backup, options, install, changelog, source, noextract, validpgpkeys, checksums. Helper variables (`_name`, `_repo`) go right before the variable that first uses them.
   * Name variable is `_name` (the upstream name, unquoted: `_name=tokenizers`), `pkgname=python-$_name`; for split packages `_name0`, `_name1`, ... and `pkgbase=python-$_name0` (python-fastmcp is the reference). Not `_module`, `_pkgname`, `_base`, `_srcname`, `_pkgsrc`.
   * A package with one pkgname uses `package()` and top-level `depends`/`optdepends`, not `package_<name>()`.
