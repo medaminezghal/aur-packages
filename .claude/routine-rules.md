@@ -17,7 +17,6 @@ run after it is merged.
 - Tests that need Docker: remove them the owner's way, as in python-gradio:
   `rm -rf <docker test folder>` in prepare() with the comment
   `# Remove tests that need docker`.
-- kahip: on its next update PR, change the owner's header line from `# Contributor:` to `# Maintainer:` (not in a separate PR).
 - python-groq / python-spitch: apply the mock-server check() convention
   (Layout conventions) on their next update PR.
 
@@ -72,6 +71,10 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
   * A package with one pkgname uses `package()` and top-level `depends`/`optdepends`, not `package_<name>()`.
   * Every function starts with `cd "$srcdir"/$_name...` (never a relative `cd`), bodies use `{ }` (not subshell `( )`), no empty lines inside functions, `"$pkgdir"`/`"$srcdir"` written as `"$pkgdir"/usr/...` (no `${...}` braces unless needed).
   * Quote array entries: `arch=('any')`, `license=('MIT')`.
+- Compiled code (C, C++, Rust, Go, Fortran, ... including Python extensions), on new packages and every PR you touch:
+  * Enable every upstream build option that adds real functionality or performance for users (e.g. OpenMP/threads, MPI, Python bindings, optional backends, faster trainers), as done in kahip and gklib. Read them from upstream at the packaged tag: CMakeLists.txt `option(...)`, meson_options.txt, configure `--enable-*/--with-*`, Makefile config variables, Cargo `[features]`, setup.py env switches. Do not enable debug, test-only, benchmark, sanitizer, static-only, `-march=native` or platform-specific options that have no benefit on Arch.
+  * Use the system library instead of a bundled/vendored copy whenever Arch ships it (e.g. `SPM_PROTOBUF_PROVIDER=package`/`SPM_ABSL_PROVIDER=package` in sentencepiece, `ZSTD_EXTERNAL=1` in python-zstd); remove the bundled sources in prepare() when needed so they can't be picked up, and add the library to depends (and its headers' package to makedepends if separate).
+  * Each enabled option must build and pass check(). If one fails to build or breaks tests because of an upstream bug (e.g. sentencepiece's `SPM_NLCODEC_BPE` in 0.2.2), leave it off and say why in the PR comment.
 - Comments ONLY in prepare(), directly above the sed/patch/rm line they explain (short: what changed and why). Nowhere else.
 - SYNTAX PASS, MANDATORY on every PR you touch, for EVERY array, not only the ones you edited: depends, makedepends, checkdepends, optdepends (also `depends+=(` in split-package functions) → one entry per line, aligned under the first entry; single-entry arrays stay on one line; 2-space indentation inside functions. Put pure formatting in its own "Update syntax" commit. Verify with `grep -nE "^[a-z]*depends(\+)?=\('[^']+' '" PKGBUILD` (must print nothing).
 - optdepends: one entry per line, aligned; entries with the same tag (text after ": ") directly together; ONE empty line where the tag changes. A line with only spaces already counts as empty — leave it. If an array is already one entry per line, only insert missing empty lines; don't rewrite the rest. python-fastmcp's PKGBUILD is the reference.
