@@ -11,8 +11,7 @@ license=('MIT')
 depends=('python')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('06553f4a4b1b54d094dd01708f51cde69ccd5e8a06fc2664bece3491b593390d')
 
