@@ -1,5 +1,5 @@
 # Maintainer: Henry-ZHR <henry-zhr@qq.com>
-# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=sentencepiece
 pkgbase=$_name
