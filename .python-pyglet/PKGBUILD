@@ -4,7 +4,7 @@
 # Contributor: Douglas Soares de Andrade <douglas@archlinux.org>
 # Contributor: Ryan Coyner <rcoyner@gmail.com>
 # Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
-# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=pyglet
 pkgname=python-$_name
