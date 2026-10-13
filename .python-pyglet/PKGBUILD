@@ -6,30 +6,34 @@
 # Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
 # Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
-pkgbase=pyglet
-pkgname=('python-pyglet')
+_name=pyglet
+pkgname=python-$_name
 pkgver=2.1.19
 pkgrel=1
 pkgdesc="A cross-platform windowing and multimedia library for Python"
 arch=('any')
 url="https://github.com/pyglet/pyglet"
 license=('BSD-3-Clause')
+depends=('python'
+         'glu'
+         'fontconfig'
+         'freetype2')
 makedepends=('git'
              'python-build'
              'python-flit-core'
              'python-installer')
 checkdepends=('python-pytest'
               'python-pillow'
-              'glu'
-              'fontconfig'
-              'freetype2'
               'ttf-liberation'
               'xorg-server-xvfb')
-source=("$pkgbase::git+$url.git#tag=v$pkgver")
+optdepends=('ffmpeg: provides audio&video support'
+
+            'openal: live audio')
+source=("$_name::git+$url.git#tag=v$pkgver")
 sha256sums=('9f91f40608e3e2604bf8a7a7d5e07dcda9afc893292fa52e6823d27b7a0a1625')
 
 build() {
-  cd "$srcdir/$pkgbase"
+  cd "$srcdir"/$_name
   python -m build --wheel --no-isolation
 }
 
@@ -39,19 +43,12 @@ check() {
     --disable-warnings
     --sanity
   )
-  cd "$srcdir/$pkgbase"
+  cd "$srcdir"/$_name
   PYTHONPATH=$PWD xvfb-run -a pytest "${pytest_options[@]}" tests
 }
 
-package_python-pyglet() {
-  depends=('python'
-           'glu'
-           'fontconfig'
-           'freetype2')
-  optdepends=('ffmpeg: provides audio&video support'
-
-              'openal: live audio')
-  cd "$srcdir/$pkgbase"
+package() {
+  cd "$srcdir"/$_name
   python -m installer --destdir="$pkgdir" dist/*.whl
-  install -D -m644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }
