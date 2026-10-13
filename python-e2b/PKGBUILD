@@ -17,14 +17,13 @@ depends=('python'
          'python-attrs'
          'python-packaging'
          'python-typing_extensions'
-         'python-dockerfile-parse'
          'python-rich'
          'python-connectrpc'
-         'python-pyqwest')
+         'python-pyqwest'
+         'python-e2b-dockerfile-utils')
 makedepends=('python-uv-build'
              'python-build'
              'python-installer'
-             'python-wheel'
              'git')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
