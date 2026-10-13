@@ -1,6 +1,6 @@
 # Maintainer: Daniel Bershatsky <bepshatsky@yandex.ru>
 # Contributor: Filip Graliński <filipg@amu.edu.pl>
-# Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name="tokenizers"
 pkgname=python-$_name
