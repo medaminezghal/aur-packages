@@ -22,24 +22,27 @@ prepare() {
   # https://github.com/KarypisLab/METIS/issues/54
   git cherry-pick -n 33b8c8bb8dada74b824badff961532f11d0d5e1c
   git cherry-pick -n 1403a04bc40a306d09adfccced7d903d69de040a
-  # Enable shared library and use Makefiles
-  sed -i 's/CONFIG_FLAGS = -DCMAKE_VERBOSE_MAKEFILE=1/CONFIG_FLAGS = -DBUILD_SHARED_LIBS=TRUE -DCMAKE_GENERATOR="Unix Makefiles"/' Makefile
-  # Increase CMake version
-  sed -i 's/2.8/3.10/' CMakeLists.txt
-  # Avoid crash with illegal instruction
-  sed -i 's|march=native|march=nocona|' GKlibSystem.cmake
+  # Increase the minimum CMake version
+  git cherry-pick -n aadab159a00028e47fb5725e05b5eb7732bb6ee2
+  # Fix heap buffer overflow in regex backreference substitution
+  git cherry-pick -n e2856c2f595b153ca1ce9258c5301dbabc4f39f5
+  # Use the baseline x86-64 flags instead of -march=native
+  sed -i 's|-march=native|-march=x86-64 -mtune=generic|' GKlibSystem.cmake
 }
 
 build() {
   cd "$srcdir"/$_name
-  make config \
-    cc=gcc \
-    prefix=/usr \
-    openmp=set
+  cmake -S . -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=None \
+    -DBUILD_SHARED_LIBS=ON \
+    -DOPENMP=ON \
+    -Wno-dev
+  cmake --build build
 }
 
 package() {
   cd "$srcdir"/$_name
-  make install DESTDIR="$pkgdir"
+  DESTDIR="$pkgdir" cmake --install build
   install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
 }
