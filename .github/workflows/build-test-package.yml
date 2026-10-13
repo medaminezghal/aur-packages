@@ -3,9 +3,6 @@ name: Build and check in clean chroot
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "*/PKGBUILD"
-      - ".github/workflows/**"
   workflow_dispatch:
     inputs:
       package:
@@ -17,10 +14,17 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  REPO_NAME: aur-packages
+  RELEASE_TAG: repo
+
 jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
       options: --privileged --cgroupns=host
@@ -33,7 +37,7 @@ jobs:
         run: pacman -Syu --noconfirm
 
       - name: Install base tools
-        run: pacman -S --noconfirm --needed git sudo devtools
+        run: pacman -S --noconfirm --needed git sudo devtools github-cli
 
       - uses: actions/checkout@v5
         with:
@@ -75,6 +79,28 @@ jobs:
           echo "dir=$dir" >> "$GITHUB_OUTPUT"
           echo "Package to build: $dir"
 
+      - name: Wait for pacman repository updates
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          while :; do
+            if ! pending=$(gh run list -R "$GITHUB_REPOSITORY" \
+                             --workflow publish-to-repo.yml --limit 100 \
+                             --json status \
+                             -q '[.[] | select(.status != "completed")] | length'); then
+              echo "::warning::Could not query publish-to-repo runs, not waiting."
+              break
+            fi
+            [[ "$pending" == 0 ]] && break
+            echo "$pending repository update(s) running or queued, waiting..."
+            sleep 30
+          done
+
+      - name: Add pacman repository
+        if: steps.pkg.outputs.skip != 'true'
+        run: .github/scripts/add-pacman-repo.sh
+
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
         env:
@@ -82,6 +108,38 @@ jobs:
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
           sudo -u ab -D "$GITHUB_WORKSPACE/$PKG" paru -B . --noconfirm
+
+      - name: Collect built packages
+        id: built
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          PKG: ${{ inputs.package || steps.pkg.outputs.dir }}
+        run: |
+          git config --global safe.directory "$GITHUB_WORKSPACE"
+          mkdir -p built-packages
+          sudo -u ab -D "$GITHUB_WORKSPACE/$PKG" makepkg --packagelist \
+            | while read -r file; do
+                # --packagelist also lists a debug package that is not built for arch=any
+                if [[ -f "$file" ]]; then
+                  # Artifacts can't hold ':' (epoch); the repository stores the same '_' name.
+                  base=$(basename "$file")
+                  cp "$file" "built-packages/${base//:/_}"
+                fi
+              done
+          ls built-packages
+
+          # Named after the package directory's contents, so the publish workflow finds it
+          # for the same PKGBUILD however the PR is merged.
+          echo "name=pkg-$(git rev-parse "HEAD:$PKG")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload built packages
+        if: steps.pkg.outputs.skip != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.built.outputs.name }}
+          path: built-packages
+          if-no-files-found: error
+          compression-level: 0
 
       - name: Write result summary
         if: always()

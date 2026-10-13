@@ -1,0 +1,199 @@
+name: Publish to pacman repository
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*/PKGBUILD"
+      - ".*/PKGBUILD"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Directories of PKGBUILDs (space-separated)
+        type: string
+        required: true
+
+concurrency:
+  group: pacman-repo
+  queue: max
+
+env:
+  REPO_NAME: aur-packages
+  RELEASE_TAG: repo
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    container:
+      image: ghcr.io/greyltc-org/archlinux-aur:paru
+      options: --privileged --cgroupns=host
+      volumes:
+        - /etc/machine-id:/etc/machine-id:ro
+        - /run/dbus:/run/dbus
+
+    steps:
+      - name: Update system
+        run: pacman -Syu --noconfirm
+
+      - name: Install base tools
+        run: pacman -S --noconfirm --needed git sudo devtools github-cli gnupg
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Setup chroot via paru
+        run: |
+          sed -i -E 's/^#(Chroot)/\1/' /etc/paru.conf
+          # for systemd-nspawn
+          echo 'ab ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+      - name: Find changed packages
+        id: pkg
+        env:
+          INPUT_PACKAGE: ${{ inputs.package }}
+        run: |
+          git config --global safe.directory "$GITHUB_WORKSPACE"
+
+          if [[ -n "$INPUT_PACKAGE" ]]; then
+            dirs=$(tr ' ' '\n' <<< "$INPUT_PACKAGE")
+          else
+            dirs=$(git diff-tree --no-commit-id -r --name-only HEAD^1 HEAD \
+                     -- '*/PKGBUILD' \
+                   | sed 's|/PKGBUILD||')
+          fi
+
+          list=()
+          for dir in $dirs; do
+            if [[ -f "$dir/PKGBUILD" ]]; then
+              list+=("$dir")
+            else
+              echo "No PKGBUILD in $dir, skipping. Remove it from the repository manually."
+            fi
+          done
+
+          if (( ${#list[@]} == 0 )); then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "dirs=${list[*]}" >> "$GITHUB_OUTPUT"
+          echo "Packages to publish: ${list[*]}"
+
+      - name: Add pacman repository
+        if: steps.pkg.outputs.skip != 'true'
+        run: .github/scripts/add-pacman-repo.sh
+
+      - name: Download tested packages
+        id: tested
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          DIRS: ${{ steps.pkg.outputs.dirs }}
+          GH_TOKEN: ${{ github.token }}
+          REPO_ID: ${{ github.repository_id }}
+        run: |
+          chown -R ab:ab "$GITHUB_WORKSPACE"
+          : > "$RUNNER_TEMP/packages"
+          untested=()
+          for dir in $DIRS; do
+            # The build check names its artifact after the directory's contents.
+            name="pkg-$(git rev-parse "HEAD:$dir")"
+
+            # Only runs on this repository's own branches: a fork's PR runs the fork's copy
+            # of the workflow, so what it uploads can't be trusted.
+            run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=$name&per_page=100" \
+                    -q "[.artifacts[]
+                         | select((.expired | not) and .workflow_run.head_repository_id == $REPO_ID)]
+                        | sort_by(.created_at) | last | .workflow_run.id // empty") || run=
+
+            dest="$RUNNER_TEMP/tested/$dir"
+            if [[ -z "$run" ]] \
+               || ! gh run download "$run" -R "$GITHUB_REPOSITORY" -n "$name" -D "$dest"; then
+              echo "No tested build of $dir, it will be built."
+              untested+=("$dir")
+              continue
+            fi
+
+            # Use it only if it holds every package the PKGBUILD makes (a debug package may be missing).
+            pkgbase=$(sudo -u ab -D "$GITHUB_WORKSPACE/$dir" bash -c 'source PKGBUILD; echo "${pkgbase:-$pkgname}"')
+            files=()
+            complete=true
+            while read -r file; do
+              base=$(basename "$file")
+              base=${base//:/_}
+              if [[ -f "$dest/$base" ]]; then
+                files+=("$dest/$base")
+              elif [[ "$base" != "$pkgbase-debug-"* ]]; then
+                complete=false
+              fi
+            done < <(sudo -u ab -D "$GITHUB_WORKSPACE/$dir" makepkg --packagelist)
+
+            if ! $complete || (( ${#files[@]} == 0 )); then
+              echo "::warning::Tested build of $dir does not match its PKGBUILD, it will be built."
+              untested+=("$dir")
+              continue
+            fi
+
+            echo "Using tested build of $dir from run $run"
+            printf '%s\n' "${files[@]}" >> "$RUNNER_TEMP/packages"
+          done
+          echo "untested=${untested[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Build untested packages
+        if: steps.tested.outputs.untested != ''
+        env:
+          DIRS: ${{ steps.tested.outputs.untested }}
+        run: |
+          read -ra dirs <<< "$DIRS"
+          # One call for all of them, so dependencies built along the way are built only once.
+          sudo -u ab -D "$GITHUB_WORKSPACE" paru -B "${dirs[@]}" --noconfirm
+          for dir in "${dirs[@]}"; do
+            sudo -u ab -D "$GITHUB_WORKSPACE/$dir" makepkg --packagelist \
+              | while read -r file; do
+                  # --packagelist also lists a debug package that is not built for arch=any
+                  if [[ -f "$file" ]]; then
+                    echo "$file"
+                  fi
+                done >> "$RUNNER_TEMP/packages"
+          done
+
+      - name: Setup GPG
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        run: |
+          mkdir -p /root/.gnupg
+          chmod 700 /root/.gnupg
+
+          echo "pinentry-mode loopback" >> /root/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> /root/.gnupg/gpg-agent.conf
+
+          gpg --batch --passphrase "$PASSPHRASE" --import <<< "$GPG_PRIVATE_KEY"
+
+          fingerprint=$(gpg --list-secret-keys --with-colons \
+            | awk -F: '$1 == "fpr" { print $10; exit }')
+
+          gpgconf --kill gpg-agent
+          gpg-agent --daemon --allow-preset-passphrase --allow-loopback-pinentry
+          keygrip=$(gpg --list-secret-keys --with-keygrip \
+            | grep Keygrip \
+            | head -n1 \
+            | awk '{print $3}')
+          /usr/lib/gnupg/gpg-preset-passphrase --preset "$keygrip" <<< "$PASSPHRASE"
+
+          echo "GPG_KEY=$fingerprint" >> "$GITHUB_ENV"
+          echo "GPG key imported: $fingerprint"
+
+      - name: Publish to repository
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat "$RUNNER_TEMP/packages"
+          mapfile -t packages < "$RUNNER_TEMP/packages"
+          .github/scripts/update-pacman-repo.sh "${packages[@]}"
