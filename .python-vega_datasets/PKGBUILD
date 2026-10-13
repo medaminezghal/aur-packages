@@ -1,13 +1,14 @@
 # Maintainer: Carlos Aznarán <caznaranl@uni.pe>
 # Contributor: Jagannathan Tiruvallur Eachambadi <jagannathante@gmail.com>
 # Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
-_base=vega_datasets
-pkgname=python-${_base}
-pkgdesc="A Python package for offline access to Vega datasets"
+
+_name=vega_datasets
+pkgname=python-$_name
 pkgver=0.9
 pkgrel=2
+pkgdesc="A Python package for offline access to Vega datasets"
 arch=('any')
-url="https://github.com/altair-viz/${_base}"
+url="https://github.com/altair-viz/$_name"
 license=('MIT')
 depends=('python-pandas')
 makedepends=('git'
@@ -15,11 +16,11 @@ makedepends=('git'
              'python-installer'
              'python-setuptools')
 checkdepends=('python-pytest')
-source=("${_base}::git+${url}.git#tag=v${pkgver}")
+source=("$_name::git+$url.git#tag=v$pkgver")
 sha256sums=('55cdc4e563cc158f34db896c8f2c3529f482de183ccf10e745f4245c5a5f7b46')
 
 build() {
-  cd ${_base}
+  cd "$srcdir"/$_name
   python -m build --wheel --skip-dependency-check --no-isolation
 }
 
@@ -29,14 +30,14 @@ check() {
     --disable-warnings
     --doctest-modules
   )
-  cd ${_base}
+  cd "$srcdir"/$_name
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer dist/*.whl
-  test-env/bin/python -P -m pytest "${pytest_options[@]}" vega_datasets
+  test-env/bin/python -P -m pytest "${pytest_options[@]}" $_name
 }
 
 package() {
-  cd ${_base}
-  PYTHONPYCACHEPREFIX="${PWD}/.cache/cpython/" python -m installer --destdir="${pkgdir}" dist/*.whl
-  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  cd "$srcdir"/$_name
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }
