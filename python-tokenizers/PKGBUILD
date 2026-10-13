@@ -2,11 +2,6 @@
 # Contributor: Filip Graliński <filipg@amu.edu.pl>
 # Contributor: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
-: ${CARGO_HOME:=$SRCDEST/cargo-home}
-: ${CARGO_TARGET_DIR:=target}
-: ${RUSTUP_TOOLCHAIN:=stable}
-export CARGO_HOME CARGO_TARGET_DIR RUSTUP_TOOLCHAIN
-
 _module="tokenizers"
 _pkgname="python-$_module"
 pkgname="$_pkgname"
@@ -34,11 +29,6 @@ options=('!lto')
 
 source=("$_module::git+$url.git#tag=v$pkgver")
 sha256sums=('3906634820f9e6e02d5c9c9c6c2deebb9ff164e7fcdac4d4015ca7e5997477f2')
-
-prepare() (
-  cd "$_module/bindings/python"
-  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
-)
 
 build() (
   cd "$_module/bindings/python"
