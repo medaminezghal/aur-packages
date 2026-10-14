@@ -15,7 +15,6 @@ makedepends=('python-hatchling'
              'python-uv-dynamic-versioning'
              'python-build'
              'python-installer'
-             'python-wheel'
              'git')
 checkdepends=('python-anyio'
               'python-dirty-equals'
@@ -44,7 +43,6 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    # Package still doesn't exist in AUR
     --ignore tests/test_source_aws.py
   )
   cd "$srcdir"/$_name
