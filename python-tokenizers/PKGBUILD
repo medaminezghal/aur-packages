@@ -14,9 +14,9 @@ depends=('python-huggingface-hub'
          'libgcc'
          'libstdc++'
          'glibc')
-makedepends=('python-build'
-             'python-installer'
-             'python-maturin')
+makedepends=('python-maturin'
+             'python-build'
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-numpy'
