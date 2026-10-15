@@ -2,7 +2,7 @@
 
 _name=vercel-internal-core
 pkgname=python-$_name
-pkgver=0.2.1
+pkgver=0.2.2
 pkgrel=1
 pkgdesc='Shared internal runtime for Vercel Python packages.'
 arch=('any')
@@ -22,7 +22,7 @@ checkdepends=('python-pytest'
               'python-httpx'
               'python-hypothesis')
 source=("$_name::git+$_repo.git#tag=$_name-v$pkgver")
-sha256sums=('c88958e62fdd71617be1b5dfb348b00d385cb4c85a051b72808ffd632f305cf8')
+sha256sums=('4c1b7b94825ce19697e3d01c30125c27ca7151081793713d9805f8cbab868d13')
 
 build() {
   cd "$srcdir"/$_name/src/$_name
