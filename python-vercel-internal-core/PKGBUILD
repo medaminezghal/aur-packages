@@ -14,17 +14,16 @@ depends=('python'
          'python-anyio')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'git')
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-httpx'
               'python-hypothesis')
-source=("$_name::git+$_repo.git#tag=$_name-v$pkgver")
-sha256sums=('4c1b7b94825ce19697e3d01c30125c27ca7151081793713d9805f8cbab868d13')
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name-v$pkgver.tar.gz")
+sha256sums=('e0cb857873741a796687aa36876f7e145ef91d196c66ff61b8cf42757c400420')
 
 build() {
-  cd "$srcdir"/$_name/src/$_name
+  cd "$srcdir"/vercel-py-$_name-v$pkgver/src/$_name
   python -m build --wheel --no-isolation
 }
 
@@ -33,12 +32,12 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_name/src/$_name
+  cd "$srcdir"/vercel-py-$_name-v$pkgver/src/$_name
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name/src/$_name
+  cd "$srcdir"/vercel-py-$_name-v$pkgver/src/$_name
   python -m installer --destdir="$pkgdir" dist/*.whl
   install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
