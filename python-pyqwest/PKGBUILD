@@ -46,8 +46,7 @@ sha256sums=('91b211d615c0d2ffeb39ed80cbc035d66fc328e03cf496985ec3c7b99126519c'
 prepare() {
   cd "$srcdir"/$_name-$pkgver
   # Use the standard library compression.zstd module instead of python-zstd
-  sed -i 's/^import zstd\b.*/from compression import zstd/' \
-    tests/apps/asgi/kitchensink.py tests/apps/wsgi/kitchensink.py
+  sed -i 's/^import zstd\b.*/from compression import zstd/' tests/apps/asgi/kitchensink.py tests/apps/wsgi/kitchensink.py
   cd "$srcdir"/pyvoy
   git checkout --quiet "$(git tag -l 'v*' --sort=-v:refname | head -1)"
 }
