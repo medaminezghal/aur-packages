@@ -47,7 +47,13 @@ checkdepends=('python-pytest'
               'python-greenlet'
               'python-redis'
               'python-docker'
-              'python-runloop_api_client')
+              'python-e2b'
+              'python-h2'
+              'python-pygments'
+              'python-runloop_api_client'
+              'python-vercel-sandbox'
+              'python-cbor2'
+              'git')
 optdepends=('python-numpy: voice'
             'python-websockets: voice'
 
