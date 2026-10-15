@@ -25,7 +25,7 @@ source_x86_64=("envoy::https://github.com/envoyproxy/envoy/releases/download/v$p
 source_aarch64=("envoy::https://github.com/envoyproxy/envoy/releases/download/v$pkgver/envoy-$pkgver-linux-aarch_64")
 sha256sums=('292737aba482445181bd316fe02f40f4a421865b31b1f8b4772ddb758e326e3d')
 sha256sums_x86_64=('8aa137a7d00994ce43f613556f5a120709229f63bedb86eedde5ccbc402c2b80')
-sha256sums_aarch64=('8aa137a7d00994ce43f613556f5a120709229f63bedb86eedde5ccbc402c2b80')
+sha256sums_aarch64=('03cacc952561635c0b7d2a829291f341dadbebc32050475efbe7321b1bbe18c2')
 
 prepare() {
   cd "$srcdir"/$_name
