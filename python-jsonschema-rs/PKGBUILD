@@ -14,7 +14,6 @@ depends=('python'
 makedepends=('python-maturin'
              'python-build'
              'python-installer'
-             'python-wheel'
              'mold'
              'git')
 checkdepends=('python-flask'
