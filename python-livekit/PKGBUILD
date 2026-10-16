@@ -62,7 +62,7 @@ check() {
     --disable-warnings
   )
   cd "$srcdir"/python-sdks-rtc-v$pkgver
-  PYTHONPATH=$PWD/$_name-rtc pytest "${pytest_options[@]}" $_name-rtc/tests tests/rtc
+  PYTHONPATH=$PWD/$_name-rtc pytest "${pytest_options[@]}" tests/rtc $_name-rtc/tests
 }
 
 package() {
