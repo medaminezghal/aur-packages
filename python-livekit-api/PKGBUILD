@@ -9,8 +9,17 @@ arch=('any')
 _repo='https://github.com/livekit/python-sdks'
 url='$_repo/tree/main/livekit-api'
 license=('Apache-2.0')
-depends=('python' 'python-pyjwt' 'python-aiohttp' 'python-protobuf' 'python-livekit-protocol')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel')
+depends=('python'
+         'python-pyjwt'
+         'python-aiohttp'
+         'python-idna'
+         'python-multidict'
+         'python-protobuf'
+         'python-types-protobuf'
+         'python-livekit-protocol')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer')
 checkdepends=('python-pytest')
 source=("$_repo/archive/refs/tags/api-v$pkgver.tar.gz")
 sha256sums=('cf106221fdacf0eeed270b90aef27420c509dd69428f38ed5b0198945b7d62eb')
