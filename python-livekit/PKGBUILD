@@ -12,7 +12,6 @@ url="$_repo/tree/main/livekit-rtc"
 license=('Apache-2.0')
 depends=('python'
          'python-protobuf'
-         'python-types-protobuf'
          'python-aiofiles'
          'python-numpy'
          'glibc'
