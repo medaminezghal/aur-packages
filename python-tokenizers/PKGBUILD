@@ -5,7 +5,7 @@
 _name=tokenizers
 pkgname=python-$_name
 pkgver=0.23.3
-pkgrel=2
+pkgrel=3
 pkgdesc='Fast State-of-the-Art Tokenizers optimized for Research and Production'
 arch=('x86_64' 'aarch64' 'i686')
 url="https://github.com/huggingface/tokenizers"
@@ -24,6 +24,12 @@ checkdepends=('python-pytest'
 options=('!lto')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('2a0ff80c61f263cca608264a99b43dd487a3194a362d20c31193bc083e16a46b')
+
+prepare() {
+  cd "$_name-$pkgver/bindings/python"
+  # Remove the benchmark suite (dropped upstream after 0.23.3), its data isn't fetched by make test-data
+  rm tests/test_benchmarks.py
+}
 
 build() {
   cd "$srcdir"/$_name-$pkgver/bindings/python
