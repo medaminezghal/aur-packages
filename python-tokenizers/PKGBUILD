@@ -33,7 +33,7 @@ prepare() {
 }
 
 build() {
-  cd "$srcdir"/$_name-$pkgver/bindings/python
+  cd "$_name-$pkgver/bindings/python"
   python -m build --wheel --no-isolation
 }
 
@@ -42,7 +42,7 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_name-$pkgver/bindings/python
+  cd "$_name-$pkgver/bindings/python"
   export HF_HOME="$srcdir"/hf-home
   export RUN_SLOW=1
   make test-data
