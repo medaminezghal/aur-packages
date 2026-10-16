@@ -53,8 +53,6 @@ check() {
 }
 
 package() {
-  cd "$srcdir"/$_name-$pkgver
-  install -Dm 644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-  cd "bindings/python"
+  cd "$_name-$pkgver/bindings/python"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
