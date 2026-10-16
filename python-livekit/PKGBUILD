@@ -12,15 +12,16 @@ url="$_repo/tree/main/livekit-rtc"
 license=('Apache-2.0')
 depends=('python'
          'python-protobuf'
+         'python-types-protobuf'
          'python-aiofiles'
          'python-numpy'
          'glibc'
          'gcc-libs')
 makedepends=('python-setuptools'
-             'python-build'
-             'python-installer'
              'python-wheel'
-             'python-requests')
+             'python-requests'
+             'python-build'
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-matplotlib'
