@@ -26,13 +26,13 @@ sha256sums=('2ec74c16b1b8c4db0c8694397b5520209c7bd4330e0cf5a5f16c46b76a58e5c1'
             '5477d894cb15fc844862d0baf5d0dfbd26b5a5f112087350a6802289b089c3b1')
 
 prepare() {
-  cd "$srcdir"/$_name
+  cd "$_name"
   git submodule init crates/jsonschema/tests/suite
   git config submodule.testsuite.url "$srcdir"/JSON-Schema-Test-Suite
   git -c protocol.file.allow=always submodule update crates/jsonschema/tests/suite
 }
 build() {
-  cd "$srcdir"/$_name
+  cd "$_name"
   export RUSTFLAGS="$RUSTFLAGS -Clink-arg=-fuse-ld=mold"
   export AWS_LC_SYS_NO_JITTER_ENTROPY=1
   python -m build --wheel --no-isolation crates/${_name//-rs/-py}
@@ -44,7 +44,7 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_name
+  cd "$_name"
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer crates/${_name//-rs/-py}/dist/*.whl
   test-env/bin/python -m installer crates/${_name//-rs/-testsuite-pyo3}/dist/*.whl
@@ -52,6 +52,6 @@ check() {
 }
 
 package() {
-  cd "$srcdir"/$_name
+  cd "$_name"
   python -m installer --destdir="$pkgdir" crates/${_name//-rs/-py}/dist/*.whl
 }
