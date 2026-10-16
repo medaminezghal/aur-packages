@@ -21,9 +21,9 @@ checkdepends=('python-flask'
               'python-pytest')
 options=(!strip lto)
 source=("$_name::git+$url.git#tag=python-v$pkgver"
-        "git+https://github.com/json-schema-org/JSON-Schema-Test-Suite#commit=583d7c6")
+        "git+https://github.com/json-schema-org/JSON-Schema-Test-Suite#commit=5b0ee16")
 sha256sums=('2ec74c16b1b8c4db0c8694397b5520209c7bd4330e0cf5a5f16c46b76a58e5c1'
-            '7ccebd0988e5f5553be0cf64a2cdad14299abc73c58ee8d536b9d56da440ce1a')
+            '5477d894cb15fc844862d0baf5d0dfbd26b5a5f112087350a6802289b089c3b1')
 
 prepare() {
   cd "$srcdir"/$_name
