@@ -7,7 +7,7 @@ pkgrel=1
 pkgdesc='Python Server API for LiveKit.'
 arch=('any')
 _repo='https://github.com/livekit/python-sdks'
-url='$_repo/tree/main/livekit-api'
+url="$_repo/tree/main/$_name"
 license=('Apache-2.0')
 depends=('python'
          'python-pyjwt'
