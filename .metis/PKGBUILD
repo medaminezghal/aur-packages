@@ -1,0 +1,55 @@
+# Maintainer: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: Antonio Rojas <arojas@archlinux.org>
+# Contributor: Jed Brown <jed@jedbrown.org>
+# Contributor: George Eleftheriou <eleftg@gmail.com>
+# Contributor: mickele
+# Contributor: gborzi
+# Contributor: abenson
+# Contributor: Jakub Klinkovský <j.l.k cat gmx dog com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=METIS
+pkgname=${_name,,}
+pkgver=5.2.1
+pkgrel=4
+pkgdesc="Serial Graph Partitioning and Fill-reducing Matrix Ordering"
+arch=('x86_64')
+url="https://github.com/KarypisLab/$_name"
+license=('Apache-2.0')
+depends=('glibc'
+         'gklib')
+makedepends=('cmake'
+             'git')
+options=(docs)
+source=("$_name::git+$url.git#tag=v$pkgver")
+sha256sums=('8c6994fdb6d844f87f6e9405a133f303ed89a64eaecdffdba7c74992aa907a3c')
+
+prepare() {
+  cd "$srcdir"/$_name
+  # Increase the minimum CMake version
+  git cherry-pick -n 350931887dfc00c2e3cb7551c5abf30e0297126a
+  # Link libmetis to GKlib for shared library builds
+  git cherry-pick -n d35827857a71f0579b1d46e4c15935af3e4f8927
+  # Fix integer divide-by-zero in METIS_PartGraphKway when nparts==1
+  git cherry-pick -n 0f8c9af5a16d8990c34e4b278f05f2be74499057
+  # Fix off-by-one errors in CheckInputGraphWeights
+  git cherry-pick -n b08e28b2ee147489f152336c96f08e523f642afc
+  # Raise an error on over-partitioning instead of silently returning
+  git cherry-pick -n 80e661f039a38be900d36817c43a9c39f43e3b7e
+}
+
+build() {
+  cd "$srcdir"/$_name
+  make config \
+    shared=1 \
+    cc=gcc \
+    prefix=/usr \
+    gklib_path=/usr \
+    valgrind=1
+}
+
+package() {
+  cd "$srcdir"/$_name
+  make install DESTDIR="$pkgdir"
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
+}
