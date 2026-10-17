@@ -8,9 +8,21 @@ pkgdesc="A wrapper for the SLICOT control and systems library."
 arch=('x86_64' 'aarch64')
 url="https://github.com/python-control/Slycot"
 license=('GPL-2.0 AND BSD-3-Clause')
-depends=('python' 'python-numpy' 'glibc' 'libgcc' 'blas' 'lapack' 'gcc-fortran')
-makedepends=('python-scikit-build-core' 'python-numpy' 'python-setuptools-scm' 'python-build' 'python-installer' 'gcc')
-checkdepends=('python-scipy' 'python-pytest')
+depends=('python'
+         'python-numpy'
+         'glibc'
+         'libgcc'
+         'blas'
+         'lapack'
+         'gcc-fortran')
+makedepends=('python-scikit-build-core'
+             'python-numpy'
+             'python-setuptools-scm'
+             'python-build'
+             'python-installer'
+             'gcc')
+checkdepends=('python-scipy'
+              'python-pytest')
 options=(!strip)
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz")
 sha256sums=('b542acc84f389a9acd973f8836ef18c5b06a8b2ad62c42ddef2227d9e6e370b4')
