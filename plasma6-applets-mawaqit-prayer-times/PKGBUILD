@@ -8,8 +8,6 @@ arch=('any')
 url='https://github.com/medaminezghal/plasma6-applets-mawaqit-prayer-times'
 license=('GPL-3.0-or-later')
 depends=('plasma-workspace')
-optdepends=('qt6-positioning: GPS-accurate location detection via GeoClue'
-            'geoclue: location service backend for qt6-positioning')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('74a2ef37765996d503dd0612f79944aa7a4b1b9f2281b426993eba7071ef6f43')
 
