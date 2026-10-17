@@ -2,7 +2,7 @@
 
 _name=slycot
 pkgname=python-$_name
-pkgver=0.7.0
+pkgver=0.7.1
 pkgrel=1
 pkgdesc="A wrapper for the SLICOT control and systems library."
 arch=('any')
@@ -13,7 +13,7 @@ makedepends=('python-scikit-build-core' 'python-numpy' 'python-setuptools-scm' '
 checkdepends=('python-scipy' 'python-pytest')
 options=(!strip)
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz")
-sha256sums=('41ba13991982b0304520bf5115491d63f644389552eea62fc2ecbd21ef661001')
+sha256sums=('b542acc84f389a9acd973f8836ef18c5b06a8b2ad62c42ddef2227d9e6e370b4')
 
 build() {
   cd "$srcdir/$_name-$pkgver"
