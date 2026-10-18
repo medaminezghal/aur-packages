@@ -72,6 +72,7 @@ package_python-pydantic-monty-client() {
   url="$_repo/tree/main/crates/${_name0//pydantic-/}-python"
   cd "${_name0//pydantic-/}-$pkgver"
   python -m installer --destdir="$pkgdir" crates/${_name0//pydantic-/}-python/dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-pydantic-monty-runtime() {
@@ -81,6 +82,7 @@ package_python-pydantic-monty-runtime() {
   url="$_repo/tree/main/crates/${_name0//pydantic-/}-$_name1"
   cd "${_name0//pydantic-/}-$pkgver"
   python -m installer --destdir="$pkgdir" crates/${_name0//pydantic-/}-$_name1/dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-pydantic-monty() {
@@ -92,4 +94,5 @@ package_python-pydantic-monty() {
   url="$_repo/tree/main/packages/$_name0"
   cd "${_name0//pydantic-/}-$pkgver"
   python -m installer --destdir="$pkgdir" packages/$_name0/dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
