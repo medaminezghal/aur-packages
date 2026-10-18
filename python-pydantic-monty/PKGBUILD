@@ -60,6 +60,7 @@ check() {
   test-env/bin/python -m installer crates/${_name0//pydantic-/}-$_name1/dist/*.whl
   test-env/bin/python -m installer packages/$_name0/dist/*.whl
   test-env/bin/python -m pytest "${pytest_options[@]}" crates/${_name0//pydantic-/}-python/tests
+  export CARGO_PROFILE_RELEASE_LTO=off
   cargo test --locked --release -j 2 -p ${_name0//pydantic-/}-$_name1
 }
 
