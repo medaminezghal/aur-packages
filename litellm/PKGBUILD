@@ -13,8 +13,7 @@ url='https://github.com/BerriAI/litellm'
 license=('MIT')
 makedepends=('python-maturin'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 depends=('python'
          'python-fastuuid'
          'python-filelock'
@@ -35,6 +34,7 @@ depends=('python'
          'python-pydantic-settings'
          'python-jsonschema'
          'python-boto3'
+         'python-typing_extensions'
          'glibc'
          'libgcc')
 optdepends=('gunicorn: proxy'
