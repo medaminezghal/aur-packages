@@ -7,7 +7,7 @@ pkgbase=python-$_name0
 pkgname=(python-$_name0-$_name2 python-$_name0-$_name1 python-$_name0)
 pkgver=1.2.0
 pkgrel=1
-arch=('any')
+arch=('x86_64' 'aarch64')
 license=('MIT')
 depends=('python')
 makedepends=('python-maturin'
@@ -85,6 +85,7 @@ package_python-pydantic-monty-runtime() {
 }
 
 package_python-pydantic-monty() {
+  arch=('any')
   pkgdesc='The Monty sandboxed Python interpreter: bindings plus the worker binary.'
   depends+=('python-pydantic-monty-client'
             'python-pydantic-monty-runtime')
