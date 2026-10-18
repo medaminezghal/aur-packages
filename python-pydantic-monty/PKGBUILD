@@ -13,8 +13,7 @@ depends=('python')
 makedepends=('python-maturin'
              'python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-anyio'
               'python-dirty-equals'
               'python-inline-snapshot'
