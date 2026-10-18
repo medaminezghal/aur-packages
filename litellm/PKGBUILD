@@ -11,9 +11,6 @@ pkgdesc='Library to easily interface with LLM API providers.'
 arch=('x86_64' 'aarch64')
 url='https://github.com/BerriAI/litellm'
 license=('MIT')
-makedepends=('python-maturin'
-             'python-build'
-             'python-installer')
 depends=('python'
          'python-fastuuid'
          'python-filelock'
@@ -37,6 +34,9 @@ depends=('python'
          'python-typing_extensions'
          'glibc'
          'libgcc')
+makedepends=('python-maturin'
+             'python-build'
+             'python-installer')
 optdepends=('gunicorn: proxy'
             'uvicorn: proxy'
             'python-granian: proxy'
@@ -141,12 +141,12 @@ source=("https://files.pythonhosted.org/packages/source/${pkgname::1}/${pkgname}
 sha256sums=('5c84cc7d928cdb6ec57c5d87f221e3d27ca755958ebae389d5663f822b6f7a19')
 
 prepare() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
+  cd "$pkgname-$pkgver"
   sed -i 's/maturin==[0-9.]*/maturin/g' pyproject.toml
 }
 
 build() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
+  cd "$pkgname-$pkgver"
   export PYO3_PYTHON=/usr/bin/python
   export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
   export CARGO_PROFILE_RELEASE_LTO=off
@@ -155,8 +155,8 @@ build() {
 }
 
 package() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
-  python -m installer --destdir="${pkgdir}" dist/*.whl
-  install -Dm644 "README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-  install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "$pkgname-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 "README.md" "$pkgdir"/usr/share/doc/$pkgname/README.md
+  install -Dm644 "LICENSE" "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }
