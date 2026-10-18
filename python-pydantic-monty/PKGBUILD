@@ -5,7 +5,7 @@ _name1=runtime
 _name0=pydantic-monty
 pkgbase=python-$_name0
 pkgname=(python-$_name0-$_name2 python-$_name0-$_name1 python-$_name0)
-pkgver=1.1.0
+pkgver=1.2.0
 pkgrel=1
 arch=('any')
 _repo='https://github.com/pydantic/monty'
@@ -25,7 +25,7 @@ checkdepends=('python-anyio'
               'python-websockets')
 options=(!lto)
 source=("$_repo/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('5ff642b2a64246433cae8f2c99e1bdbaf3db4cf0d08e6cbffc0ae400513e4b3a')
+sha256sums=('f01afc6e4da9de1aaf680f61e2ee06f397cc5c6db46196bb2dcc85d3a8a4e57d')
 
 prepare() {
   cd "$srcdir"/${_name0//pydantic-/}-$pkgver
