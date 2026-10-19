@@ -25,6 +25,12 @@ checkdepends=('python-pytest'
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('7670171ab1a372e8de754f53234fbdaa0e838823bcb45a540e2dffbf4335f1e7')
 
+prepare() {
+  cd "$_name-$pkgver"
+  # Python 3.14 moved warnings.deprecated's wrapper into _py_warnings
+  sed -i 's/frozenset({"warnings", "typing_extensions"})/frozenset({"warnings", "_py_warnings", "typing_extensions"})/' exa_py/api_warnings.py
+}
+
 build() {
   cd "$_name-$pkgver"
   python -m build --wheel --no-isolation
@@ -35,6 +41,7 @@ check() {
     -vv
     --disable-warnings
     --override-ini="addopts="
+    --asyncio-mode=auto
   )
   cd "$_name-$pkgver"
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
