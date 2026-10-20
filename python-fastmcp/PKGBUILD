@@ -59,7 +59,7 @@ source=("$_name0::git+$_repo.git#tag=v$pkgver")
 sha256sums=('67e15c99dc76538bcf74409ae6634925e7d9803dfedb0d2f51bd8883ef9fe72f')
 
 build() {
-  cd "$srcdir"/$_name0
+  cd "$_name0"
   python -m build --wheel --no-isolation ${_name0}_$_name3
   python -m build --wheel --no-isolation ${_name0}_$_name2
   python -m build --wheel --no-isolation ${_name0}_$_name1
@@ -71,7 +71,7 @@ build() {
 #     -vv
 #     --disable-warnings
 #   )
-#   cd "$srcdir"/$_name0
+#   cd "$_name0"
 # }
 
 package_python-fastmcp-slim() {
@@ -144,7 +144,7 @@ package_python-fastmcp-slim() {
               'python-watchfiles: server'
               'python-websockets: server')
   url="$_repo/tree/main/${_name0}_$_name3"
-  cd "$srcdir"/$_name0
+  cd "$_name0"
   python -m installer --destdir="$pkgdir" ${_name0}_$_name3/dist/*.whl
 }
 
@@ -177,7 +177,7 @@ package_python-fastmcp-remote() {
             'python-watchfiles'
             'python-websockets') 
   url="$_repo/tree/main/${_name0}_$_name2"
-  cd "$srcdir"/$_name0
+  cd "$_name0"
   python -m installer --destdir="$pkgdir" ${_name0}_$_name2/dist/*.whl
 }
 
@@ -212,7 +212,7 @@ package_python-fastmcp-tasks() {
             'python-cryptography'
             'python-pydocket')
   url="$_repo/tree/main/${_name0}_$_name1"
-  cd "$srcdir"/$_name0
+  cd "$_name0"
   python -m installer --destdir="$pkgdir" ${_name0}_$_name1/dist/*.whl
 }
 
@@ -262,6 +262,6 @@ package_python-fastmcp() {
               
               'python-fastmcp-tasks: tasks')
   url="$_repo"
-  cd "$srcdir"/$_name0
+  cd "$_name0"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
