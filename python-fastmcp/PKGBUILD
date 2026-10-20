@@ -18,7 +18,6 @@ makedepends=('python-hatchling'
              'python-uv-dynamic-versioning'
              'python-build'
              'python-installer'
-             'python-wheel'
              'git')
 # checkdepends=('python-dirty-equals'
 #               'python-exceptiongroup'
