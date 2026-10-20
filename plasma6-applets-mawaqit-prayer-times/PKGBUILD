@@ -8,8 +8,14 @@ arch=('any')
 url='https://github.com/medaminezghal/plasma6-applets-mawaqit-prayer-times'
 license=('GPL-3.0-or-later')
 depends=('plasma-workspace')
+makedepends=('qt6-shadertools')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('4b4f80b56a10925f5fb4a35e7145606c91a09c9531ae3433d0993d8e4f82aac9')
+
+build() {
+  cd "$pkgname-$pkgver"
+  ./scripts/build-shaders.sh
+}
 
 package() {
   cd "$pkgname-$pkgver"
