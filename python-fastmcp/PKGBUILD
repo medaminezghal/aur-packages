@@ -85,10 +85,12 @@ package_python-fastmcp-slim() {
             'python-dotenv'
             'python-rich'
             'python-typing_extensions')
-  optdepends=('python-anthropic: anthropic'
+  optdepends=('python-certifi: anthropic'
+              'python-anthropic: anthropic'
   
               'python-prefab-ui: apps'
               
+              'python-certifi: azure'
               'python-azure-identity: azure'
               'python-pyjwt: azure'
               
@@ -108,6 +110,7 @@ package_python-fastmcp-slim() {
               
               'python-typesafe-sdk: jev'
               
+              'python-certifi: gemini'
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
@@ -117,8 +120,10 @@ package_python-fastmcp-slim() {
               'python-opentelemetry-api: mcp'
               'python-starlette: mcp'
               
+              'python-certifi: openai'
               'python-openai: openai'
               
+              'python-certifi: server'
               'python-exceptiongroup: server'
               'python-httpx2: server'
               'python-mcp: server'
@@ -152,6 +157,7 @@ package_python-fastmcp-slim() {
 package_python-fastmcp-remote() {
   pkgdesc='A Python stdio bridge for remote MCP servers, powered by FastMCP.'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -185,6 +191,7 @@ package_python-fastmcp-remote() {
 package_python-fastmcp-tasks() {
   pkgdesc='Background task execution for FastMCP servers via the io.modelcontextprotocol/tasks extension (SEP-2663).'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -220,6 +227,7 @@ package_python-fastmcp-tasks() {
 package_python-fastmcp() {
   pkgdesc='The fast, Pythonic way to build MCP servers and clients.'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -245,10 +253,12 @@ package_python-fastmcp() {
             'uvicorn'
             'python-watchfiles'
             'python-websockets')
-  optdepends=('python-anthropic: anthropic'
+  optdepends=('python-certifi: anthropic'
+              'python-anthropic: anthropic'
   
               'python-prefab-ui: apps'
               
+              'python-certifi: azure'
               'python-azure-identity: azure'
               'python-pyjwt: azure'
               
@@ -256,9 +266,11 @@ package_python-fastmcp() {
               
               'python-typesafe-sdk: jev'
               
+              'python-certifi: gemini'
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
+              'python-certifi: openai'
               'python-openai: openai'
               
               'python-fastmcp-tasks: tasks')
