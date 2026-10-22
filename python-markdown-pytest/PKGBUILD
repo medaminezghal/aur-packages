@@ -14,7 +14,9 @@ makedepends=('python-hatchling'
              'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio')
-optdepends=('python-pytest-asyncio: async')
+optdepends=('python-pytest: pytest'
+
+            'python-pytest-asyncio: async')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('ccc074a060cd9e3e95e93507d838edfbf01000140b9373123c97f1732d4c8312')
 
