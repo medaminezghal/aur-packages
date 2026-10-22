@@ -31,8 +31,7 @@ checkdepends=('python-pytest'
               'python-markdown'
               'python-pymdown-extensions'
               'zsh'
-              'fish'
-              'powershell')
+              'fish')
 optdepends=('python-trio: trio'
 
             'python-yaml: yaml'
