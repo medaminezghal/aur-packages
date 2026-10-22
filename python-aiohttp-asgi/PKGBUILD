@@ -1,0 +1,41 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=aiohttp-asgi
+pkgname=python-$_name
+pkgver=0.6.1
+pkgrel=1
+pkgdesc='Adapter to running ASGI applications on aiohttp.'
+arch=('any')
+url='https://github.com/mosquito/aiohttp-asgi'
+license=('Apache-2.0')
+depends=('python'
+         'python-aiohttp')
+makedepends=('python-poetry-core'
+             'python-build'
+             'python-installer')
+checkdepends=('python-pytest'
+              'python-fastapi'
+              'python-pytest-aiohttp')
+_commit=b4ead4e7052e61548a34c18b72ebe19f198a2393
+source=("$_name-$pkgver.tar.gz::$url/archive/$_commit.tar.gz")
+sha256sums=('4550adca243c572f65b56b41a7c4d9bc9ad5e128cdd81f8dcf42ca7fd83b95b4')
+
+build() {
+  cd "$_name-$_commit"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+    --doctest-modules
+  )
+  cd "$_name-$_commit"
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+}
+
+package() {
+  cd "$_name-$_commit"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
