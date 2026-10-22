@@ -1,0 +1,27 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=aiocarbon
+pkgname=python-$_name
+pkgver=0.15.3
+pkgrel=1
+pkgdesc='Asynchronous client for carbon.'
+arch=('any')
+url='https://github.com/mosquito/aiocarbon'
+license=('Apache-2.0')
+depends=('python'
+         'python-immutables')
+makedepends=('python-setuptools'
+             'python-build'
+             'python-installer')
+source=("$_name-$pkgver.tar.gz::https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz")
+sha256sums=('1aea9dcfdeaec449b02bc262a84e6c5422f477839966f6ad4745cebe2e31ce0a')
+
+build() {
+  cd "$_name-$pkgver"
+  python -m build --wheel --no-isolation
+}
+
+package() {
+  cd "$_name-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
