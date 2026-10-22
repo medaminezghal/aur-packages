@@ -12,8 +12,10 @@ depends=('python')
 makedepends=('python-hatchling'
              'python-build'
              'python-installer')
-checkdepends=('python-pytest'
-              'python-pytest-asyncio')
+checkdepends=('python-markdown-pytest'
+              'python-pytest'
+              'python-pytest-asyncio'
+              'python-pytest-mypy-plugins')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('ab20438de2879310baa4d06ab5026edc1363a5124120669f18ffd9b17b1dc900')
 
@@ -37,7 +39,7 @@ check() {
     --override-ini="addopts="
   )
   cd "$_name-$pkgver"
-  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests README.md
 }
 
 package() {
