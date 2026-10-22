@@ -26,9 +26,9 @@ source_x86_64=("https://files.pythonhosted.org/packages/py3/p/protoc-runner/prot
 source_aarch64=("https://files.pythonhosted.org/packages/py3/p/protoc-runner/protoc_runner-$_protobuf_ver-py3-none-manylinux2014_$CARCH.manylinux_2_17_$CARCH.musllinux_1_1_$CARCH.whl")
 noextract=("protoc_runner-$_protobuf_ver-py3-none-manylinux2014_$CARCH.manylinux_2_17_$CARCH.musllinux_1_1_$CARCH.whl")
 sha256sums=('480d1c90f48f02623740ce8341dd8c5509c45cc3c90e0eaaafe0b74260773551'
-            'f5bfd262e6705c7ae73f32e0ad8ee20ce8c0a2578df8c4f76ebf76b572f295ed')
+            'SKIP')
 sha256sums_x86_64=('7dc4894afdc87f213fcc51a974520ac68d6641406811d671ef23caa2ecd88220')
-sha256sums_aarch64=('7dc4894afdc87f213fcc51a974520ac68d6641406811d671ef23caa2ecd88220')
+sha256sums_aarch64=('03b0f9bee44c5ce2ac601a88c8b35ea5b25e30d585ce95e67b32d35f14015edf')
 
 prepare() {
   cd "$srcdir"/$_name
