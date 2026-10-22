@@ -17,8 +17,7 @@ depends=('python'
          'python-typing_extensions')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'git')
+             'python-installer')
 checkdepends=('python-opentelemetry-sdk'
               'python-httpx'
               'python-cryptography'
@@ -55,15 +54,16 @@ optdepends=('uvicorn: fastapi'
             'python-pypdf: rag-unstructured'
             'python-unstructured-inference: rag-unstructured'
             'python-unstructured-pytesseract: rag-unstructured')
-source=("$_name::git+$url.git#tag=v$pkgver")
-sha256sums=('68fec0321944688710c46c3dd6ad2c7825063f8ff3c541b685987bc070589028')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('fc400549c9cd049829fb4dced489f6fc34ee0a9285795f9bebe9df28e5f5e5d3')
 
 build() {
-  cd "$srcdir"/$_name
+  cd "python-sdk-$pkgver"
   python -m build --wheel --no-isolation
 }
 
 check() {
+  cd "python-sdk-$pkgver"
   local pytest_options=(
     -vv
     --disable-warnings
@@ -72,13 +72,12 @@ check() {
     --ignore=tests/integration
     --ignore=tests/examples
   )
-  cd "$srcdir"/$_name
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer dist/*.whl
   test-env/bin/python -P -m pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name
+  cd "python-sdk-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
