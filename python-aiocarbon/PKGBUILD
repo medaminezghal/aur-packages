@@ -13,15 +13,22 @@ depends=('python'
 makedepends=('python-setuptools'
              'python-build'
              'python-installer')
-source=("$_name-$pkgver.tar.gz::https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz")
-sha256sums=('1aea9dcfdeaec449b02bc262a84e6c5422f477839966f6ad4745cebe2e31ce0a')
+_commit=149771d99d4417cc704bbf6bed29022c89d7d960
+source=("$_name-$pkgver.tar.gz::$url/archive/$_commit.tar.gz")
+sha256sums=('8c09a2864f3a2d36ce73591ecef06ef0617425a800e8a46985937d355b5199d0')
+
+prepare() {
+  cd "$_name-$_commit"
+  # Set the version of the PyPI release, which upstream never committed
+  sed -i "s/^version_info = .*/version_info = (${pkgver//./, })/" $_name/version.py
+}
 
 build() {
-  cd "$_name-$pkgver"
+  cd "$_name-$_commit"
   python -m build --wheel --no-isolation
 }
 
 package() {
-  cd "$_name-$pkgver"
+  cd "$_name-$_commit"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
