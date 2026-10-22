@@ -21,7 +21,7 @@ checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-pytest-xdist'
               'python-dateutil')
-source=("$url/archive/refs/tags/v$pkgver.tar.gz")
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('f53c44fff24648d8da08c9fa4dee1a09fc2a327b5c249e88e5046239e3df94e2')
 
 build() {
