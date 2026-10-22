@@ -35,4 +35,5 @@ sha256sums_aarch64=('688badb3efbb7d424aba67996225adf8762be32bbeb1e27dda87fdbd26b
 
 package() {
   python -m installer --destdir="$pkgdir" *.whl
+  install -Dm644 "$pkgdir"/usr/lib/python*/site-packages/${_name//-/_}-$pkgver.dist-info/licenses/licensefiles/speech/LICENSE.md -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
