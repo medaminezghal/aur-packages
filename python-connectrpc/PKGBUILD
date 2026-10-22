@@ -3,7 +3,7 @@
 _name=connectrpc
 pkgname=python-$_name
 pkgver=0.12.1
-pkgrel=1
+pkgrel=2
 pkgdesc='Server and client runtime library for Connect RPC.'
 arch=('any')
 url='https://github.com/connectrpc/connect-py'
@@ -13,8 +13,7 @@ depends=('python'
          'python-pyqwest')
 makedepends=('python-uv-build'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-flask'
               'python-starlette'
               'python-brotli'
@@ -32,6 +31,8 @@ prepare() {
   cd "connect-py-$pkgver"
   # Use the uv_build version shipped by Arch
   sed -i 's/uv_build>=0.12.0,<0.13.0/uv_build/' pyproject.toml example/pyproject.toml
+  # Import the well-known type modules from protobuf.wkt.google.protobuf, protobuf-py 0.7.0 no longer re-exports them from protobuf.wkt
+  sed -i 's/^from protobuf\.wkt import \(([[:space:]]*$\|[a-z_]*_pb\)/from protobuf.wkt.google.protobuf import \1/' src/$_name/_codec.py src/$_name/_gen/google/rpc/status_pb.py test/$_name/example/haberdasher_pb.py
 }
 
 build() {
