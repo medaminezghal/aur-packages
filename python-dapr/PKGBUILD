@@ -29,7 +29,7 @@ checkdepends=('python-opentelemetry-sdk'
               'python-fastapi'
               'python-cloudevents'
               'python-langgraph'
-              'strands-agents'
+              'python-strands-agents'
               'python-ulid'
               'python-msgpack'
               'python-openai'
@@ -41,6 +41,7 @@ checkdepends=('python-opentelemetry-sdk'
               'python-pinecone'
               'python-azure-search-documents')
 optdepends=('uvicorn: fastapi'
+
             'python-langchain: langgraph'
 
             'python-unstructured: rag-unstructured'
@@ -68,7 +69,6 @@ check() {
     -vv
     --disable-warnings
     --import-mode=importlib
-    -m 'not e2e'
     --ignore=tests/integration
     --ignore=tests/examples
   )
