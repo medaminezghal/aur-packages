@@ -18,7 +18,7 @@ checkdepends=('python-pytest'
               'python-pytest-aiohttp')
 _commit=b4ead4e7052e61548a34c18b72ebe19f198a2393
 source=("$_name-$pkgver.tar.gz::$url/archive/$_commit.tar.gz")
-sha256sums=('4550adca243c572f65b56b41a7c4d9bc9ad5e128cdd81f8dcf42ca7fd83b95b4')
+sha256sums=('16e524b4437341bd4199eb6a48947ccde102c7b0f300c58e056ec9123fcb7079')
 
 build() {
   cd "$_name-$_commit"
