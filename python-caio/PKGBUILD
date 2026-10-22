@@ -1,0 +1,47 @@
+# Contributor: Mark Wagie <mark dot wagie at proton dot me>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=caio
+pkgname=python-$_name
+pkgver=0.12.9
+pkgrel=1
+pkgdesc='Asynchronous file IO for Linux MacOS or Windows.'
+arch=('x86_64' 'aarch64')
+url='https://github.com/mosquito/caio'
+license=('Apache-2.0')
+depends=('python'
+         'glibc')
+makedepends=('python-setuptools'
+             'python-build'
+             'python-installer')
+checkdepends=('python-aiomisc-pytest'
+              'python-pytest'
+              'python-pytest-rerunfailures')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('150ed6110e7fbf236b21ed512575940a127aa706c37d03486af7a14ac0cbb618')
+
+prepare() {
+  cd "$_name-$pkgver"
+  # Set the version from the release tag, as upstream's publish workflow does
+  sed -i "s/^version = .*/version = \"$pkgver\"/" pyproject.toml
+}
+
+build() {
+  cd "$_name-$pkgver"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local python_version=$(python -c 'import sys; print("".join(map(str, sys.version_info[:2])))')
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$_name-$pkgver/build/lib.linux-$CARCH-cpython-$python_version"
+  python -m pytest "${pytest_options[@]}" ../../tests
+}
+
+package() {
+  cd "$_name-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
