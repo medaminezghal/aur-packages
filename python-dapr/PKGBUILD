@@ -2,7 +2,7 @@
 
 _name=dapr
 pkgname=python-$_name
-pkgver=1.18.3
+pkgver=1.19.0
 pkgrel=1
 pkgdesc='The official release of Dapr Python SDK.'
 arch=('any')
@@ -30,7 +30,7 @@ checkdepends=('python-opentelemetry-sdk'
               'python-fastapi')
 source=("$_name::git+$url.git#tag=v$pkgver"
         "fix-certs-pyopenssl.patch")
-sha256sums=('00a20294b62fb7b628b06fb454dfedf41801f7979b62da11821d99cb93af11e7'
+sha256sums=('68fec0321944688710c46c3dd6ad2c7825063f8ff3c541b685987bc070589028'
             '9953c6bc1f9c3162144840a1f450044a5d1b6ffd4db26ccfe4aa48302ef02ec5')
 
 prepare() {
