@@ -1,0 +1,91 @@
+# Maintainer: Smoolak <smoolak@gmail.com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=gepa
+pkgname=python-$_name
+pkgver=0.1.4
+pkgrel=3
+pkgdesc='A framework for optimizing textual system components (AI prompts, code snippets, etc.) using LLM-based reflection and Pareto-efficient evolutionary search.'
+arch=('any')
+url='https://github.com/gepa-ai/gepa'
+license=('MIT')
+depends=('python')
+makedepends=('python-setuptools'
+             'python-wheel'
+             'python-build'
+             'python-installer')
+checkdepends=('python-litellm'
+              'python-tqdm'
+              'python-cloudpickle'
+              'python-datasets'
+              'python-wandb'
+              'python-pandas'
+              'python-mlflow-skinny'
+              'python-pyarrow'
+              'python-pydantic'
+              'python-tiktoken'
+              'python-pytest'
+              'python-llm-structured-confidence'
+              'python-langchain-core')
+optdepends=('python-litellm: full'
+            'python-tqdm: full'
+            'python-cloudpickle: full'
+            'python-datasets: full'
+            'python-mlflow: full'
+            'python-wandb: full'
+            'python-pandas: full'
+            'python-mlflow-skinny: full'
+            'python-pyarrow: full'
+            'python-pydantic: full'
+            'python-tiktoken: full'
+
+            'python-llm-structured-confidence: confidence'
+            'python-litellm: confidence'
+
+            'python-litellm: gskill'
+            'python-tqdm: gskill'
+            'python-cloudpickle: gskill'
+            'python-datasets: gskill'
+            'python-mlflow: gskill'
+            'python-wandb: gskill'
+            'python-pandas: gskill'
+            'python-mlflow-skinny: gskill'
+            'python-pyarrow: gskill'
+            'python-pydantic: gskill'
+            'python-tiktoken: gskill'
+            'python-swesmith: gskill'
+            'python-docker: gskill'
+            'python-dotenv: gskill'
+            'python-yaml: gskill'
+
+            'python-langchain: langchain'
+            'python-langchain-core: langchain'
+            'python-tqdm: langchain')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('9fd2760b683631d6b9f9d7c2ade1027bed56627446c58bbebbfe35e290d2f53a')
+
+prepare() {
+  cd "$_name-$pkgver"
+  # Set the version from the release tag, as upstream's release workflow does
+  sed -i "/#replace_package_version_marker/{n;s/^version=\"[^\"]*\"/version=\"$pkgver\"/;}" pyproject.toml
+}
+
+build() {
+  cd "$_name-$pkgver"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$_name-$pkgver"
+  PYTHONPATH="$PWD/src" pytest "${pytest_options[@]}" tests
+}
+
+package() {
+  cd "$_name-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
