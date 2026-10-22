@@ -13,10 +13,11 @@ depends=('python'
          'python-typing_extensions')
 makedepends=('python-uv-build'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-hypothesis'
               'python-pytest'
+              'python-pytest-benchmark'
+              'python-pytest-xdist'
               'python-pydantic')
 optdepends=('python-pydantic')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
@@ -50,7 +51,6 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    --override-ini="addopts="
   )
   cd "$_name-$pkgver"
   python -m venv --system-site-packages test-env
