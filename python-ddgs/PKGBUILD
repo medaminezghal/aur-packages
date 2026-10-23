@@ -12,7 +12,7 @@ depends=('python' 'python-click' 'python-primp' 'python-lxml')
 makedepends=('python-setuptools' 'python-build' 'python-installer')
 checkdepends=('python-pytest' 'python-pytest-trio')
 optdepends=('python-mcp: mcp' 'python-fastapi: api' 'uvicorn: api' 'python-httptools: api' 'python-dotenv: api' 'python-pyyaml: api' 'python-uvloop: api' 'python-watchfiles: api' 'python-websockets: api')
-source=("$url/archive/refs/tags/v$pkgver.tar.gz")
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('3a936fdbc91fe93398e76c06eeb853aa6e45c1326f56a205c484e3f5fc9f6b89')
 
 build() {
