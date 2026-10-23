@@ -20,8 +20,7 @@ depends=('python'
 makedepends=('python-hatchling'
              'python-hatch-fancy-pypi-readme'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-respx'
               'python-pytest'
               'python-pytest-asyncio'
