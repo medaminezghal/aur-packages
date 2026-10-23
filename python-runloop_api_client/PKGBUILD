@@ -41,7 +41,7 @@ source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('0603a71d1c011bf1741295c8fb9d298f6a6ce29314cceb207fcb68a9f821c616')
 
 build() {
-  cd "$srcdir"/${_name//runloop-/}-python-$pkgver
+  cd "${_name//runloop-/}-python-$pkgver"
   python -m build --wheel --no-isolation --skip-dependency-check
 }
 
@@ -54,7 +54,7 @@ check() {
     --disable-warnings
     -p 'no:benchmark'
   )
-  cd "$srcdir"/${_name//runloop-/}-python-$pkgver
+  cd "${_name//runloop-/}-python-$pkgver"
   ./scripts/mock --daemon
   local server_pid=$(lsof -t -i tcp:4010)
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests || { kill "${server_pid}"; return 1; }
@@ -62,6 +62,6 @@ check() {
 }
 
 package() {
-  cd "$srcdir"/${_name//runloop-/}-python-$pkgver
+  cd "${_name//runloop-/}-python-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
