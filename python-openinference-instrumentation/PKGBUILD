@@ -27,7 +27,7 @@ source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.g
 sha256sums=('6d5654a736adfd6af04f4b3a2e760c67a147c7f698a451135593ab4d407b837b')
 
 build() {
-  cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}
+  cd "openinference-$pkgname-v$pkgver/python/$_name"
   python -m build --wheel --no-isolation
 }
 
@@ -36,11 +36,11 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}
+  cd "openinference-$pkgname-v$pkgver/python/$_name"
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}
+  cd "openinference-$pkgname-v$pkgver/python/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
