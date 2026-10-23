@@ -8,10 +8,10 @@ pkgdesc="Dux Distributed Global Search. A metasearch library that aggregates res
 arch=('any')
 url="https://github.com/deedy5/ddgs"
 license=('MIT')
-depends=('python' 'python-click' 'python-primp' 'python-lxml' 'python-httpx' 'python-h2' 'python-socksio' 'python-brotli' 'python-brotlicffi' 'python-fake-useragent')
-makedepends=('python-setuptools' 'python-build' 'python-installer' 'python-wheel')
+depends=('python' 'python-click' 'python-primp' 'python-lxml')
+makedepends=('python-setuptools' 'python-build' 'python-installer')
 checkdepends=('python-pytest' 'python-pytest-trio')
-optdepends=('python-mcp: mcp' 'python-fastapi: api' 'uvicorn: api' 'python-colorama: api' 'python-httptools: api' 'python-dotenv: api' 'python-pyyaml: api' 'python-uvloop: api' 'python-watchfiles: api' 'python-websockets: api' 'python-fastapi: dht' 'uvicorn: dht' 'python-colorama: dht' 'python-httptools: dht' 'python-dotenv: dht' 'python-pyyaml: dht' 'python-uvloop: dht' 'python-watchfiles: dht' 'python-websockets: dht' 'python-trio: dht')
+optdepends=('python-mcp: mcp' 'python-fastapi: api' 'uvicorn: api' 'python-httptools: api' 'python-dotenv: api' 'python-pyyaml: api' 'python-uvloop: api' 'python-watchfiles: api' 'python-websockets: api')
 source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('3a936fdbc91fe93398e76c06eeb853aa6e45c1326f56a205c484e3f5fc9f6b89')
 
