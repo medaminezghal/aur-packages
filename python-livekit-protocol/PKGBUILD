@@ -11,15 +11,15 @@ url="$_repo/tree/main/$_name"
 license=('Apache-2.0')
 depends=('python' 'python-protobuf')
 makedepends=('python-hatchling' 'python-build' 'python-installer')
-source=("https://files.pythonhosted.org/packages/source/${_name:0:1}/$_name/${_name//-/_}-$pkgver.tar.gz")
-sha256sums=('ee4918b6c29601f46c29fbc914f44438c6dcee96a767a2224933e80743f78f00')
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/protocol-v$pkgver.tar.gz")
+sha256sums=('51a81355615d68d807e9fe31c9bddec0cf4e46d79135efb5a6643ed4464c0f39')
 
 build() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
-  python -m build --wheel --no-isolation
+  cd "python-sdks-protocol-v$pkgver"
+  python -m build --wheel --no-isolation $_name
 }
 
 package() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
-  python -m installer --destdir="$pkgdir" dist/*.whl
+  cd "python-sdks-protocol-v$pkgver"
+  python -m installer --destdir="$pkgdir" $_name/dist/*.whl
 }
