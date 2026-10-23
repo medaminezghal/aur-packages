@@ -21,8 +21,7 @@ depends=('python'
          'python-setuptools')
 makedepends=('python-setuptools'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-pytest'
               'python-boto3'
               'python-hypothesis'
