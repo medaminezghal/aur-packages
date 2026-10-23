@@ -7,7 +7,7 @@ pkgrel=1
 pkgdesc="OpenInference instrumentation utilities."
 arch=('any')
 _repo="https://github.com/Arize-ai/openinference"
-url="$_repo/tree/main/${pkgname/-//}"
+url="$_repo/tree/main/python/$_name"
 license=('Apache-2.0')
 depends=('python'
          'python-openinference-semantic-conventions'
