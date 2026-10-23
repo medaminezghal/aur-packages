@@ -38,6 +38,12 @@ optdepends=('python-watchdog: event-file-poller'
 source=("$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('c42608b830979db045cb91baef41c7d963d56b32d0d5a4eeee4db4ab8bb0422b')
 
+prepare() {
+  cd "$_name-$pkgver"
+  # Newer botocore validates that the event source mapping UUID is at least 36 characters long
+  sed -i -e "s/'my-uuid'/'00000000-0000-0000-0000-000000000000'/g" -e "s/'uuid-12345'/'00000000-0000-0000-0000-000000012345'/g" tests/functional/test_awsclient.py
+}
+
 build() {
   cd "$_name-$pkgver"
   python -m build --wheel --no-isolation
