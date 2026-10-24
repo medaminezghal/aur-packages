@@ -2,7 +2,7 @@
 
 _name=aiocarbon
 pkgname=python-$_name
-pkgver=0.15.3
+pkgver=0.16.0
 pkgrel=1
 pkgdesc='Asynchronous client for carbon.'
 arch=('any')
