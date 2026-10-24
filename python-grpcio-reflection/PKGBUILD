@@ -2,7 +2,7 @@
 
 _name=grpcio-reflection
 pkgname=python-$_name
-pkgver=1.84.0
+pkgver=1.84.1
 pkgrel=1
 pkgdesc='Standard Protobuf Reflection Service for gRPC.'
 arch=('any')
@@ -20,7 +20,7 @@ makedepends=('python-setuptools'
 checkdepends=('python-coverage'
               'python-pytest')
 source=("grpc-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('17a4d25717f4871eb71cfdf191f7491f66a59c8ebc782ab53d52fcbfc478959f')
+sha256sums=('e3cd1dbeedc989a6bf863bc1f0762a7cd1feff5cfae7d520481a541ad23ca85e')
 
 build() {
   cd "grpc-$pkgver"
