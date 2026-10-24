@@ -8,7 +8,7 @@ _name1=tasks
 _name0=fastmcp
 pkgbase=python-$_name0
 pkgname=(python-$_name0-$_name3 python-$_name0-$_name2 python-$_name0-$_name1 python-$_name0)
-pkgver=4.1.0
+pkgver=4.1.3
 pkgrel=1
 arch=('any')
 _repo='https://github.com/PrefectHQ/fastmcp'
@@ -57,7 +57,7 @@ makedepends=('python-hatchling'
 #               'python-cryptography'
 #               'python-pydocket')
 source=("$_name0::git+$_repo.git#tag=v$pkgver")
-sha256sums=('5cd4d9b415b00eac4a05106fed014671bd0dc8bcc8fbb78cb95efa815013a801')
+sha256sums=('9d10e2a6b09be84e70da75f19af18a8174c71871bb7e3b82e1059ebe6a0d4536')
 
 build() {
   cd "$srcdir"/$_name0
@@ -85,10 +85,12 @@ package_python-fastmcp-slim() {
             'python-dotenv'
             'python-rich'
             'python-typing_extensions')
-  optdepends=('python-anthropic: anthropic'
+  optdepends=('python-certifi: anthropic'
+              'python-anthropic: anthropic'
   
               'python-prefab-ui: apps'
               
+              'python-certifi: azure'
               'python-azure-identity: azure'
               'python-pyjwt: azure'
               
@@ -108,6 +110,7 @@ package_python-fastmcp-slim() {
               
               'python-typesafe-sdk: jev'
               
+              'python-certifi: gemini'
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
@@ -117,8 +120,10 @@ package_python-fastmcp-slim() {
               'python-opentelemetry-api: mcp'
               'python-starlette: mcp'
               
+              'python-certifi: openai'
               'python-openai: openai'
               
+              'python-certifi: server'
               'python-exceptiongroup: server'
               'python-httpx2: server'
               'python-mcp: server'
@@ -152,6 +157,7 @@ package_python-fastmcp-slim() {
 package_python-fastmcp-remote() {
   pkgdesc='A Python stdio bridge for remote MCP servers, powered by FastMCP.'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -185,6 +191,7 @@ package_python-fastmcp-remote() {
 package_python-fastmcp-tasks() {
   pkgdesc='Background task execution for FastMCP servers via the io.modelcontextprotocol/tasks extension (SEP-2663).'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -220,6 +227,7 @@ package_python-fastmcp-tasks() {
 package_python-fastmcp() {
   pkgdesc='The fast, Pythonic way to build MCP servers and clients.'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -245,10 +253,12 @@ package_python-fastmcp() {
             'uvicorn'
             'python-watchfiles'
             'python-websockets')
-  optdepends=('python-anthropic: anthropic'
+  optdepends=('python-certifi: anthropic'
+              'python-anthropic: anthropic'
   
               'python-prefab-ui: apps'
               
+              'python-certifi: azure'
               'python-azure-identity: azure'
               'python-pyjwt: azure'
               
@@ -256,9 +266,11 @@ package_python-fastmcp() {
               
               'python-typesafe-sdk: jev'
               
+              'python-certifi: gemini'
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
+              'python-certifi: openai'
               'python-openai: openai'
               
               'python-fastmcp-tasks: tasks')
