@@ -9,6 +9,7 @@ arch=('any')
 url='https://github.com/databricks/databricks-sdk-py'
 license=('Apache-2.0')
 depends=('python'
+         'python-certifi'
          'python-requests'
          'python-google-auth'
          'python-protobuf'
