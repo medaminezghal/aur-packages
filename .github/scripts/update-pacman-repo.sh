@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 # Add built packages to the pacman repository hosted on this repo's GitHub
-# release, and delete the files of the versions they replace.
+# release, delete the files of the versions they replace, and remove the
+# packages that were deleted from this repository.
 #
-# Usage: update-pacman-repo.sh <package file>...
+# Usage: update-pacman-repo.sh [package file]...
 # Env:   REPO_NAME, RELEASE_TAG, GITHUB_REPOSITORY, GH_TOKEN,
-#        GPG_KEY (fingerprint of the signing key, usable through gpg-agent)
+#        GPG_KEY (fingerprint of the signing key, usable through gpg-agent),
+#        REMOVE (optional, space-separated pkgbase or package names to remove
+#        from the repository; packages published in this run are never removed)
 set -euo pipefail
 
 : "${REPO_NAME:?}" "${RELEASE_TAG:?}" "${GITHUB_REPOSITORY:?}" "${GPG_KEY:?}"
-(( $# > 0 )) || { echo "::error::No package files given"; exit 1; }
+read -ra remove <<< "${REMOVE:-}"
+(( $# > 0 || ${#remove[@]} > 0 )) || { echo "::error::No package files and nothing to remove"; exit 1; }
 
 db="$REPO_NAME.db.tar.zst"
 files_db="$REPO_NAME.files.tar.zst"
@@ -23,6 +27,10 @@ sign() {
 }
 
 if ! gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+  if (( $# == 0 )); then
+    echo "The repository is not published yet, nothing to remove."
+    exit 0
+  fi
   gh release create "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" \
     --title "Pacman repository" \
     --notes "Prebuilt packages used by the build checks. Managed by the publish-to-repo workflow." \
@@ -42,6 +50,7 @@ if [[ -f "$work/$db" ]]; then
   mkdir "$work/dbx"
   bsdtar -xf "$work/$db" -C "$work/dbx"
   for desc in "$work"/dbx/*/desc; do
+    [[ -f "$desc" ]] || continue
     name=$(sed -n '/^%NAME%$/{n;p;q}' "$desc")
     file=$(sed -n '/^%FILENAME%$/{n;p;q}' "$desc")
     old[$name]=$file
@@ -76,21 +85,46 @@ for pkg in "$@"; do
   fi
 done
 
-if (( ${#new_pkgs[@]} == 0 )); then
-  echo "No packages to publish."
-  exit 0
-fi
+# Packages to take out of the repository.
+dropped=()
+declare -A is_dropped=()
 
 # Packages no longer built by a published pkgbase (removed from a split pkgname=()).
-dropped=()
 for name in "${!old[@]}"; do
   if [[ -n "${new_bases[${old_base[$name]:-$name}]:-}" && -z "${new_names[$name]:-}" ]]; then
-    dropped+=("$name")
-    to_delete+=("${old[$name]}" "${old[$name]}.sig")
+    is_dropped[$name]=1
   fi
 done
 
-(cd "$work" && repo-add --sign --key "$GPG_KEY" "$db" "${new_pkgs[@]}")
+# Packages deleted from this repository: every package of a removed pkgbase, or the package itself.
+for token in "${remove[@]}"; do
+  found=false
+  for name in "${!old[@]}"; do
+    if [[ "$name" == "$token" || "${old_base[$name]:-$name}" == "$token" ]]; then
+      found=true
+      if [[ -n "${new_names[$name]:-}" ]]; then
+        echo "Keeping $name: it is published by this run."
+      else
+        is_dropped[$name]=1
+      fi
+    fi
+  done
+  $found || echo "$token is not in the repository, nothing to remove."
+done
+
+for name in "${!is_dropped[@]}"; do
+  dropped+=("$name")
+  to_delete+=("${old[$name]}" "${old[$name]}.sig")
+done
+
+if (( ${#new_pkgs[@]} == 0 && ${#dropped[@]} == 0 )); then
+  echo "Nothing to publish or remove."
+  exit 0
+fi
+
+if (( ${#new_pkgs[@]} > 0 )); then
+  (cd "$work" && repo-add --sign --key "$GPG_KEY" "$db" "${new_pkgs[@]}")
+fi
 if (( ${#dropped[@]} > 0 )); then
   (cd "$work" && repo-remove --sign --key "$GPG_KEY" "$db" "${dropped[@]}")
   printf 'Removed from repository: %s\n' "${dropped[@]}"
@@ -113,15 +147,18 @@ upload() {
 }
 
 # Packages first, then the database, so the database never points to missing files.
-pkg_assets=()
-for f in "${new_pkgs[@]}"; do
-  pkg_assets+=("$f" "$f.sig")
-done
-upload "${pkg_assets[@]}"
+if (( ${#new_pkgs[@]} > 0 )); then
+  pkg_assets=()
+  for f in "${new_pkgs[@]}"; do
+    pkg_assets+=("$f" "$f.sig")
+  done
+  upload "${pkg_assets[@]}"
+fi
 upload "$REPO_NAME.db" "$REPO_NAME.db.sig" "$db" "$db.sig" \
        "$REPO_NAME.files" "$REPO_NAME.files.sig" "$files_db" "$files_db.sig" \
        "$REPO_NAME.asc"
 
+# Old files last, once the database no longer points to them.
 now=$(assets)
 for f in "${to_delete[@]}"; do
   if grep -qxF "$f" <<< "$now"; then
@@ -130,4 +167,6 @@ for f in "${to_delete[@]}"; do
   fi
 done
 
-printf 'Published: %s\n' "${new_pkgs[@]}"
+if (( ${#new_pkgs[@]} > 0 )); then
+  printf 'Published: %s\n' "${new_pkgs[@]}"
+fi
