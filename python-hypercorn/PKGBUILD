@@ -27,6 +27,12 @@ optdepends=('python-aioquic: h3'
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('094c4b85d69aeb9a79e28e8f8c5f3d87dbd8c1e6668c085ff08104f02fde0497')
 
+prepare() {
+  cd "$_name-$pkgver"
+  # Add :protocol to the CONNECT requests, as h2 4.4 rejects websocket CONNECT without it
+  sed -i 's/^\( *\)(":method", "CONNECT"),/&\n\1(":protocol", "websocket"),/' tests/asyncio/test_sanity.py tests/trio/test_sanity.py
+}
+
 build() {
   cd "$_name-$pkgver"
   python -m build --wheel --no-isolation
