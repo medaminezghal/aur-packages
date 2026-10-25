@@ -36,6 +36,9 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
+    --override-ini="addopts="
+    --showlocals
+    --strict-markers
   )
   cd "$_name-$pkgver"
   python -m venv --system-site-packages test-env
