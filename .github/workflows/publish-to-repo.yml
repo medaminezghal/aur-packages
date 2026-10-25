@@ -68,29 +68,40 @@ jobs:
           fi
 
           list=()
+          removed=()
           for dir in $dirs; do
             if [[ -f "$dir/PKGBUILD" ]]; then
               list+=("$dir")
             else
-              echo "No PKGBUILD in $dir, skipping. Remove it from the repository manually."
+              # Deleted from the repository: remove it from the pacman repository too.
+              removed+=("$dir")
+              # The directory is not always named after the pkgbase, so also read the names
+              # from the deleted PKGBUILD (it is no longer in the checkout, but is in the parent commit).
+              old=$(mktemp -d)
+              if git show "HEAD^1:$dir/PKGBUILD" > "$old/PKGBUILD" 2> /dev/null; then
+                chown -R ab:ab "$old"
+                removed+=($(sudo -u ab -D "$old" bash -c 'source PKGBUILD; echo "${pkgbase:-${pkgname[0]}}" "${pkgname[@]}"' 2> /dev/null || true))
+              fi
             fi
           done
 
-          if (( ${#list[@]} == 0 )); then
+          if (( ${#list[@]} == 0 && ${#removed[@]} == 0 )); then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "dirs=${list[*]}" >> "$GITHUB_OUTPUT"
+          echo "removed=${removed[*]}" >> "$GITHUB_OUTPUT"
           echo "Packages to publish: ${list[*]}"
+          echo "Packages to remove: ${removed[*]}"
 
       - name: Add pacman repository
-        if: steps.pkg.outputs.skip != 'true'
+        if: steps.pkg.outputs.dirs != ''
         run: .github/scripts/add-pacman-repo.sh
 
       - name: Download tested packages
         id: tested
-        if: steps.pkg.outputs.skip != 'true'
+        if: steps.pkg.outputs.dirs != ''
         env:
           DIRS: ${{ steps.pkg.outputs.dirs }}
           GH_TOKEN: ${{ github.token }}
@@ -193,7 +204,10 @@ jobs:
         if: steps.pkg.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          REMOVE: ${{ steps.pkg.outputs.removed }}
         run: |
+          # Empty when only removing packages.
+          touch "$RUNNER_TEMP/packages"
           cat "$RUNNER_TEMP/packages"
           mapfile -t packages < "$RUNNER_TEMP/packages"
           .github/scripts/update-pacman-repo.sh "${packages[@]}"
