@@ -2,8 +2,8 @@
 
 _name=connectrpc
 pkgname=python-$_name
-pkgver=0.12.1
-pkgrel=2
+pkgver=0.13.0
+pkgrel=1
 pkgdesc='Server and client runtime library for Connect RPC.'
 arch=('any')
 url='https://github.com/connectrpc/connect-py'
@@ -25,7 +25,7 @@ checkdepends=('python-flask'
               'python-zstandard'
               'python-protobuf')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('acc4373a5c26d8fd150a2bc97d408e6573e9179c34c22c88eb60f9d41ec2c167')
+sha256sums=('cd9cc8c51efe27695a8a7041e79f18d8f38f06000833edc309280f1ca92e7ef5')
 
 prepare() {
   cd "connect-py-$pkgver"
