@@ -13,15 +13,15 @@ depends=('python')
 makedepends=('python-hatchling'
              'python-build'
              'python-installer')
-source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
-sha256sums=('328b3fae6eaced55875339cf58521ebf13a9117bdb8be40f717f056aa62c43d3')
+source=("logfire-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('c90f2aec55040ce119a9a56a49f91f62f396703d049dc993b2e644cc698e05d5')
 
 build() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "logfire-$pkgver/$_name"
   python -m build --wheel --no-isolation
 }
 
 package() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "logfire-$pkgver/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
