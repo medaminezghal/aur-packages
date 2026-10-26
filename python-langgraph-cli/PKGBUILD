@@ -26,10 +26,10 @@ checkdepends=('python-pytest'
 optdepends=('python-langgraph-api: inmem'
             'python-langgraph-runtime-inmem: inmem')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/cli==$pkgver.tar.gz")
-sha256sums=('bad193306fdbdfb22d013db0eb4a27f76f03c85b9387b22e29e83ccb1d37eb5e')
+sha256sums=('d1ebcac21fe592cb30771b147f264d80d3f7f48965176760023e3972a8dc1b66')
 
 build() {
-  cd "langgraph-cli--$pkgver/libs/cli"
+  cd "langgraph-cli-$pkgver/libs/cli"
   python -m build --wheel --no-isolation
 }
 
@@ -43,12 +43,12 @@ check() {
     --deselect tests/unit_tests/cli/test_cli.py::test_build_command_with_api_version_and_base_image
     --deselect tests/unit_tests/cli/test_cli.py::test_build_command_with_api_version
   )
-  cd "langgraph-cli--$pkgver/libs/cli"
+  cd "langgraph-cli-$pkgver/libs/cli"
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "langgraph-cli--$pkgver/libs/cli"
+  cd "langgraph-cli-$pkgver/libs/cli"
   python -m installer --destdir="$pkgdir" dist/*.whl
   install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
