@@ -1,0 +1,38 @@
+# Maintainer: Jesus Alvarez <jesusalv@rez.codes>
+# Maintainer: Rafael Baboni Dominiquini <rafaeldominiquini AT gmail DOT com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=rich_rst
+pkgname=python-rich-rst
+pkgver=2.1.0
+pkgrel=2
+pkgdesc='A reStructuredText renderer for rich'
+arch=('any')
+url='https://github.com/wasi-master/rich-rst'
+license=('MIT')
+depends=('python'
+         'python-rich'
+         'python-pygments')
+makedepends=('python-setuptools'
+             'python-build'
+             'python-installer')
+checkdepends=('python-pytest'
+              'python-pytest-cov')
+source=("$url/releases/download/v$pkgver/$_name-$pkgver.tar.gz")
+sha256sums=('134f8d18e1391795fa32154af984202cb088738e6f75b26b8e0324996265fe5b')
+
+build() {
+  cd "$_name-$pkgver"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$_name-$pkgver"
+  PYTHONPATH="$PWD" python -P -m pytest -vv --disable-warnings tests
+}
+
+package() {
+  cd "$_name-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
