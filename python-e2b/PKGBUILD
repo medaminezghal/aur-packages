@@ -37,7 +37,7 @@ prepare() {
   # Remove stale build artifacts
   git clean -dfx
   # Use the uv_build version shipped by Arch
-  sed -i 's/uv_build>=0.10.0,<0.11.0/uv_build/' pyproject.toml
+  sed -i 's/uv_build>=0.13.4,<0.14.0/uv_build/' pyproject.toml
 }
 
 build() {
