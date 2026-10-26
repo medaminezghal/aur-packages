@@ -29,13 +29,17 @@ makedepends=('python-uv-build'
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-pytest-timeout')
-source=("$_name::git+$_repo.git#tag=@$_name/python-sdk@$pkgver")
-sha256sums=('beae02bc22567c41f43cf664ce7a2780a23c889849774261303bcb8451387b9d')
+source=("$_name::git+$_repo.git#tag=@$_name/python-sdk@$pkgver"
+        'connectrpc-0.13.patch')
+sha256sums=('beae02bc22567c41f43cf664ce7a2780a23c889849774261303bcb8451387b9d'
+            '236e115ef19bcb2e5ff03e2009098d17ff8d4fd4a69cf5f977aec1ef234af6b8')
 
 prepare() {
   cd "$_name/packages/python-sdk"
   # Remove stale build artifacts
   git clean -dfx
+  # Add stream_type to the generated connect stubs for connectrpc 0.13
+  patch -Np1 -i ../../../connectrpc-0.13.patch
 }
 
 build() {
