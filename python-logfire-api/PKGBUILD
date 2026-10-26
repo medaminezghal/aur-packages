@@ -1,12 +1,13 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=logfire-api
+_repo='https://github.com/pydantic/logfire'
 pkgname=python-$_name
 pkgver=5.4.0
 pkgrel=1
 pkgdesc='Shim for the Logfire SDK which does nothing unless Logfire is installed.'
 arch=('any')
-url='https://github.com/pydantic/logfire/tree/main/logfire-api'
+url="$_repo/tree/main/$_name"
 license=('MIT')
 depends=('python')
 makedepends=('python-hatchling'
