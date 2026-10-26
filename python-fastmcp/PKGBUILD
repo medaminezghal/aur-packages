@@ -85,10 +85,12 @@ package_python-fastmcp-slim() {
             'python-dotenv'
             'python-rich'
             'python-typing_extensions')
-  optdepends=('python-anthropic: anthropic'
+  optdepends=('python-certifi: anthropic'
+              'python-anthropic: anthropic'
   
               'python-prefab-ui: apps'
               
+              'python-certifi: azure'
               'python-azure-identity: azure'
               'python-pyjwt: azure'
               
@@ -101,13 +103,13 @@ package_python-fastmcp-slim() {
               'python-py-key-value-aio: client'
               'python-aiofile: client'
               'python-anyio: client'
-              'python-keyring: client'
               'python-cachetools: client'
               
               'python-pydantic-monty: code-mode'
               
               'python-typesafe-sdk: jev'
               
+              'python-certifi: gemini'
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
@@ -117,8 +119,10 @@ package_python-fastmcp-slim() {
               'python-opentelemetry-api: mcp'
               'python-starlette: mcp'
               
+              'python-certifi: openai'
               'python-openai: openai'
               
+              'python-certifi: server'
               'python-exceptiongroup: server'
               'python-httpx2: server'
               'python-mcp: server'
@@ -135,7 +139,6 @@ package_python-fastmcp-slim() {
               'python-py-key-value-aio: server'
               'python-aiofile: server'
               'python-anyio: server'
-              'python-keyring: server'
               'python-cachetools: server'
               'python-pyperclip: server'
               'python-python-multipart: server'
@@ -152,6 +155,7 @@ package_python-fastmcp-slim() {
 package_python-fastmcp-remote() {
   pkgdesc='A Python stdio bridge for remote MCP servers, powered by FastMCP.'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -168,7 +172,6 @@ package_python-fastmcp-remote() {
             'python-py-key-value-aio'
             'python-aiofile'
             'python-anyio'
-            'python-keyring'
             'python-cachetools'
             'python-pyperclip'
             'python-python-multipart'
@@ -185,6 +188,7 @@ package_python-fastmcp-remote() {
 package_python-fastmcp-tasks() {
   pkgdesc='Background task execution for FastMCP servers via the io.modelcontextprotocol/tasks extension (SEP-2663).'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -201,7 +205,6 @@ package_python-fastmcp-tasks() {
             'python-py-key-value-aio'
             'python-aiofile'
             'python-anyio'
-            'python-keyring'
             'python-cachetools'
             'python-pyperclip'
             'python-python-multipart'
@@ -211,7 +214,8 @@ package_python-fastmcp-tasks() {
             'python-watchfiles'
             'python-websockets'
             'python-cryptography'
-            'python-pydocket')
+            'python-pydocket'
+            'python-redis')
   url="$_repo/tree/main/${_name0}_$_name1"
   cd "$srcdir"/$_name0
   python -m installer --destdir="$pkgdir" ${_name0}_$_name1/dist/*.whl
@@ -220,6 +224,7 @@ package_python-fastmcp-tasks() {
 package_python-fastmcp() {
   pkgdesc='The fast, Pythonic way to build MCP servers and clients.'
   depends+=('python-fastmcp-slim'
+            'python-certifi'
             'python-exceptiongroup'
             'python-httpx2'
             'python-mcp'
@@ -236,7 +241,6 @@ package_python-fastmcp() {
             'python-py-key-value-aio'
             'python-aiofile'
             'python-anyio'
-            'python-keyring'
             'python-cachetools'
             'python-pyperclip'
             'python-python-multipart'
@@ -245,10 +249,12 @@ package_python-fastmcp() {
             'uvicorn'
             'python-watchfiles'
             'python-websockets')
-  optdepends=('python-anthropic: anthropic'
+  optdepends=('python-certifi: anthropic'
+              'python-anthropic: anthropic'
   
               'python-prefab-ui: apps'
               
+              'python-certifi: azure'
               'python-azure-identity: azure'
               'python-pyjwt: azure'
               
@@ -256,9 +262,11 @@ package_python-fastmcp() {
               
               'python-typesafe-sdk: jev'
               
+              'python-certifi: gemini'
               'python-google-genai: gemini'
               'python-jsonref: gemini'
               
+              'python-certifi: openai'
               'python-openai: openai'
               
               'python-fastmcp-tasks: tasks')
