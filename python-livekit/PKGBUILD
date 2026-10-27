@@ -42,16 +42,17 @@ sha256sums_x86_64=('8283fa92ea3e5cd5583551de0beea9d0acd0aeeefcdd955531e1689fd274
 sha256sums_aarch64=('df550ece8cfd912f2fa21f7191e88b81a1ae6cad5c3a7ccffba20a779bdd3435')
 
 prepare(){
-  cp -f "$srcdir"/test_audio.wav "$srcdir"/python-sdks-rtc-v$pkgver/tests/rtc/fixtures/test_audio.wav
-  cp -f "$srcdir"/test_echo_capture.wav "$srcdir"/python-sdks-rtc-v$pkgver/tests/rtc/fixtures/test_echo_capture.wav
-  cp -f "$srcdir"/test_echo_render.wav "$srcdir"/python-sdks-rtc-v$pkgver/tests/rtc/fixtures/test_echo_render.wav
-  cp -f "$srcdir"/test_processed.wav "$srcdir"/python-sdks-rtc-v$pkgver/tests/rtc/fixtures/test_processed.wav
-  cp -f "$srcdir"/liblivekit_ffi.so "$srcdir"/python-sdks-rtc-v$pkgver/$_name-rtc/$_name/rtc/resources/liblivekit_ffi.so
-  cp -f "$srcdir"/livekit_ffi.h "$srcdir"/python-sdks-rtc-v$pkgver/$_name-rtc/$_name/rtc/resources/livekit_ffi.h
+  cd "python-sdks-rtc-v$pkgver"
+  cp -f "$srcdir"/test_audio.wav tests/rtc/fixtures/test_audio.wav
+  cp -f "$srcdir"/test_echo_capture.wav tests/rtc/fixtures/test_echo_capture.wav
+  cp -f "$srcdir"/test_echo_render.wav tests/rtc/fixtures/test_echo_render.wav
+  cp -f "$srcdir"/test_processed.wav tests/rtc/fixtures/test_processed.wav
+  cp -f "$srcdir"/liblivekit_ffi.so $_name-rtc/$_name/rtc/resources/liblivekit_ffi.so
+  cp -f "$srcdir"/livekit_ffi.h $_name-rtc/$_name/rtc/resources/livekit_ffi.h
 }
 
 build() {
-  cd "$srcdir"/python-sdks-rtc-v$pkgver
+  cd "python-sdks-rtc-v$pkgver"
   python -m build --wheel --no-isolation $_name-rtc
 }
 
@@ -60,11 +61,11 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/python-sdks-rtc-v$pkgver
+  cd "python-sdks-rtc-v$pkgver"
   PYTHONPATH=$PWD/$_name-rtc pytest "${pytest_options[@]}" tests/rtc $_name-rtc/tests
 }
 
 package() {
-  cd "$srcdir"/python-sdks-rtc-v$pkgver/$_name-rtc
+  cd "python-sdks-rtc-v$pkgver/$_name-rtc"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
