@@ -138,8 +138,8 @@ optdepends=('gunicorn: proxy'
             'python-detect-secrets: proxy-runtime')
 provides=("python-${pkgname}")
 options=(!lto !strip)
-source=("https://files.pythonhosted.org/packages/source/${pkgname::1}/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-sha256sums=('f99a2c5615f26c7cb3b38b3d7657643d866852495a1d48b8c847b27cc1727949')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('dc58da933f25e8efec12348a4821b71e15e358d97093821576073fee37c49589')
 
 prepare() {
   cd "$pkgname-$pkgver"
