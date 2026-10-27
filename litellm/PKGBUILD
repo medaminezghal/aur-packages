@@ -144,8 +144,6 @@ sha256sums=('f99a2c5615f26c7cb3b38b3d7657643d866852495a1d48b8c847b27cc1727949')
 prepare() {
   cd "$pkgname-$pkgver"
   sed -i 's/maturin==[0-9.]*/maturin/g' pyproject.toml
-  # The sdist's pyproject sets data = "cook", a directory that is not in the sdist
-  sed -i '/^data = "cook"$/d' pyproject.toml
 }
 
 build() {
