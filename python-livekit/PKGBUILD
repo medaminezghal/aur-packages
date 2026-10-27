@@ -3,7 +3,7 @@
 _name=livekit
 pkgname=python-$_name
 pkgver=1.2.0
-_livekit_ffi_ver=0.12.80
+_livekit_ffi_ver=0.13.2
 pkgrel=1
 pkgdesc="Python Real-time SDK for LiveKit."
 arch=('x86_64' 'aarch64')
@@ -38,8 +38,8 @@ sha256sums=('bd2a09de6a3d770553abd149513579a320c07682eb1212ceef24d5cfca146edb'
             '90626c2c532dfb8313ae52501a9500f1c90235570aab8ff1367e7f91fb697a7e'
             'cf50f57f00fa941ab612c57c24a28811b93c878d3c98edcb4a8f21508aa8e566'
             '8a48eb2f6a2143b4bc6adfe306983637f628fffc9d550c60b4ebcecd506d6245')
-sha256sums_x86_64=('81d1daa1543e25792a0dafe246d1c270611875bfc2ef544fe9be1fbafdfc77d5')
-sha256sums_aarch64=('28cde1cb0110ed5c0ff645c8ee20321c8e6786425f4ee8b5a12c530c62c4ab4b')
+sha256sums_x86_64=('8283fa92ea3e5cd5583551de0beea9d0acd0aeeefcdd955531e1689fd2744356')
+sha256sums_aarch64=('df550ece8cfd912f2fa21f7191e88b81a1ae6cad5c3a7ccffba20a779bdd3435')
 
 prepare(){
   cp -f "$srcdir"/test_audio.wav "$srcdir"/python-sdks-rtc-v$pkgver/tests/rtc/fixtures/test_audio.wav
