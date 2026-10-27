@@ -115,6 +115,7 @@ optdepends=('gunicorn: proxy'
             'python-numpy: stt-nvidia-riva'
             
             'python-google-cloud-aiplatform: google'
+
             'python-aws-sdk-bedrock-runtime: bedrock-realtime'
             'python-smithy-http: bedrock-realtime'
             'python-awscrt: bedrock-realtime'
