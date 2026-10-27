@@ -5,16 +5,12 @@
 # Contributor: Sir-Photch <sir-photch@posteo.me>
 
 pkgname=litellm
-pkgver=1.105.1
+pkgver=1.106.4
 pkgrel=1
 pkgdesc='Library to easily interface with LLM API providers.'
-arch=('any')
+arch=('x86_64' 'aarch64')
 url='https://github.com/BerriAI/litellm'
 license=('MIT')
-makedepends=('python-maturin'
-             'python-build'
-             'python-installer'
-             'python-wheel')
 depends=('python'
          'python-fastuuid'
          'python-filelock'
@@ -35,8 +31,13 @@ depends=('python'
          'python-pydantic-settings'
          'python-jsonschema'
          'python-boto3'
+         'python-certifi'
+         'python-typing_extensions'
          'glibc'
          'libgcc')
+makedepends=('python-maturin'
+             'python-build'
+             'python-installer')
 optdepends=('gunicorn: proxy'
             'uvicorn: proxy'
             'python-granian: proxy'
@@ -114,12 +115,17 @@ optdepends=('gunicorn: proxy'
             'python-numpy: stt-nvidia-riva'
             
             'python-google-cloud-aiplatform: google'
+
             'python-aws-sdk-bedrock-runtime: bedrock-realtime'
+            'python-smithy-http: bedrock-realtime'
+            'python-awscrt: bedrock-realtime'
             
             'python-google-cloud-aiplatform: proxy-runtime'
             'python-google-cloud-speech: proxy-runtime'
             'python-google-genai: proxy-runtime'
             'python-anthropic: proxy-runtime'
+            'python-google-auth: proxy-runtime'
+            'python-requests: proxy-runtime'
             'python-grpcio: proxy-runtime'
             'python-prometheus-client: proxy-runtime'
             'python-langfuse: proxy-runtime'
@@ -137,16 +143,16 @@ optdepends=('gunicorn: proxy'
             'python-detect-secrets: proxy-runtime')
 provides=("python-${pkgname}")
 options=(!lto !strip)
-source=("https://files.pythonhosted.org/packages/source/${pkgname::1}/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-sha256sums=('f1a274db0b2bcc78c34ed34c06df2c1dcd0dc038469193684927f6bb2cab2d97')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('dc58da933f25e8efec12348a4821b71e15e358d97093821576073fee37c49589')
 
 prepare() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
+  cd "$pkgname-$pkgver"
   sed -i 's/maturin==[0-9.]*/maturin/g' pyproject.toml
 }
 
 build() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
+  cd "$pkgname-$pkgver"
   export PYO3_PYTHON=/usr/bin/python
   export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
   export CARGO_PROFILE_RELEASE_LTO=off
@@ -155,8 +161,8 @@ build() {
 }
 
 package() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
-  python -m installer --destdir="${pkgdir}" dist/*.whl
-  install -Dm644 "README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-  install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "$pkgname-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 "README.md" "$pkgdir"/usr/share/doc/$pkgname/README.md
 }

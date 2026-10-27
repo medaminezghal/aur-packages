@@ -2,11 +2,12 @@
 
 _name=langgraph-cli
 pkgname=python-$_name
-pkgver=0.4.35
+pkgver=0.4.40
 pkgrel=1
 pkgdesc='CLI for interacting with LangGraph API.'
 arch=('any')
-url='https://github.com/langchain-ai/langgraph/tree/main/libs/cli'
+_repo='https://github.com/langchain-ai/langgraph'
+url="$_repo/tree/main/libs/cli"
 license=('MIT')
 depends=('python'
          'python-click'
@@ -24,17 +25,11 @@ checkdepends=('python-pytest'
               'python-requests')
 optdepends=('python-langgraph-api: inmem'
             'python-langgraph-runtime-inmem: inmem')
-source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
-sha256sums=('48abc1bd2b277cafb80272e3a765c50f36627691662fbb5828053d46f79cab60')
-
-prepare(){
-  # Fix tests
-  cd "$srcdir"/${_name//-/_}-$pkgver
-  sed -i "s/cli_1/${_name//-/_}-$pkgver/g" tests/unit_tests/cli/test_cli.py
-}
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/cli==$pkgver.tar.gz")
+sha256sums=('ba160af54927bcdc1f41ab3dd021d61e0b13605bd24c8b6de67e78cd9fbf98c1')
 
 build() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "langgraph-cli-$pkgver/libs/cli"
   python -m build --wheel --no-isolation
 }
 
@@ -42,19 +37,18 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    # Need docker
     --deselect tests/unit_tests/cli/test_cli.py::test_dockerfile_command_with_docker_compose
     --deselect tests/unit_tests/cli/test_cli.py::test_build_command_shows_wolfi_warning
     --deselect tests/unit_tests/cli/test_cli.py::test_build_generate_proper_build_context
     --deselect tests/unit_tests/cli/test_cli.py::test_build_command_with_api_version_and_base_image
     --deselect tests/unit_tests/cli/test_cli.py::test_build_command_with_api_version
   )
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "langgraph-cli-$pkgver/libs/cli"
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "langgraph-cli-$pkgver/libs/cli"
   python -m installer --destdir="$pkgdir" dist/*.whl
   install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
