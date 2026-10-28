@@ -27,4 +27,5 @@ build() {
 package() {
   cd "speechmatics-python-sdk-rt-v$pkgver/sdk/rt"
   python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 ../../LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
