@@ -21,11 +21,11 @@ source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/rt/v$pkgver.tar.gz")
 sha256sums=('a3dc5a301852864a892c17b54e2114916f4bd7aeb80b665f7549e2eb3def98f4')
 
 build() {
-  cd "$srcdir"/speechmatics-python-sdk-rt-v$pkgver/sdk/rt
+  cd "speechmatics-python-sdk-rt-v$pkgver/sdk/rt"
   python -m build --wheel --no-isolation
 }
 
 package() {
-  cd "$srcdir"/speechmatics-python-sdk-rt-v$pkgver/sdk/rt
+  cd "speechmatics-python-sdk-rt-v$pkgver/sdk/rt"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
