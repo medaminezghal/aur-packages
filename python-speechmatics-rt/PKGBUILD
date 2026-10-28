@@ -17,15 +17,15 @@ makedepends=('python-setuptools'
              'python-installer'
              'python-wheel')
 optdepends=('python-aiohttp: jwt')
-source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
-sha256sums=('4b82f14facacef3f052e96f765573cddc102bcf5de6c512678eea83957d68f6f')
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/rt/v$pkgver.tar.gz")
+sha256sums=('a3dc5a301852864a892c17b54e2114916f4bd7aeb80b665f7549e2eb3def98f4')
 
 build() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "$srcdir"/speechmatics-python-sdk-rt-v$pkgver/sdk/rt
   python -m build --wheel --no-isolation
 }
 
 package() {
-  cd "$srcdir"/${_name//-/_}-$pkgver
+  cd "$srcdir"/speechmatics-python-sdk-rt-v$pkgver/sdk/rt
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
