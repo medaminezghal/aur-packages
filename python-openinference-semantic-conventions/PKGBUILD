@@ -12,8 +12,7 @@ license=('Apache-2.0')
 depends=('python')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-pytest')
 source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('effac920b3a33283ad9da08c4af2c732e67fdde7ce87f2990f332920f1615c37')
