@@ -51,6 +51,11 @@ jobs:
           sed -i -E 's/^#(Chroot)/\1/' /etc/paru.conf
           # for systemd-nspawn
           echo 'ab ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
+          # ab is a system user (UID 969); makechrootpkg gives builduser ab's UID, and a system user
+          # created while installing -I packages can take the same UID, breaking sudo in the chroot
+          groupmod -g 1001 ab
+          usermod -u 1001 -g 1001 ab
+          chown -R ab /var/cache/makepkg/pkg /var/cache/foreign-pkg
 
       - name: Find changed packages
         id: pkg
