@@ -16,7 +16,7 @@ depends=('python'
          'python-groovy'
          'python-gradio-client'
          'python-hf-gradio'
-         'python-httpx'
+         'python-httpx2'
          'python-huggingface-hub'
          'python-jinja'
          'python-markupsafe'
@@ -58,7 +58,6 @@ checkdepends=('ipython'
               'python-pytest-asyncio'
               'python-pytest-rerunfailures'
               'python-requests'
-              'python-respx'
               'python-scikit-image'
               'python-pytorch'
               'python-tqdm'
@@ -80,12 +79,16 @@ optdepends=('python-authlib: oauth'
 
             'ffmpeg: audio/video processing')
 source=("$url/archive/refs/tags/$_name@$pkgver.tar.gz"
+        'httpx2.patch'
         'mcp-v2.patch')
 sha256sums=('6fc3c6d3dd67549c2970a78c6543c0fe1cc2dd2de90875fd0c387585ab82ace3'
-            '16573f6ea076ae9938d601ab6b7969144d83ad1db9084ea390507f98536a9123')
+            '77fa9298a3c52f78bf9da6ad244c3a1c73416b65a7bec1d3230c7bff774f2721'
+            '97f0e6a75156bf0cbf0c39d87537d0ff4e321f84f3eb117defe2f45dd5212c98')
 
 prepare(){
   cd "$_name-$_name-$pkgver"
+  # Move from httpx to httpx2, needed by safehttpx 0.2.0 (backport of upstream eb54503, #13920)
+  patch -Np1 -i ../httpx2.patch
   # Port the MCP integration and its tests to mcp 2 (backport of upstream ee4d8a8, #13921)
   patch -Np1 -i ../mcp-v2.patch
   # Remove tests that need docker
