@@ -79,11 +79,15 @@ optdepends=('python-authlib: oauth'
             'ruff: needed for custom component docs generation'
 
             'ffmpeg: audio/video processing')
-source=("$url/archive/refs/tags/$_name@$pkgver.tar.gz")
-sha256sums=('6fc3c6d3dd67549c2970a78c6543c0fe1cc2dd2de90875fd0c387585ab82ace3')
+source=("$url/archive/refs/tags/$_name@$pkgver.tar.gz"
+        'mcp-v2.patch')
+sha256sums=('6fc3c6d3dd67549c2970a78c6543c0fe1cc2dd2de90875fd0c387585ab82ace3'
+            '16573f6ea076ae9938d601ab6b7969144d83ad1db9084ea390507f98536a9123')
 
 prepare(){
   cd "$srcdir"/$_name-$_name-$pkgver
+  # Port the MCP integration and its tests to mcp 2 (backport of upstream ee4d8a8, #13921)
+  patch -Np1 -i ../mcp-v2.patch
   # Remove tests that need docker
   rm -rf test/test_docker
   # Fix tests
