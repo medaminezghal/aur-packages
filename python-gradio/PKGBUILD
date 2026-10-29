@@ -94,6 +94,11 @@ prepare(){
   sed -i "s/f\"{url}\//f\"{url.rstrip('\/')}\//g" test/test_routes.py
   sed -i "s/f\"{local_url}\//f\"{local_url.rstrip('\/')}\//g" test/test_routes.py
   sed -i 's/"-map", "0:a:0", "-f", "md5", "-"/"-map", "0:a:0", "-c", "copy", "-f", "md5", "-"/' test/test_processing_utils.py
+  # starlette 1.10 percent-encodes a "?" in scope["path"]: pass the query string separately
+  sed -i 's/"path": request_url,/"path": request_url.split("?")[0], "query_string": request_url.partition("?")[2].encode(),/' test/test_routes.py
+  sed -i 's/"server": server, "path": path}/"server": server, "path": path.split("?")[0], "query_string": path.partition("?")[2].encode()}/' test/test_routes.py
+  # Python 3.14 reads files with a bigger buffer, so the file must be larger than it for the truncation to be seen
+  sed -i 's/RangedFileResponse.chunk_size \* 4)/RangedFileResponse.chunk_size * 64)/' test/test_ranged_response.py
 }
 
 build() {
