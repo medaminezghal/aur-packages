@@ -18,7 +18,7 @@ source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('effac920b3a33283ad9da08c4af2c732e67fdde7ce87f2990f332920f1615c37')
 
 build() {
-  cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}
+  cd "${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}"
   python -m build --wheel --no-isolation
 }
 
@@ -27,11 +27,11 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}
+  cd "${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}"
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}
+  cd "${_name%%-*}-$pkgname-v$pkgver/${pkgname/-//}"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
