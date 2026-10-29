@@ -14,7 +14,7 @@ makedepends=('python-hatchling'
              'python-build'
              'python-installer')
 checkdepends=('python-pytest')
-source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('effac920b3a33283ad9da08c4af2c732e67fdde7ce87f2990f332920f1615c37')
 
 build() {
