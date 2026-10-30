@@ -18,7 +18,8 @@ makedepends=('python-setuptools'
              'python-build'
              'python-installer'
              'python-wheel')
-optdepends=('python-aiohttp: aio')
+optdepends=('python-aiohttp: aio'
+            'python-azure-storage-extensions: ext-checksums')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/${_name//-/_}-$pkgver.tar.gz")
 sha256sums=('0d6e5b860a1357efc602db04cfa7c9950ac86126edcf7db89320cde281555fe5')
 
