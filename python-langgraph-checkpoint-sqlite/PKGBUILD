@@ -16,7 +16,8 @@ makedepends=('python-hatchling'
              'python-build'
              'python-installer'
              'python-wheel')
-checkdepends=('python-pytest'
+checkdepends=('python-langgraph-checkpoint-conformance'
+              'python-pytest'
               'python-pytest-asyncio'
               'python-pytest-mock'
               'python-pytest-retry')
