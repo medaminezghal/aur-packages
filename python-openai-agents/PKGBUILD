@@ -122,7 +122,7 @@ source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('ac86357b9453d84a20565f2e80ba29df441e37a2f12a1b1c18d0be51109748de')
 
 build() {
-  cd "$srcdir"/$_name-python-$pkgver
+  cd "$_name-python-$pkgver"
   python -m build --wheel --no-isolation
 }
 
@@ -131,7 +131,7 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_name-python-$pkgver
+  cd "$_name-python-$pkgver"
   local wheel
   wheel=$(ls dist/*.whl)
   bsdtar -xf "$wheel" -C src '*.dist-info/*'
@@ -139,6 +139,6 @@ check() {
 }
 
 package() {
-  cd "$srcdir"/$_name-python-$pkgver
+  cd "$_name-python-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
