@@ -118,8 +118,18 @@ optdepends=('python-numpy: voice'
             'python-textual: temporal'
             'python-protobuf: temporal'
             'python-pygments: temporal')
-source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('ac86357b9453d84a20565f2e80ba29df441e37a2f12a1b1c18d0be51109748de')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+        'worker-os.patch')
+sha256sums=('ac86357b9453d84a20565f2e80ba29df441e37a2f12a1b1c18d0be51109748de'
+            '747579a1b48742e083e716991c7cc4d9c9d15cb0ea86b0dbb5c32361be38c150')
+
+prepare() {
+  cd "$_name-python-$pkgver"
+  # pytest 9.2 builds test ids from string parameters, which calls the overridden __len__
+  sed -i 's|_BlockedMessageStringSubclass("custom")\]|pytest.param(_BlockedMessageStringSubclass("custom"), id="string-subclass")]|' tests/test_run_config.py
+  # Give the worker tests their own copy of os, as pytest 9.2's output capture calls the os.fstat they replace
+  patch -Np1 -i ../worker-os.patch
+}
 
 build() {
   cd "$_name-python-$pkgver"
