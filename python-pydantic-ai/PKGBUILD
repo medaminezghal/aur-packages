@@ -113,6 +113,10 @@ prepare() {
   sed -i "/^    \"ignore::DeprecationWarning:botocore\.\*\",$/a\    \"ignore:The 'initial' parameter is deprecated, use 'multiplier' instead:DeprecationWarning\"," pyproject.toml
   # Define the session-scoped sentence-transformers fixture as a classmethod, as pytest 9.2 deprecates instance-method session fixtures
   sed -i "s/^    def stsb_bert_tiny_model(self):$/    @classmethod\n    def stsb_bert_tiny_model(cls):/;s/^        return self._load_stsb_bert_tiny_model()$/        return cls()._load_stsb_bert_tiny_model()/" tests/test_embeddings.py
+  # Mock httpx2 instead of httpx in the Hugging Face client lifecycle tests, as huggingface-hub 2 builds httpx2 clients
+  sed -i '/^def test_unentered_huggingface_model_gets_new_client_on_new_event_loop($/,/^    return clients$/ s/\bhttpx\.\(AsyncHTTPTransport\|Request\|Response\)\b/httpx2.\1/g' tests/test_http_client_lifecycle.py
+  # Start multiprocessing's resource tracker before the tests, as Python 3.14's forkserver default makes tqdm's lock in sentence-transformers launch it mid-test
+  sed -i "s/^def pytest_configure(config: pytest.Config) -> None:$/def pytest_configure(config: pytest.Config) -> None:\n    import multiprocessing.resource_tracker\n\n    multiprocessing.resource_tracker.ensure_running()/" tests/conftest.py
 }
 
 build() {
