@@ -133,6 +133,7 @@ package_python-pydantic-graph() {
   url="$_repo/tree/main/${_name0//-ai/_}$_name4"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" ${_name0//-ai/_}$_name4/dist/*.whl
+  install -Dm644 ${_name0//-ai/_}$_name4/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-pydantic-ai-slim() {
@@ -268,6 +269,7 @@ package_python-pydantic-ai-slim() {
   url="$_repo/tree/main/${_name0//-/_}_$_name3"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" ${_name0//-/_}_$_name3/dist/*.whl
+  install -Dm644 ${_name0//-/_}_$_name3/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-pydantic-evals() {
@@ -282,6 +284,7 @@ package_python-pydantic-evals() {
   url="$_repo/tree/main/${_name0//-ai/_}$_name2"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" ${_name0//-ai/_}$_name2/dist/*.whl
+  install -Dm644 ${_name0//-ai/_}$_name2/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-pydantic-ai-examples() {
@@ -322,6 +325,7 @@ package_python-pydantic-ai-examples() {
   url="$_repo/tree/main/$_name1"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" $_name1/dist/*.whl
+  install -Dm644 $_name1/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-pydantic-ai() {
@@ -435,6 +439,7 @@ package_python-pydantic-ai() {
   url="$_repo"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_python-clai() {
@@ -443,4 +448,5 @@ package_python-clai() {
   url="$_repo/tree/main/$_name00"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" $_name00/dist/*.whl
+  install -Dm644 $_name00/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
