@@ -1,0 +1,40 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=listentome
+pkgname=python-$_name
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Async-first audio I/O for Python, built on PortAudio.'
+arch=('any')
+url='https://github.com/Kludex/listentome'
+license=('MIT')
+depends=('python'
+         'python-anyio'
+         'python-cffi'
+         'python-typing_extensions'
+         'portaudio')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer')
+checkdepends=('python-pytest')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('91b0aec1357ba4350dd4d7edf5dbc263f224373d32fc0ff836956352247c1b3c')
+
+build() {
+  cd "$_name-$pkgver"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd "$_name-$pkgver"
+  PYTHONPATH="$PWD"/src pytest "${pytest_options[@]}" tests
+}
+
+package() {
+  cd "$_name-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
