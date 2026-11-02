@@ -26,10 +26,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup git identity
-        run: |
-          git config --global user.name  "Mohamed Amine Zghal"
-          git config --global user.email "medaminezghal@outlook.com"
-          git config --global safe.directory "$GITHUB_WORKSPACE"
+        run: git config --global safe.directory "$GITHUB_WORKSPACE"
 
       - name: Resolve package name
         id: resolve
@@ -46,16 +43,27 @@ jobs:
             exit 0
           fi
 
+          base="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')"
+
           case "$provider" in
-            pypi|github|gitlab) pkgname="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')" ;;
+            pypi)
+              pkgname="$base"
+              for cand in "python-$base" ".python-$base" ".$base"; do
+                if [[ -f "$cand/PKGBUILD" ]]; then
+                  pkgname="$cand"
+                  break
+                fi
+              done
+              ;;
+            github|gitlab)
+              found=$(find . -maxdepth 1 -type d -name "*$base" | head -n1 | sed 's|^\./||')
+              pkgname="${found:-$base}"
+              ;;
             *)
               echo "::error::Unsupported provider: $provider"
               exit 1
               ;;
           esac
-
-          found=$(find . -maxdepth 1 -type d -name "*$pkgname" | head -n1 | sed 's|^\./||')
-          pkgname="${found:-$pkgname}"
 
           if [[ ! -d "$pkgname" || ! -f "$pkgname/PKGBUILD" ]]; then
             echo "Package '$pkgname' not in repo yet, skipping."
@@ -65,6 +73,7 @@ jobs:
 
           echo "skip=false"    >> "$GITHUB_OUTPUT"
           echo "pkgname=$pkgname" >> "$GITHUB_OUTPUT"
+          echo "name=${pkgname#.}"  >> "$GITHUB_OUTPUT"
           echo "pkgver=$pkgver"   >> "$GITHUB_OUTPUT"
           echo "provider=$provider" >> "$GITHUB_OUTPUT"
           echo "Resolved: $pkgname $pkgver (provider: $provider)"
@@ -132,20 +141,29 @@ jobs:
             echo "No generic sources to checksum, keeping existing checksums."
           fi
 
+      - name: Generate app token
+        if: steps.resolve.outputs.skip == 'false'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+  
       - name: Create pull request
         if: steps.resolve.outputs.skip == 'false'
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.PAT }}
-          branch: bump/${{ steps.resolve.outputs.pkgname }}-${{ steps.resolve.outputs.pkgver }}
-          commit-message: "${{ steps.resolve.outputs.pkgname }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
-          title: "${{ steps.resolve.outputs.pkgname }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
+          token: ${{ steps.app-token.outputs.token }}
+          sign-commits: true
+          branch: bump/${{ steps.resolve.outputs.name }}-${{ steps.resolve.outputs.pkgver }}
+          commit-message: "${{ steps.resolve.outputs.name }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
+          title: "${{ steps.resolve.outputs.name }}: Update to version ${{ steps.resolve.outputs.pkgver }}"
           body: |
             Automated version bump triggered by newreleases.io
 
             | Field | Value |
             |---|---|
-            | Package | `${{ steps.resolve.outputs.pkgname }}` |
+            | Package | `${{ steps.resolve.outputs.name }}` |
             | Provider | `${{ steps.resolve.outputs.provider }}` |
             | New version | `${{ steps.resolve.outputs.pkgver }}` |
             | Bump type | `${{ steps.bump.outputs.bump_type }}` |

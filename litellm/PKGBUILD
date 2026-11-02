@@ -5,27 +5,25 @@
 # Contributor: Sir-Photch <sir-photch@posteo.me>
 
 pkgname=litellm
-pkgver=1.100.0
-pkgrel=2
+pkgver=1.106.5
+pkgrel=1
 pkgdesc='Library to easily interface with LLM API providers.'
-arch=('any')
+arch=('x86_64' 'aarch64')
 url='https://github.com/BerriAI/litellm'
 license=('MIT')
-
-
-makedepends=('python-maturin'
-             'python-build'
-             'python-installer'
-             'python-wheel')
-
 depends=('python'
          'python-fastuuid'
+         'python-filelock'
          'python-httpx'
+         'python-h2'
          'python-openai'
          'python-dotenv'
-         'python-tiktoken'
+         'python-pyyaml'
+         'python-packaging'
          'python-importlib-metadata'
+         'python-tiktoken'
          'python-tokenizers'
+         'python-huggingface-hub'
          'python-click'
          'python-jinja'
          'python-aiohttp'
@@ -33,9 +31,13 @@ depends=('python'
          'python-pydantic-settings'
          'python-jsonschema'
          'python-boto3'
+         'python-certifi'
+         'python-typing_extensions'
          'glibc'
          'libgcc')
-
+makedepends=('python-maturin'
+             'python-build'
+             'python-installer')
 optdepends=('gunicorn: proxy'
             'uvicorn: proxy'
             'python-granian: proxy'
@@ -58,11 +60,14 @@ optdepends=('gunicorn: proxy'
             'python-azure-identity: proxy'
             'python-azure-storage-blob: proxy'
             'python-mcp: proxy'
+            'python-httpx2: proxy'
+            'python-pydantic: proxy'
             'python-litellm-proxy-extras: proxy'
             'python-litellm-enterprise: proxy'
             'python-restrictedpython: proxy'
             'python-rich: proxy'
             'python-inquirerpy: proxy'
+            'python-tomlkit: proxy'
             'python-polars: proxy'
             'python-soundfile: proxy'
             'python-pyroscope-io: proxy'
@@ -73,6 +78,7 @@ optdepends=('gunicorn: proxy'
             'python-requests: cli'
             'python-inquirerpy: cli'
             'python-keyring: cli'
+            'python-tomlkit: cli'
             
             'python-prisma: extra_proxy'
             'python-psycopg: extra_proxy'
@@ -89,8 +95,8 @@ optdepends=('gunicorn: proxy'
             'python-diskcache: caching'
 
             'python-mcp: mcp'
-
-            'python-pymongo: mongodb'
+            'python-httpx2: mcp'
+            'python-pydantic: mcp'
 
             'python-saml: saml'
             
@@ -101,15 +107,21 @@ optdepends=('gunicorn: proxy'
             
             'python-grpcio: grpc'
 
+            'python-google-cloud-speech: stt-vertex-chirp'
+
             'python-nvidia-riva-client: stt-nvidia-riva'
             'python-soundfile: stt-nvidia-riva'
             'python-audioread: stt-nvidia-riva'
             'python-numpy: stt-nvidia-riva'
             
             'python-google-cloud-aiplatform: google'
+
             'python-aws-sdk-bedrock-runtime: bedrock-realtime'
+            'python-smithy-http: bedrock-realtime'
+            'python-awscrt: bedrock-realtime'
             
             'python-google-cloud-aiplatform: proxy-runtime'
+            'python-google-cloud-speech: proxy-runtime'
             'python-google-genai: proxy-runtime'
             'python-anthropic: proxy-runtime'
             'python-google-auth: proxy-runtime'
@@ -120,6 +132,7 @@ optdepends=('gunicorn: proxy'
             'python-opentelemetry-api: proxy-runtime'
             'python-opentelemetry-sdk: proxy-runtime'
             'python-opentelemetry-exporter-otlp: proxy-runtime'
+            'python-opentelemetry-instrumentation-fastapi: proxy-runtime'
             'python-ddtrace: proxy-runtime'
             'python-sentry_sdk: proxy-runtime'
             'python-mangum: proxy-runtime'
@@ -128,36 +141,28 @@ optdepends=('gunicorn: proxy'
             'python-pypdf: proxy-runtime'
             'python-llm-sandbox: proxy-runtime'
             'python-detect-secrets: proxy-runtime')
-
 provides=("python-${pkgname}")
-
 options=(!lto !strip)
-
-source=("https://files.pythonhosted.org/packages/source/${pkgname::1}/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-sha256sums=('ece94e817a453a5b3a9517c03547c428d501cea719edb728c1b260e53f78ea35')
-
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('1290b46a0d4458944ba3b448fb09b928276b82a04487d6ba2457a20f3793a120')
 
 prepare() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
-
+  cd "$pkgname-$pkgver"
   sed -i 's/maturin==[0-9.]*/maturin/g' pyproject.toml
 }
 
 build() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
-
+  cd "$pkgname-$pkgver"
   export PYO3_PYTHON=/usr/bin/python
   export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
-
+  export CARGO_PROFILE_RELEASE_LTO=off
+  export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16
   python -m build --wheel --no-isolation
 }
 
 package() {
-  cd "${srcdir}"/${pkgname}-${pkgver}/
-
-  python -m installer --destdir="${pkgdir}" dist/*.whl
-
-  install -Dm644 "README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-
-  install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "$pkgname-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 "README.md" "$pkgdir"/usr/share/doc/$pkgname/README.md
 }

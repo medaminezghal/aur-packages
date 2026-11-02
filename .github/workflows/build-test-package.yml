@@ -3,42 +3,66 @@ name: Build and check in clean chroot
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "*/PKGBUILD"
-      - ".github/workflows/**"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Directory of PKGBUILD
+        type: string
+        required: true
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+env:
+  REPO_NAME: aur-packages
+  RELEASE_TAG: repo
 
 jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     container:
       image: ghcr.io/greyltc-org/archlinux-aur:paru
-      options: --privileged
-    permissions:
-      pull-requests: write
+      options: --privileged --cgroupns=host
+      volumes:
+        - /etc/machine-id:/etc/machine-id:ro
+        - /run/dbus:/run/dbus
 
     steps:
       - name: Update system
         run: pacman -Syu --noconfirm
 
       - name: Install base tools
-        run: pacman -S --noconfirm --needed git sudo
+        run: pacman -S --noconfirm --needed git sudo devtools github-cli
 
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
+      - name: Setup chroot via paru
+        run: |
+          sed -i -E 's/^#(Chroot)/\1/' /etc/paru.conf
+          # for systemd-nspawn
+          echo 'ab ALL=(ALL:ALL) NOPASSWD: ALL' >> /etc/sudoers
+          # ab is a system user (UID 969); makechrootpkg gives builduser ab's UID, and a system user
+          # created while installing -I packages can take the same UID, breaking sudo in the chroot
+          groupmod -g 1001 ab
+          usermod -u 1001 -g 1001 ab
+          chown -R ab /var/cache/makepkg/pkg /var/cache/foreign-pkg
+
       - name: Fetch base branch
+        if: '!inputs.package'
         run: |
           git config --global safe.directory "$GITHUB_WORKSPACE"
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
       - name: Find changed package
         id: pkg
+        if: '!inputs.package'
         run: |
           dir=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
                   -- '*/PKGBUILD' \
@@ -60,25 +84,84 @@ jobs:
           echo "dir=$dir" >> "$GITHUB_OUTPUT"
           echo "Package to build: $dir"
 
+      - name: Wait for pacman repository updates
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          while :; do
+            if ! pending=$(gh run list -R "$GITHUB_REPOSITORY" \
+                             --workflow publish-to-repo.yml --limit 100 \
+                             --json status \
+                             -q '[.[] | select(.status != "completed")] | length'); then
+              echo "::warning::Could not query publish-to-repo runs, not waiting."
+              break
+            fi
+            [[ "$pending" == 0 ]] && break
+            echo "$pending repository update(s) running or queued, waiting..."
+            sleep 30
+          done
+
+      - name: Add pacman repository
+        if: steps.pkg.outputs.skip != 'true'
+        run: .github/scripts/add-pacman-repo.sh
+
       - name: Build & Test package
         if: steps.pkg.outputs.skip != 'true'
+        env:
+          PKG: ${{ inputs.package || steps.pkg.outputs.dir }}
         run: |
           chown -R ab:ab "$GITHUB_WORKSPACE"
-          sudo -u ab -D "$GITHUB_WORKSPACE/${{ steps.pkg.outputs.dir }}" paru -B . --noconfirm
+          sudo -u ab -D "$GITHUB_WORKSPACE/$PKG" paru -B . --noconfirm
 
-      - name: Post result comment
+      - name: Collect built packages
+        id: built
+        if: steps.pkg.outputs.skip != 'true'
+        env:
+          PKG: ${{ inputs.package || steps.pkg.outputs.dir }}
+        run: |
+          git config --global safe.directory "$GITHUB_WORKSPACE"
+          mkdir -p built-packages
+          sudo -u ab -D "$GITHUB_WORKSPACE/$PKG" makepkg --packagelist \
+            | while read -r file; do
+                # --packagelist also lists a debug package that is not built for arch=any
+                if [[ -f "$file" ]]; then
+                  # Artifacts can't hold ':' (epoch); the repository stores the same '_' name.
+                  base=$(basename "$file")
+                  cp "$file" "built-packages/${base//:/_}"
+                fi
+              done
+          ls built-packages
+
+          # Named after the package directory's contents, so the publish workflow finds it
+          # for the same PKGBUILD however the PR is merged.
+          echo "name=pkg-$(git rev-parse "HEAD:$PKG")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload built packages
+        if: steps.pkg.outputs.skip != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.built.outputs.name }}
+          path: built-packages
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Write result summary
         if: always()
         uses: actions/github-script@v8
+        env:
+          PKG: ${{ inputs.package || steps.pkg.outputs.dir }}
         with:
           script: |
             const success = '${{ job.status }}' === 'success';
-            const pkg     = '${{ steps.pkg.outputs.dir }}' || 'unknown';
+            const pkg     = process.env.PKG || 'unknown';
             const icon    = success ? '✅' : '❌';
             const status  = success ? 'Build and tests passed' : 'Build or tests failed';
+            const message = `## ${icon} PKGBUILD CI — ${status}
 
-            github.rest.issues.createComment({
-              owner:        context.repo.owner,
-              repo:         context.repo.repo,
-              issue_number: context.issue.number,
-              body: `## ${icon} PKGBUILD CI — ${status}\n\n**Package:** \`${pkg}\`\n*Commit: ${{ github.sha }}*`
-            });
+            **Package:** \`${pkg}\`
+            *Commit: ${{ github.sha }}*`;
+
+            core.summary.addRaw(message);
+            core.summary.addEOL();
+            await core.summary.write();
