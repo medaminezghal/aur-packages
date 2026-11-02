@@ -109,6 +109,10 @@ prepare() {
   sed -i "s/snapshot({'initialize': /snapshot({'server\/discover': /" tests/durable_exec/test_durable_operation.py
   # Send tools/list_changed on the request's stream, as the 2026-07-28 MCP protocol drops notifications not tied to a request
   sed -i "s/^        await ctx.session.send_tool_list_changed()$/        from mcp.types import ToolListChangedNotification\n\n        await ctx.send_notification(ToolListChangedNotification())/" tests/test_tool_population_diff.py
+  # Ignore tenacity 9.2's deprecation of the 'initial' parameter, which google-genai still passes
+  sed -i "/^    \"ignore::DeprecationWarning:botocore\.\*\",$/a\    \"ignore:The 'initial' parameter is deprecated, use 'multiplier' instead:DeprecationWarning\"," pyproject.toml
+  # Define the session-scoped sentence-transformers fixture as a classmethod, as pytest 9.2 deprecates instance-method session fixtures
+  sed -i "s/^    def stsb_bert_tiny_model(self):$/    @classmethod\n    def stsb_bert_tiny_model(cls):/;s/^        return self._load_stsb_bert_tiny_model()$/        return cls()._load_stsb_bert_tiny_model()/" tests/test_embeddings.py
 }
 
 build() {
