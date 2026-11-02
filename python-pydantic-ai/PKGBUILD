@@ -14,8 +14,35 @@ arch=('any')
 _repo='https://github.com/pydantic/pydantic-ai'
 license=('MIT')
 depends=('python')
-makedepends=('python-hatchling' 'python-uv-dynamic-versioning' 'python-build' 'python-installer' 'python-wheel')
-checkdepends=('python-anyio' 'python-trio' 'python-asgi-lifespan' 'python-httpx' 'python-devtools' 'python-dirty-equals' 'python-ddgs' 'python-exa-py' 'python-tavily-python' 'python-markdownify' 'python-inline-snapshot' 'python-pytest' 'python-pytest-examples' 'python-pytest-mock' 'python-pytest-recording' 'python-pytest-xdist' 'python-genai-prices' 'python-brotli' 'python-opentelemetry-instrumentation-logging' 'python-fastmcp' 'python-mcp-types' 'python-blockbuster' 'ruff' 'deno')
+makedepends=('python-hatchling'
+             'python-uv-dynamic-versioning'
+             'python-build'
+             'python-installer'
+             'python-wheel')
+checkdepends=('python-anyio'
+              'python-trio'
+              'python-asgi-lifespan'
+              'python-httpx'
+              'python-devtools'
+              'python-dirty-equals'
+              'python-ddgs'
+              'python-exa-py'
+              'python-tavily-python'
+              'python-markdownify'
+              'python-inline-snapshot'
+              'python-pytest'
+              'python-pytest-examples'
+              'python-pytest-mock'
+              'python-pytest-recording'
+              'python-pytest-xdist'
+              'python-genai-prices'
+              'python-brotli'
+              'python-opentelemetry-instrumentation-logging'
+              'python-fastmcp'
+              'python-mcp-types'
+              'python-blockbuster'
+              'ruff'
+              'deno')
 source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('1ee25a57321379b49e6a936dcdc031781b5aaba3a694c74dbde6d3dcd8570859')
 
@@ -52,8 +79,11 @@ check() {
 }
 
 package_python-pydantic-graph() {
-  pkgdesc='Graph and state machine librarys.'
-  depends+=('python-anyio' 'python-logfire-api' 'python-pydantic' 'python-typing-inspection')
+  pkgdesc='Graph and state machine library.'
+  depends+=('python-anyio'
+            'python-logfire-api'
+            'python-pydantic'
+            'python-typing-inspection')
   url="$_repo/tree/main/${_name0//-ai/_}$_name4"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" ${_name0//-ai/_}$_name4/dist/*.whl
@@ -61,45 +91,130 @@ package_python-pydantic-graph() {
 
 package_python-pydantic-ai-slim() {
   pkgdesc='Agent Framework / shim to use Pydantic with LLMs, slim package.'
-  depends+=('python-anyio' 'python-griffelib' 'python-httpx2' 'python-pydantic' 'python-pydantic-graph' 'python-opentelemetry-api' 'python-typing-inspection' 'python-genai-prices')
-  optdepends=('python-logfire: logfire' 'python-opentelemetry-instrumentation-httpx: logfire'
-              'python-openai: openai' 'python-tiktoken: openai'
+  depends+=('python-anyio'
+            'python-griffelib'
+            'python-httpx2'
+            'python-pydantic'
+            'python-pydantic-graph'
+            'python-opentelemetry-api'
+            'python-typing-inspection'
+            'python-genai-prices')
+  optdepends=('python-logfire: logfire'
+              'python-opentelemetry-instrumentation-httpx: logfire'
+
+              'python-openai: openai'
+              'python-tiktoken: openai'
+
               'python-cohere: cohere'
+
               'python-google-genai: google'
+
               'python-anthropic: anthropic'
+
               'python-xai-sdk: xai'
+
               'python-groq: groq'
+
               'python-openai: openrouter'
+
               'python-mistralai: mistral'
+
               'python-boto3: bedrock'
-              'python-openai: bedrock-mantle' 'python-botocore: bedrock-mantle'
+
+              'python-openai: bedrock-mantle'
+              'python-botocore: bedrock-mantle'
+
               'python-openai: zai'
+
               'python-openai: snowflake'
+
               'python-openai: crusoe'
+
               'python-openai: cerebras'
-              'python-huggingface-hub: huggingface' 'python-hf-xet: huggingface'
+
+              'python-huggingface-hub: huggingface'
+              'python-hf-xet: huggingface'
+
               'python-sentence-transformers: sentence-transformers'
+
               'python-voyageai: voyageai'
+
               'python-ddgs: duckduckgo'
+
               'python-tavily-python: tavily'
+
               'python-exa-py: exa'
+
               'python-markdownify: web-fetch'
-              'python-rich: cli' 'python-prompt_toolkit: cli' 'python-argcomplete: cli' 'python-pyperclip: cli' 'python-pyyaml: cli'
+
+              'python-rich: cli'
+              'python-prompt_toolkit: cli'
+              'python-argcomplete: cli'
+              'python-pyperclip: cli'
+              'python-pyyaml: cli'
+
               'python-websockets: realtime'
-              'python-openai: openai-realtime' 'python-tiktoken: openai-realtime' 'python-websockets: openai-realtime'
-              'python-google-genai: google-realtime' 'python-websockets: google-realtime'
-              'python-xai-sdk: xai-realtime' 'python-openai: xai-realtime' 'python-tiktoken: xai-realtime' 'python-websockets: xai-realtime'
-              'python-fastmcp-slim: mcp' 'python-exceptiongroup: mcp' 'python-httpx2: mcp' 'python-mcp: mcp' 'python-opentelemetry-api: mcp' 'python-starlette: mcp' 'python-authlib: mcp' 'python-py-key-value-aio: mcp' 'python-aiofile: mcp' 'python-anyio: mcp' 'python-keyring: mcp' 'python-cachetools: mcp'
-              'python-fastmcp-tasks: mcp-tasks' 'python-fastmcp-slim: mcp-tasks' 'python-exceptiongroup: mcp-tasks' 'python-httpx2: mcp-tasks' 'python-mcp: mcp-tasks' 'python-opentelemetry-api: mcp-tasks' 'python-starlette: mcp-tasks' 'python-authlib: mcp-tasks' 'python-py-key-value-aio: mcp-tasks' 'python-aiofile: mcp-tasks' 'python-anyio: mcp-tasks' 'python-keyring: mcp-tasks' 'python-cachetools: mcp-tasks'
+
+              'python-openai: openai-realtime'
+              'python-tiktoken: openai-realtime'
+              'python-websockets: openai-realtime'
+
+              'python-google-genai: google-realtime'
+              'python-websockets: google-realtime'
+
+              'python-xai-sdk: xai-realtime'
+              'python-openai: xai-realtime'
+              'python-tiktoken: xai-realtime'
+              'python-websockets: xai-realtime'
+
+              'python-fastmcp-slim: mcp'
+              'python-exceptiongroup: mcp'
+              'python-httpx2: mcp'
+              'python-mcp: mcp'
+              'python-opentelemetry-api: mcp'
+              'python-starlette: mcp'
+              'python-authlib: mcp'
+              'python-py-key-value-aio: mcp'
+              'python-aiofile: mcp'
+              'python-anyio: mcp'
+              'python-keyring: mcp'
+              'python-cachetools: mcp'
+
+              'python-fastmcp-tasks: mcp-tasks'
+              'python-fastmcp-slim: mcp-tasks'
+              'python-exceptiongroup: mcp-tasks'
+              'python-httpx2: mcp-tasks'
+              'python-mcp: mcp-tasks'
+              'python-opentelemetry-api: mcp-tasks'
+              'python-starlette: mcp-tasks'
+              'python-authlib: mcp-tasks'
+              'python-py-key-value-aio: mcp-tasks'
+              'python-aiofile: mcp-tasks'
+              'python-anyio: mcp-tasks'
+              'python-keyring: mcp-tasks'
+              'python-cachetools: mcp-tasks'
+
               'python-pydantic-evals: evals'
+
               'python-starlette: ui'
-              'python-ag-ui-protocol: ag-ui' 'python-starlette: ag-ui'
-              'python-starlette: web' 'uvicorn: web'
-              'python-tenacity: retries' 'python-httpx: retries'
+
+              'python-ag-ui-protocol: ag-ui'
+              'python-starlette: ag-ui'
+
+              'python-starlette: web'
+              'uvicorn: web'
+
+              'python-tenacity: retries'
+              'python-httpx: retries'
+
               'python-temporalio: temporal'
+
               'python-dbos: dbos'
+
               'python-prefect: prefect'
-              'python-pyyaml: spec' 'python-pydantic-handlebars: spec')
+
+              'python-pyyaml: spec'
+              'python-pydantic-handlebars: spec')
   url="$_repo/tree/main/${_name0//-/_}_$_name3"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" ${_name0//-/_}_$_name3/dist/*.whl
@@ -107,7 +222,12 @@ package_python-pydantic-ai-slim() {
 
 package_python-pydantic-evals() {
   pkgdesc='Framework for evaluating stochastic code execution, especially code making use of LLMs.'
-  depends+=('python-rich' 'python-logfire-api' 'python-pydantic' 'python-pydantic-ai-slim' 'python-anyio' 'python-pyyaml')
+  depends+=('python-rich'
+            'python-logfire-api'
+            'python-pydantic'
+            'python-pydantic-ai-slim'
+            'python-anyio'
+            'python-pyyaml')
   optdepends=('python-logfire: logfire')
   url="$_repo/tree/main/${_name0//-ai/_}$_name2"
   cd "$_name0-$pkgver"
@@ -124,34 +244,109 @@ package_python-pydantic-ai-examples() {
 
 package_python-pydantic-ai() {
   pkgdesc='Agent Framework / shim to use Pydantic with LLMs.'
-  depends+=('python-pydantic-ai-slim' 'python-openai' 'python-tiktoken' 'python-anthropic' 'python-google-genai' 'python-rich' 'python-prompt_toolkit' 'python-argcomplete' 'python-pyperclip' 'python-pyyaml' 'python-fastmcp-slim' 'python-exceptiongroup' 'python-httpx2' 'python-mcp' 'python-opentelemetry-api' 'python-starlette' 'python-authlib' 'python-py-key-value-aio' 'python-aiofile' 'python-anyio' 'python-keyring' 'python-cachetools' 'python-pydantic-evals' 'python-starlette' 'uvicorn' 'python-logfire' 'python-opentelemetry-instrumentation-httpx')
+  depends+=('python-pydantic-ai-slim'
+            'python-openai'
+            'python-tiktoken'
+            'python-anthropic'
+            'python-google-genai'
+            'python-rich'
+            'python-prompt_toolkit'
+            'python-argcomplete'
+            'python-pyperclip'
+            'python-pyyaml'
+            'python-fastmcp-slim'
+            'python-exceptiongroup'
+            'python-httpx2'
+            'python-mcp'
+            'python-opentelemetry-api'
+            'python-starlette'
+            'python-authlib'
+            'python-py-key-value-aio'
+            'python-aiofile'
+            'python-anyio'
+            'python-keyring'
+            'python-cachetools'
+            'python-pydantic-evals'
+            'python-starlette'
+            'uvicorn'
+            'python-logfire'
+            'python-opentelemetry-instrumentation-httpx')
   optdepends=('python-pydantic-ai-examples: examples'
+
               'python-dbos: dbos'
+
               'python-prefect: prefect'
+
               'python-sentence-transformers: sentence-transformers'
+
               'python-voyageai: voyageai'
+
               'python-cohere: cohere'
+
               'python-mistralai: mistral'
+
               'python-boto3: bedrock'
-              'python-openai: bedrock-mantle' 'python-botocore: bedrock-mantle'
+
+              'python-openai: bedrock-mantle'
+              'python-botocore: bedrock-mantle'
+
               'python-xai-sdk: xai'
+
               'python-groq: groq'
+
               'python-openai: openrouter'
-              'python-huggingface-hub: huggingface' 'python-hf-xet: huggingface'
-              'python-ag-ui-protocol: ag-ui' 'python-starlette: ag-ui'
+
+              'python-huggingface-hub: huggingface'
+              'python-hf-xet: huggingface'
+
+              'python-ag-ui-protocol: ag-ui'
+              'python-starlette: ag-ui'
+
               'python-starlette: ui'
+
               'python-ddgs: duckduckgo'
+
               'python-tavily-python: tavily'
+
               'python-exa-py: exa'
+
               'python-markdownify: web-fetch'
-              'python-tenacity: retries' 'python-httpx: retries'
+
+              'python-tenacity: retries'
+              'python-httpx: retries'
+
               'python-temporalio: temporal'
-              'python-pyyaml: spec' 'python-pydantic-handlebars: spec'
-              'python-fastmcp-tasks: mcp-tasks' 'python-fastmcp-slim: mcp-tasks' 'python-exceptiongroup: mcp-tasks' 'python-httpx2: mcp-tasks' 'python-mcp: mcp-tasks' 'python-opentelemetry-api: mcp-tasks' 'python-starlette: mcp-tasks' 'python-authlib: mcp-tasks' 'python-py-key-value-aio: mcp-tasks' 'python-aiofile: mcp-tasks' 'python-anyio: mcp-tasks' 'python-keyring: mcp-tasks' 'python-cachetools: mcp-tasks'
+
+              'python-pyyaml: spec'
+              'python-pydantic-handlebars: spec'
+
+              'python-fastmcp-tasks: mcp-tasks'
+              'python-fastmcp-slim: mcp-tasks'
+              'python-exceptiongroup: mcp-tasks'
+              'python-httpx2: mcp-tasks'
+              'python-mcp: mcp-tasks'
+              'python-opentelemetry-api: mcp-tasks'
+              'python-starlette: mcp-tasks'
+              'python-authlib: mcp-tasks'
+              'python-py-key-value-aio: mcp-tasks'
+              'python-aiofile: mcp-tasks'
+              'python-anyio: mcp-tasks'
+              'python-keyring: mcp-tasks'
+              'python-cachetools: mcp-tasks'
+
               'python-websockets: realtime'
-              'python-openai: openai-realtime' 'python-tiktoken: openai-realtime' 'python-websockets: openai-realtime'
-              'python-google-genai: google-realtime' 'python-websockets: google-realtime'
-              'python-xai-sdk: xai-realtime' 'python-openai: xai-realtime' 'python-tiktoken: xai-realtime' 'python-websockets: xai-realtime')
+
+              'python-openai: openai-realtime'
+              'python-tiktoken: openai-realtime'
+              'python-websockets: openai-realtime'
+
+              'python-google-genai: google-realtime'
+              'python-websockets: google-realtime'
+
+              'python-xai-sdk: xai-realtime'
+              'python-openai: xai-realtime'
+              'python-tiktoken: xai-realtime'
+              'python-websockets: xai-realtime')
   url="$_repo"
   cd "$_name0-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
