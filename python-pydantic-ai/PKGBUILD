@@ -3,11 +3,10 @@
 _name4=graph
 _name3=slim
 _name2=evals
-_name1=examples
+_name1=clai
 _name0=pydantic-ai
-_name00=clai
 pkgbase=python-$_name0
-pkgname=(python-${_name0//-ai/}-$_name4 python-$_name0-$_name3 python-${_name0//-ai/}-$_name2 python-$_name0-$_name1 python-$_name0 python-$_name00)
+pkgname=(python-${_name0//-ai/}-$_name4 python-$_name0-$_name3 python-${_name0//-ai/}-$_name2 python-$_name0 python-$_name1)
 pkgver=2.64.0
 pkgrel=1
 arch=('any')
@@ -97,9 +96,8 @@ build() {
   python -m build --wheel --no-isolation ${_name0//-ai/_}$_name4
   python -m build --wheel --no-isolation ${_name0//-/_}_$_name3
   python -m build --wheel --no-isolation ${_name0//-ai/_}$_name2
-  python -m build --wheel --no-isolation $_name1
   python -m build --wheel --no-isolation
-  python -m build --wheel --no-isolation $_name00
+  python -m build --wheel --no-isolation $_name1
 }
 
 check() {
@@ -117,9 +115,8 @@ check() {
   test-env/bin/python -m installer ${_name0//-/_}_$_name3/dist/*.whl
   rm -rf test-env/bin/pai
   test-env/bin/python -m installer ${_name0//-ai/_}$_name2/dist/*.whl
-  test-env/bin/python -m installer $_name1/dist/*.whl
   test-env/bin/python -m installer dist/*.whl
-  test-env/bin/python -m installer $_name00/dist/*.whl
+  test-env/bin/python -m installer $_name1/dist/*.whl
   PATH="$srcdir"/$_name0-$pkgver/test-env/bin:$PATH test-env/bin/python -m pytest "${pytest_options[@]}" tests
 }
 
@@ -286,47 +283,6 @@ package_python-pydantic-evals() {
   install -Dm644 ${_name0//-ai/_}$_name2/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
-package_python-pydantic-ai-examples() {
-  pkgdesc='Examples of how to use PydanticAI and what it can do.'
-  depends+=('python-pydantic-ai-slim'
-            'python-openai'
-            'python-tiktoken'
-            'python-google-genai'
-            'python-groq'
-            'python-anthropic'
-            'python-ag-ui-protocol'
-            'python-starlette'
-            'python-websockets'
-            'python-pydantic-evals'
-            'python-asyncpg'
-            'python-fastapi'
-            'python-logfire'
-            'python-opentelemetry-instrumentation-asyncpg'
-            'python-opentelemetry-instrumentation-fastapi'
-            'python-opentelemetry-instrumentation-sqlite3'
-            'python-opentelemetry-instrumentation-httpx'
-            'python-dotenv'
-            'python-python-multipart'
-            'python-rich'
-            'uvicorn'
-            'python-devtools'
-            'python-gradio'
-            'python-mcp'
-            'python-typer'
-            'python-modal'
-            'python-duckdb'
-            'python-datasets'
-            'python-pandas'
-            'python-prompt_toolkit'
-            'python-twelvelabs'
-            'python-listentome'
-            'python-numpy')
-  url="$_repo/tree/main/$_name1"
-  cd "$_name0-$pkgver"
-  python -m installer --destdir="$pkgdir" $_name1/dist/*.whl
-  install -Dm644 $_name1/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
-}
-
 package_python-pydantic-ai() {
   pkgdesc='Agent Framework / shim to use Pydantic with LLMs.'
   depends+=('python-pydantic-ai-slim'
@@ -353,9 +309,7 @@ package_python-pydantic-ai() {
             'uvicorn'
             'python-logfire'
             'python-opentelemetry-instrumentation-httpx')
-  optdepends=('python-pydantic-ai-examples: examples'
-
-              'python-dbos: dbos'
+  optdepends=('python-dbos: dbos'
 
               'python-prefect: prefect'
 
@@ -445,8 +399,8 @@ package_python-pydantic-ai() {
 package_python-clai() {
   pkgdesc='PydanticAI CLI: command line interface to chat to LLMs.'
   depends+=('python-pydantic-ai')
-  url="$_repo/tree/main/$_name00"
+  url="$_repo/tree/main/$_name1"
   cd "$_name0-$pkgver"
-  python -m installer --destdir="$pkgdir" $_name00/dist/*.whl
-  install -Dm644 $_name00/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  python -m installer --destdir="$pkgdir" $_name1/dist/*.whl
+  install -Dm644 $_name1/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
