@@ -88,6 +88,16 @@ prepare() {
   cd "$_name0-$pkgver"
   # Remove the devtools import: python-devtools is not a checkdepends and test_examples.py is skipped without pydantic_ai_examples
   sed -i '/^from devtools import debug$/d' tests/test_examples.py
+  # Map the Qwen VL models to ovhcloud instead of nebius in the HF provider fixture, as huggingface-hub >= 1.25 dropped the nebius provider
+  sed -i "s/('nebius', 'Qwen/('ovhcloud', 'Qwen/" tests/conftest.py
+  # Allow huggingface-hub's one-time package version lookup (importlib.metadata) in the event loop, as huggingface-hub 2 does it while building request headers
+  sed -i "/('os.getcwd', 'logfire\/_internal\/stack_info.py', 'is_user_code'),/a\    ('os.stat', 'huggingface_hub\/utils\/_runtime.py', '_get_version')," tests/conftest.py
+  # Replay the nebius image tests through ovhcloud (same plain conversational task), with ovhcloud's genai-prices cost
+  sed -i "s/provider_name='nebius', api_key=huggingface_api_key/provider_name='ovhcloud', api_key=huggingface_api_key/;s|router.huggingface.co/nebius'|router.huggingface.co/ovhcloud'|;s/cost=Decimal('0.00008750')/cost=Decimal('0.00029896')/" tests/models/test_huggingface.py
+  # Point the two image cassettes at the ovhcloud route to match
+  sed -i 's|router.huggingface.co/nebius/|router.huggingface.co/ovhcloud/|' tests/models/cassettes/test_huggingface/test_image_url_input.yaml tests/models/cassettes/test_huggingface/test_image_as_binary_content_input.yaml
+  # Raise an httpx2 timeout in the mock transport, as huggingface-hub 2 only converts httpx2.TimeoutException to InferenceTimeoutError
+  sed -i "s/^import httpx$/import httpx\nimport httpx2/;s/^    raise TimeoutError$/    raise httpx2.TimeoutException('timed out')/" tests/models/test_huggingface.py
 }
 
 build() {
