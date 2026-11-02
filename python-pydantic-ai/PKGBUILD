@@ -84,6 +84,12 @@ checkdepends=('python-anyio'
 source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('1ee25a57321379b49e6a936dcdc031781b5aaba3a694c74dbde6d3dcd8570859')
 
+prepare() {
+  cd "$_name0-$pkgver"
+  # Remove the devtools import: python-devtools is not a checkdepends and test_examples.py is skipped without pydantic_ai_examples
+  sed -i '/^from devtools import debug$/d' tests/test_examples.py
+}
+
 build() {
   cd "$_name0-$pkgver"
   export UV_DYNAMIC_VERSIONING_BYPASS=$pkgver
