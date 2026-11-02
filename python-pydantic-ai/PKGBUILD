@@ -109,11 +109,11 @@ check() {
     --disable-warnings
     -p 'no:benchmark'
     -n auto
-    -k 'not anthropic and not fastmcp'
   )
   cd "$_name0-$pkgver"
   python -m venv --system-site-packages test-env
   ln -sf /usr/bin/ruff test-env/bin/ruff
+  ln -sf /usr/bin/pytest test-env/bin/pytest
   test-env/bin/python -m installer ${_name0//-ai/_}$_name4/dist/*.whl
   test-env/bin/python -m installer ${_name0//-/_}_$_name3/dist/*.whl
   rm -rf test-env/bin/pai
