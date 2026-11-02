@@ -80,7 +80,8 @@ checkdepends=('python-anyio'
               'python-tenacity'
               'python-pydantic-handlebars'
               'ruff'
-              'git')
+              'git'
+              'procps-ng')
 source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('1ee25a57321379b49e6a936dcdc031781b5aaba3a694c74dbde6d3dcd8570859')
 
@@ -91,7 +92,7 @@ prepare() {
   # Map the Qwen VL models to ovhcloud instead of nebius in the HF provider fixture, as huggingface-hub >= 1.25 dropped the nebius provider
   sed -i "s/('nebius', 'Qwen/('ovhcloud', 'Qwen/" tests/conftest.py
   # Allow huggingface-hub's one-time package version lookup (importlib.metadata) in the event loop, as huggingface-hub 2 does it while building request headers
-  sed -i "/('os.getcwd', 'logfire\/_internal\/stack_info.py', 'is_user_code'),/a\    ('os.stat', 'huggingface_hub\/utils\/_runtime.py', '_get_version')," tests/conftest.py
+  sed -i "/('os.getcwd', 'logfire\/_internal\/stack_info.py', 'is_user_code'),/a\    ('os.stat', 'huggingface_hub\/utils\/_runtime.py', '_get_version'),\n    ('io.TextIOWrapper.read', 'huggingface_hub\/utils\/_runtime.py', '_get_version')," tests/conftest.py
   # Replay the nebius image tests through ovhcloud (same plain conversational task), with ovhcloud's genai-prices cost
   sed -i "s/provider_name='nebius', api_key=huggingface_api_key/provider_name='ovhcloud', api_key=huggingface_api_key/;s|router.huggingface.co/nebius'|router.huggingface.co/ovhcloud'|;s/cost=Decimal('0.00008750')/cost=Decimal('0.00029896')/" tests/models/test_huggingface.py
   # Point the two image cassettes at the ovhcloud route to match
