@@ -1,0 +1,42 @@
+--- a/tests/mcp_server.py
++++ b/tests/mcp_server.py
+@@ -2,18 +2,20 @@
+ from pathlib import Path
+ from typing import Any
+ 
+-from mcp.server.fastmcp import Context, FastMCP, Image
+-from mcp.server.fastmcp.prompts.base import UserMessage
++from mcp.server.mcpserver import Context, Image, MCPServer as FastMCP
++from mcp.server.mcpserver import UserMessage
+ from mcp.server.session import ServerSession
+ from mcp.types import (
+     Annotations,
+     AudioContent,
+     BlobResourceContents,
+     CreateMessageResult,
++    EmptyResult,
+     EmbeddedResource,
+     ImageContent,
+     ResourceLink,
+     SamplingMessage,
++    SetLevelRequestParams,
+     TextContent,
+     TextResourceContents,
+     ToolAnnotations,
+@@ -367,10 +369,13 @@
+     ]
+ 
+ 
+-@mcp._mcp_server.set_logging_level()  # pyright: ignore[reportPrivateUsage]
+-async def set_logging_level(level: str) -> None:
++async def set_logging_level(ctx: Any, params: SetLevelRequestParams) -> EmptyResult:
+     global log_level
+-    log_level = level
++    log_level = params.level
++    return EmptyResult()
++
++
++mcp._lowlevel_server.add_request_handler('logging/setLevel', SetLevelRequestParams, set_logging_level)  # pyright: ignore[reportPrivateUsage]
+ 
+ 
+ if __name__ == '__main__':

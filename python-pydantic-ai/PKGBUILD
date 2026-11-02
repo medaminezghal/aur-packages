@@ -82,8 +82,10 @@ checkdepends=('python-anyio'
               'ruff'
               'git'
               'procps-ng')
-source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('1ee25a57321379b49e6a936dcdc031781b5aaba3a694c74dbde6d3dcd8570859')
+source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz"
+        'mcp-v2-test-server.patch')
+sha256sums=('1ee25a57321379b49e6a936dcdc031781b5aaba3a694c74dbde6d3dcd8570859'
+            '530697bdaea5cb65201cba2a77a4acf671d25ed7979ffc8b4e0b8bde3fb00837')
 
 prepare() {
   cd "$_name0-$pkgver"
@@ -99,6 +101,14 @@ prepare() {
   sed -i 's|router.huggingface.co/nebius/|router.huggingface.co/ovhcloud/|' tests/models/cassettes/test_huggingface/test_image_url_input.yaml tests/models/cassettes/test_huggingface/test_image_as_binary_content_input.yaml
   # Raise an httpx2 timeout in the mock transport, as huggingface-hub 2 only converts httpx2.TimeoutException to InferenceTimeoutError
   sed -i "s/^import httpx$/import httpx\nimport httpx2/;s/^    raise TimeoutError$/    raise httpx2.TimeoutException('timed out')/" tests/models/test_huggingface.py
+  # Port the stdio test MCP server to mcp 2 (FastMCP was renamed MCPServer and the low-level handlers are registered with add_request_handler)
+  patch -Np1 -i ../mcp-v2-test-server.patch
+  # Allow pydantic-ai's mcp version lookup (importlib.metadata) in the event loop, as only the mcp 2 code path calls it during a run
+  sed -i "/('os.getcwd', 'logfire\/_internal\/stack_info.py', 'is_user_code'),/a\    ('os.stat', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2'),\n    ('os.listdir', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2'),\n    ('io.TextIOWrapper.read', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2'),\n    ('io.BufferedReader.read', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2')," tests/conftest.py
+  # Count the mcp 2 handshake (server/discover replaced initialize) in the durable session tests
+  sed -i "s/snapshot({'initialize': /snapshot({'server\/discover': /" tests/durable_exec/test_durable_operation.py
+  # Send tools/list_changed on the request's stream, as the 2026-07-28 MCP protocol drops notifications not tied to a request
+  sed -i "s/^        await ctx.session.send_tool_list_changed()$/        from mcp.types import ToolListChangedNotification\n\n        await ctx.send_notification(ToolListChangedNotification())/" tests/test_tool_population_diff.py
 }
 
 build() {
