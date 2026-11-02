@@ -8,7 +8,7 @@ _name0=pydantic-ai
 _name00=clai
 pkgbase=python-$_name0
 pkgname=(python-${_name0//-ai/}-$_name4 python-$_name0-$_name3 python-${_name0//-ai/}-$_name2 python-$_name0-$_name1 python-$_name0 python-$_name00)
-pkgver=2.41.0
+pkgver=2.64.0
 pkgrel=1
 arch=('any')
 url='https://github.com/pydantic/pydantic-ai'
@@ -17,7 +17,7 @@ depends=('python')
 makedepends=('python-hatchling' 'python-uv-dynamic-versioning' 'python-build' 'python-installer' 'python-wheel' 'git')
 checkdepends=('python-anyio' 'python-trio' 'python-asgi-lifespan' 'python-httpx' 'python-devtools' 'python-dirty-equals' 'python-ddgs' 'python-exa-py' 'python-tavily-python' 'python-markdownify' 'python-inline-snapshot' 'python-pytest' 'python-pytest-examples' 'python-pytest-mock' 'python-pytest-recording' 'python-pytest-xdist' 'python-genai-prices' 'python-brotli' 'python-opentelemetry-instrumentation-logging' 'python-fastmcp' 'python-mcp-types' 'python-blockbuster' 'ruff' 'deno')
 source=("$_name0::git+$url.git#tag=v$pkgver")
-sha256sums=('895b85df1ad3dd06215807b9b931d8213351d1f9a61de1538d160d3e99d3453a')
+sha256sums=('51770cfa38216a6146c2bc633b5f9c33440d8921efec7c81f3c57d7040004c13')
 
 build() {
   cd "$srcdir"/$_name0
