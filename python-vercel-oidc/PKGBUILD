@@ -15,8 +15,7 @@ depends=('python'
          'python-vercel-headers')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'git')
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-cryptography'
@@ -24,11 +23,11 @@ checkdepends=('python-pytest'
               'python-pyjwt')
 optdepends=('python-pyjwt: verify'
             'python-cryptography: verify')
-source=("$_name::git+$_repo.git#tag=$_name-v$pkgver")
-sha256sums=('67ef4b7d8ff75114c8fd347fe745c6d129f22969644e21be94e2510e7b1a118c')
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name-v$pkgver.tar.gz")
+sha256sums=('e5056423ef2c7269237eeaf31cb797156dd048ad7d28605d14a55c6c84408646')
 
 build() {
-  cd "$srcdir"/$_name/src/$_name
+  cd "vercel-py-$_name-v$pkgver/src/$_name"
   python -m build --wheel --no-isolation
 }
 
@@ -37,11 +36,11 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_name/src/$_name
+  cd "vercel-py-$_name-v$pkgver/src/$_name"
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name/src/$_name
+  cd "vercel-py-$_name-v$pkgver/src/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
