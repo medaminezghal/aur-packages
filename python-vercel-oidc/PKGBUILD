@@ -43,4 +43,5 @@ check() {
 package() {
   cd "vercel-py-$_name-v$pkgver/src/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
