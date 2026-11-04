@@ -7,7 +7,7 @@ _name1=clai
 _name0=pydantic-ai
 pkgbase=python-$_name0
 pkgname=(python-${_name0//-ai/}-$_name4 python-$_name0-$_name3 python-${_name0//-ai/}-$_name2 python-$_name0 python-$_name1)
-pkgver=2.64.0
+pkgver=2.65.0
 pkgrel=1
 arch=('any')
 _repo='https://github.com/pydantic/pydantic-ai'
@@ -84,7 +84,7 @@ checkdepends=('python-anyio'
               'procps-ng')
 source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz"
         'mcp-v2-test-server.patch')
-sha256sums=('1ee25a57321379b49e6a936dcdc031781b5aaba3a694c74dbde6d3dcd8570859'
+sha256sums=('0283a0a2cf74022daeca8cf8dc4ef85bf53806b5be2739e6d9990b79a97649de'
             '530697bdaea5cb65201cba2a77a4acf671d25ed7979ffc8b4e0b8bde3fb00837')
 
 prepare() {
