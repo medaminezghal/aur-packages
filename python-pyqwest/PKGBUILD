@@ -44,18 +44,18 @@ sha256sums=('b35cf5e940b098ad657c8b521352d530b18f7eff187aa69d52658bccae1e3b71'
             'SKIP')
 
 prepare() {
-  cd "$srcdir"/$_name-$pkgver
+  cd "$_name-$pkgver"
   # Use the standard library compression.zstd module instead of python-zstd
   sed -i 's/^import zstd\b.*/from compression import zstd/' tests/apps/asgi/kitchensink.py tests/apps/wsgi/kitchensink.py
-  cd "$srcdir"/pyvoy
+  cd "$srcdir/pyvoy"
   git checkout --quiet "$(git tag -l 'v*' --sort=-v:refname | head -1)"
 }
 
 build() {
-  cd "$srcdir"/$_name-$pkgver
+  cd "$_name-$pkgver"
   export ZSTD_SYS_USE_PKG_CONFIG=1
   RUSTFLAGS="$RUSTFLAGS --cfg reqwest_unstable --cfg tokio_unstable" python -m build --wheel --no-isolation
-  cd "$srcdir"/pyvoy
+  cd "$srcdir/pyvoy"
   python -m build --wheel --no-isolation
 }
 
@@ -64,7 +64,7 @@ check() {
     -vv
     --disable-warnings
   )
-  cd "$srcdir"/$_name-$pkgver
+  cd "$_name-$pkgver"
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer dist/*.whl
   test-env/bin/python -m installer "$srcdir"/pyvoy/dist/*.whl
@@ -73,7 +73,7 @@ check() {
 }
 
 package() {
-  cd "$srcdir"/$_name-$pkgver
+  cd "$_name-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
   install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
