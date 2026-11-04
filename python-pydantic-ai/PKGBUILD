@@ -118,6 +118,8 @@ prepare() {
   sed -i "s/^def pytest_configure(config: pytest.Config) -> None:$/def pytest_configure(config: pytest.Config) -> None:\n    import multiprocessing.resource_tracker\n\n    multiprocessing.resource_tracker.ensure_running()/" tests/conftest.py
   # Import ddgs when the tests load, like upstream does for pandas, as its first import scans its engines folder (blocking) inside whichever async test needs it first
   sed -i 's/^\(    import pandas  # pyright: ignore\[reportUnusedImport\] # noqa: F401\)$/\1\n\nwith suppress(ImportError):\n    import ddgs.ddgs  # pyright: ignore[reportUnusedImport] # noqa: F401/' tests/conftest.py
+  # Expect httpx2 in huggingface-hub's requirements, as huggingface-hub 2 replaced httpx with httpx2 (pydantic-ai still imports legacy httpx for it)
+  sed -i "s/^    assert 'httpx' in _requirement_names('huggingface-hub')$/    assert 'httpx2' in _requirement_names('huggingface-hub')/" tests/test_httpx2_sdk_readiness.py
 }
 
 build() {
