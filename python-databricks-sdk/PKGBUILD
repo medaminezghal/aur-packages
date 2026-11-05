@@ -38,6 +38,12 @@ optdepends=('ipython: notebook'
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('c179151ea85d993bdf62a7a94ebc623a55fa9c4def51fc3f988c9b2437c22122')
 
+prepare() {
+  cd "$_name-py-$pkgver"
+  # Use the setuptools version shipped by Arch
+  sed -i '/^requires = /s/"setuptools[<>=!~][^"]*"/"setuptools"/' pyproject.toml
+}
+
 build() {
   cd "$_name-py-$pkgver"
   python -m build --wheel --no-isolation
