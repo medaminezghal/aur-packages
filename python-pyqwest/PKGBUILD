@@ -45,10 +45,14 @@ sha256sums=('b35cf5e940b098ad657c8b521352d530b18f7eff187aa69d52658bccae1e3b71'
 
 prepare() {
   cd "$_name-$pkgver"
+  # Use the maturin version shipped by Arch
+  sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml
   # Use the standard library compression.zstd module instead of python-zstd
   sed -i 's/^import zstd\b.*/from compression import zstd/' tests/apps/asgi/kitchensink.py tests/apps/wsgi/kitchensink.py
   cd "$srcdir/pyvoy"
   git checkout --quiet "$(git tag -l 'v*' --sort=-v:refname | head -1)"
+  # Use the maturin version shipped by Arch
+  sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml
 }
 
 build() {
