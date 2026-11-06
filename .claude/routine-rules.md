@@ -71,6 +71,12 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
    - Re-check on every PR you touch for that package: if upstream adds new uses the stdlib doesn't cover, or a sed no longer matches, fix the sed or restore the package, and tell the owner in the PR comment.
    - Backport packages (rule 1 class b) keep their own rule: they are removed without patching when nothing imports them on $ARCH_PY.
    Known replacements: `zstd` (python-zstd) → `compression.zstd` (Python >= 3.14), used by python-pyqwest's tests.
+13. Build-system constraints: ALWAYS remove the version constraints of every entry in upstream's `[build-system] requires`, in prepare(), whether or not the version Arch ships meets them. Never keep a constraint because Arch currently satisfies it, and never wait for Arch to catch up.
+   - Do it for every pyproject.toml the PKGBUILD builds, including extra sources built in build() (e.g. pyvoy in python-pyqwest, after its `git checkout`).
+   - Restrict the sed to the `requires = ` line (or the `/^requires = \[/,/\]/` range when the list spans several lines), so constraints elsewhere (dev groups, extras) stay untouched, and match any constraint instead of the current literal one, so the sed survives version bumps: `sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml`. One sed per line, all the files it edits on that same line.
+   - Comment above it: `# Use the <backend> version shipped by Arch` (e.g. `# Use the maturin version shipped by Arch`).
+   - Add it in the next PR you open or touch for the package (bumps and fix PRs alike), never in a separate cleanup PR; existing seds that match only a literal constraint (e.g. `uv_build>=0.13.0,<0.14.0`) are converted to the generic form in that same PR. Commit "Fix build".
+   - If the build then really fails because Arch's version lacks something upstream needs, don't patch around it: comment the exact error on the PR for the owner (rule 8 style).
 
 ## Layout conventions
 - PKGBUILD layout (new packages and every PR you touch, in an "Update syntax" commit):
@@ -132,3 +138,4 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
 - (j) The source follows the Sources rules (tarball by default; git only for a stated rule-3 reason, with `git clean -dfx` in prepare()), and build()/check() were dry-run from it.
 - (k) A license file is installed exactly when the License files rule needs it, right after the package install line.
 - (l) Every dependency was checked for a rule-12 stdlib replacement, and every existing replacement sed still matches at the new tag.
+- (m) Every `[build-system] requires` constraint is removed in prepare() with a generic rule-13 sed (extra built sources included).
