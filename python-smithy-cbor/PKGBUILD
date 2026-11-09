@@ -14,9 +14,7 @@ depends=('python'
 makedepends=('python-hatchling'
              'python-build'
              'python-installer')
-checkdepends=('python-pytest'
-              'python-pytest-asyncio'
-              'python-freezegun')
+checkdepends=('python-pytest')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name/v$pkgver.tar.gz")
 sha256sums=('fbad97a87711d3ae3a2fef0a9d446990e02d2f1970f2befc72995217b97257a0')
 
