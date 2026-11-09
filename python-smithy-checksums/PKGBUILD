@@ -14,8 +14,7 @@ depends=('python'
          'glibc')
 makedepends=('python-maturin'
              'python-build'
-             'python-installer'
-             'rust')
+             'python-installer')
 checkdepends=('python-pytest')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name/v$pkgver.tar.gz")
 sha256sums=('8933605127686a1e46c00c25f13641c94d2f5b37fbc88b2c1ae54791aaab63b6')
@@ -23,7 +22,6 @@ sha256sums=('8933605127686a1e46c00c25f13641c94d2f5b37fbc88b2c1ae54791aaab63b6')
 build() {
   cd "smithy-python-$_name-v$pkgver/packages/$_name"
   export SMITHY_PYTHON_NATIVE_BUILD=always
-  export MATURIN_PEP517_ARGS="--locked"
   python -m build --wheel --no-isolation
 }
 
