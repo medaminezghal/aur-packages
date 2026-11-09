@@ -1,0 +1,41 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=smithy-checksums
+pkgname=python-$_name
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Checksum algorithms for Smithy tooling, with native acceleration.'
+arch=('any')
+_repo='https://github.com/smithy-lang/smithy-python'
+url="$_repo/tree/develop/packages/smithy-checksums"
+license=('Apache-2.0')
+depends=('python')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer'
+             'python-wheel'
+             'git')
+checkdepends=('python-pytest')
+source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
+sha256sums=('eb554721336d612bafb36ac9d0bc47db88484114e1f5820d274a2f5e8dd7d918')
+
+build() {
+  cd "$srcdir"/$_name/packages/$_name
+  # Pure-Python wheel: the native Rust extension is not built
+  SMITHY_PYTHON_NATIVE_BUILD=never python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+    --override-ini="addopts="
+  )
+  cd "$srcdir"/$_name/packages/$_name
+  PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
+}
+
+package() {
+  cd "$srcdir"/$_name/packages/$_name
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
