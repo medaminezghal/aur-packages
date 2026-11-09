@@ -22,7 +22,9 @@ checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-freezegun'
               'python-smithy-xml')
-optdepends=('python-smithy-aws-event-stream: eventstream'
+optdepends=('python-smithy-checksums: checksums'
+
+            'python-smithy-aws-event-stream: eventstream'
 
             'python-smithy-json: json'
 
