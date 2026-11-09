@@ -30,6 +30,8 @@ check() {
     -vv
     --disable-warnings
     --override-ini="addopts="
+    --import-mode=importlib
+    -o consider_namespace_packages=true
   )
   cd "smithy-python-$_name-v$pkgver/packages/$_name"
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
