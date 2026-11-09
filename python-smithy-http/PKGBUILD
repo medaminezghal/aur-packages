@@ -10,14 +10,14 @@ _repo='https://github.com/smithy-lang/smithy-python'
 url="$_repo/tree/develop/packages/smithy-http"
 license=('Apache-2.0')
 depends=('python' 'python-smithy-core')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel' 'git')
+makedepends=('python-hatchling' 'python-build' 'python-installer')
 checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-freezegun' 'python-awscrt' 'python-yarl' 'python-smithy-json' 'python-aiohttp')
 optdepends=('python-awscrt: awscrt' 'python-aiohttp: aiohttp' 'python-yarl: aiohttp')
-source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
-sha256sums=('eb554721336d612bafb36ac9d0bc47db88484114e1f5820d274a2f5e8dd7d918')
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name/v$pkgver.tar.gz")
+sha256sums=('78f5ade1ae0b61251eaa1892cde578ef211361a08914af9f8b2f14c240841437')
 
 build() {
-  cd "$srcdir"/$_name/packages/$_name
+  cd "smithy-python-$_name-v$pkgver/packages/$_name"
   python -m build --wheel --no-isolation
 }
 
@@ -28,11 +28,11 @@ check() {
     --override-ini="addopts="
     --import-mode=importlib
   )
-  cd "$srcdir"/$_name/packages/$_name
+  cd "smithy-python-$_name-v$pkgver/packages/$_name"
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name/packages/$_name
+  cd "smithy-python-$_name-v$pkgver/packages/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
