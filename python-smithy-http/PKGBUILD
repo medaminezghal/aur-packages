@@ -22,7 +22,8 @@ checkdepends=('python-pytest'
               'python-aiohttp'
               'python-yarl'
               'python-urllib3'
-              'python-smithy-json')
+              'python-smithy-json'
+              'python-smithy-aws-event-stream')
 optdepends=('python-awscrt: awscrt'
 
             'python-smithy-cbor: cbor'
