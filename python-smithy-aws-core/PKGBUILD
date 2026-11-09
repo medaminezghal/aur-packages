@@ -21,6 +21,8 @@ makedepends=('python-hatchling'
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-freezegun'
+              'python-smithy-aws-event-stream'
+              'python-smithy-json'
               'python-smithy-xml')
 optdepends=('python-smithy-checksums: checksums'
 
