@@ -33,5 +33,4 @@ check() {
 package() {
   cd "$_name-$_tag"
   DESTDIR="$pkgdir" cmake --install build
-  install -Dm644 packages/$pkgname/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
