@@ -2,7 +2,7 @@
 
 _name=databricks-sdk
 pkgname=python-$_name
-pkgver=0.160.0
+pkgver=0.164.0
 pkgrel=1
 pkgdesc='Databricks SDK for Python (Beta).'
 arch=('any')
@@ -36,7 +36,13 @@ optdepends=('ipython: notebook'
             'python-protobuf: sandbox'
             'python-grpcio: sandbox')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('0db26de4096aefb97002892727254d19cc0a33e71882e7aacce00bb92946f667')
+sha256sums=('ee120cabbb653e0629dfc647b32018fca516eb2b277ddc7cce71bee241e2fbc6')
+
+prepare() {
+  cd "$_name-py-$pkgver"
+  # Use the setuptools version shipped by Arch
+  sed -i '/^requires = /s/"setuptools[<>=!~][^"]*"/"setuptools"/' pyproject.toml
+}
 
 build() {
   cd "$_name-py-$pkgver"

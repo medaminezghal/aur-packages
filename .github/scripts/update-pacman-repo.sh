@@ -32,7 +32,7 @@ if ! gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; th
     exit 0
   fi
   gh release create "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" \
-    --title "Pacman repository" \
+    --title "pacman repository" \
     --notes "Prebuilt packages used by the build checks. Managed by the publish-to-repo workflow." \
     --latest=false
 fi
