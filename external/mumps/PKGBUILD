@@ -1,0 +1,67 @@
+# Maintainer: Martin Diehl <aur@martin-diehl.net>
+# Contributor: eDgar <eDgar |at| openmail.cc >
+# Contributor: Michele Mocciola <mickele>
+# Contributor: Guillaume Dollé < dolle dot guillaume at gmail dot com >
+# Contributor: Lucas H. Gabrielli
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=MUMPS
+pkgname=${_name,,}
+pkgver=5.9.1
+pkgrel=2
+pkgdesc='Sparse solver library using Gaussian elimination'
+arch=('i686' 'x86_64')
+url='https://mumps-solver.org'
+license=('CECILL-C')
+depends=('glibc'
+         'libgfortran'
+         'libgomp'
+         'openmpi'
+         'blas'
+         'lapack'
+         'scalapack'
+         'metis'
+         'parmetis'
+         'scotch')
+makedepends=('gcc-fortran')
+conflicts=('mumps-par'
+           'mumps4')
+source=("$url/${_name}_$pkgver.tar.gz")
+sha256sums=('659c9b57646b5a003ac618baa1faf9dd2044e46c732b3daaccbc7158003e1b46')
+
+prepare() {
+  cd "${_name}_$pkgver"
+  # Start from upstream's shared MPI configuration
+  cp Make.inc/Makefile.debian.PAR Makefile.inc
+  # Use METIS/ParMETIS and SCOTCH/PT-Scotch orderings, the system ScaLAPACK, Arch's flags and OpenMP
+  printf '%s\n' 'ORDERINGSF = -Dmetis -Dpord -Dptscotch -Dparmetis' 'IMETIS = -I/usr/include' 'LMETIS = -lparmetis -lmetis' 'LSCOTCH = -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr' 'SCALAP = -lscalapack' 'OPTF = $(FFLAGS) -fopenmp -fallow-argument-mismatch' 'OPTC = $(CFLAGS) -fopenmp' 'OPTL = $(LDFLAGS) -fopenmp' >> Makefile.inc
+}
+
+build() {
+  cd "${_name}_$pkgver"
+  make allshared
+}
+
+check() {
+  cd "${_name}_$pkgver/examples"
+  make all LIBEXT=.so
+  export LD_LIBRARY_PATH="$srcdir/${_name}_$pkgver/lib"
+  mpirun -np 3 --oversubscribe ./ssimpletest < input_simpletest_real
+  mpirun -np 3 --oversubscribe ./dsimpletest < input_simpletest_real
+  mpirun -np 3 --oversubscribe ./csimpletest < input_simpletest_cmplx
+  mpirun -np 3 --oversubscribe ./zsimpletest < input_simpletest_cmplx
+  mpirun -np 3 --oversubscribe ./c_example
+  mpirun -np 3 --oversubscribe ./multiple_arithmetics_example
+  mpirun -np 3 --oversubscribe ./ssimpletest_save_restore < input_simpletest_real
+  mpirun -np 3 --oversubscribe ./dsimpletest_save_restore < input_simpletest_real
+  mpirun -np 3 --oversubscribe ./csimpletest_save_restore < input_simpletest_cmplx
+  mpirun -np 3 --oversubscribe ./zsimpletest_save_restore < input_simpletest_cmplx
+  mpirun -np 3 --oversubscribe ./c_example_save_restore
+}
+
+package() {
+  cd "${_name}_$pkgver"
+  install -Dm755 lib/*.so -t "$pkgdir"/usr/lib/
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 include/*.h -t "$pkgdir"/usr/include/
+}
