@@ -30,7 +30,10 @@ prepare() {
   git submodule init crates/jsonschema/tests/suite
   git config submodule.testsuite.url "$srcdir"/JSON-Schema-Test-Suite
   git -c protocol.file.allow=always submodule update crates/jsonschema/tests/suite
+  # Use the maturin version shipped by Arch
+  sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' crates/${_name//-rs/-py}/pyproject.toml crates/${_name//-rs/-testsuite-pyo3}/pyproject.toml
 }
+
 build() {
   cd "$_name"
   export RUSTFLAGS="$RUSTFLAGS -Clink-arg=-fuse-ld=mold"
