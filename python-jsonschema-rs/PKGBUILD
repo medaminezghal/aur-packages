@@ -57,4 +57,5 @@ check() {
 package() {
   cd "$_name"
   python -m installer --destdir="$pkgdir" crates/${_name//-rs/-py}/dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
