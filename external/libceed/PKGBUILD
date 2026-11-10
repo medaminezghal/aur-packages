@@ -1,0 +1,66 @@
+# Maintainer: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: Luis Martinez <luis dot martinez at disroot dot org>
+# Contributor: Doron Behar <doron.behar@gmail.com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=libCEED
+pkgbase=${_name,,}
+pkgname=("$pkgbase"
+         'python-ceed')
+pkgver=1.1.0
+pkgrel=2
+pkgdesc="Code for Efficient Extensible Discretizations"
+arch=('x86_64')
+url="https://github.com/CEED/$_name"
+license=('BSD-2-Clause')
+makedepends=('python-setuptools'
+             'python-wheel'
+             'python-cffi'
+             'python-build'
+             'python-installer'
+             'gcc-fortran'
+             'libxsmm'
+             'valgrind')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('d38f14d01344ce4e4a0d61aa18d6ca73492e4c25c19624b40155667a16fee080')
+
+prepare() {
+  cd "$_name-$pkgver"
+  # Don't compile libCEED twice for python-ceed
+  sed -i '/always-make/d' setup.py
+  # Use the setuptools version shipped by Arch
+  sed -i '/^requires = /s/"setuptools[<>=!~][^"]*"/"setuptools"/' pyproject.toml
+}
+
+build() {
+  cd "$_name-$pkgver"
+  make configure prefix=/usr OPENMP=1 XSMM_DIR=/usr CFLAGS="$CFLAGS -ffp-contract=fast -fPIC -std=c11 -MMD -MP" CXXFLAGS="$CXXFLAGS -ffp-contract=fast -fPIC -std=c++11 -MMD -MP" FFLAGS="$FFLAGS -ffp-contract=fast -fPIC -cpp -MMD -MP"
+  make
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$_name-$pkgver"
+  local _map="-ffile-prefix-map=$srcdir=${DBGSRCDIR:-/usr/src/debug}/$pkgbase"
+  make prove CFLAGS="${CFLAGS/"$_map"/} -ffp-contract=fast -fPIC -std=c11 -MMD -MP" CXXFLAGS="${CXXFLAGS/"$_map"/} -ffp-contract=fast -fPIC -std=c++11 -MMD -MP" FFLAGS="${FFLAGS/"$_map"/} -ffp-contract=fast -fPIC -cpp -MMD -MP"
+}
+
+package_libceed() {
+  depends=('glibc'
+           'libgomp'
+           'libxsmm')
+  provides=('libceed.so')
+  cd "$_name-$pkgver"
+  make DESTDIR="$pkgdir" prefix=/usr install
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_python-ceed() {
+  depends=('python'
+           "$pkgbase"
+           'python-cffi'
+           'python-numpy')
+  cd "$_name-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
