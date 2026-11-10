@@ -1,0 +1,49 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=faodel
+pkgver=1.2306.1
+pkgrel=1
+pkgdesc="Flexible, Asynchronous, Object Data-Exchange Libraries for HPC data management"
+arch=('x86_64')
+url="https://github.com/sandialabs/$pkgname"
+license=('MIT')
+depends=('glibc'
+         'libgcc'
+         'libstdc++'
+         'openmpi'
+         'boost-libs'
+         'gperftools'
+         'hdf5-openmpi'
+         'leveldb'
+         'arrow'
+         'rdma-core'
+         'libtirpc'
+         'zlib')
+makedepends=('cmake'
+             'boost'
+             'gtest')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('8fa3ca830a6e65b45df84e35f25bbc0b108b27b4996f20a21cfbe28e9775cb96')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  # Boost.System is header-only since Boost 1.69 and its stub library was removed in Boost 1.89
+  sed -i 's/COMPONENTS system log/COMPONENTS log/;s/NOT TARGET Boost::system/NOT TARGET Boost::log/' cmake/FaodelTPLs.cmake
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DBUILD_SHARED_LIBS=ON -DBUILD_TESTS=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DFaodel_ENABLE_MPI_SUPPORT=ON -DFaodel_ENABLE_TCMALLOC=ON -DFaodel_ENABLE_IOM_HDF5=ON -DFaodel_ENABLE_IOM_LEVELDB=ON -DFaodel_ENABLE_ARROW=ON -DFaodel_NETWORK_LIBRARY=nnti -DFaodel_THREADING_MODEL=pthreads -DMPIEXEC_PREFLAGS=--oversubscribe -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE.md -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
