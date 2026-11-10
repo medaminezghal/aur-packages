@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "*/PKGBUILD"
-      - ".*/PKGBUILD"
+      - "external/*/PKGBUILD"
   workflow_dispatch:
     inputs:
       package:
