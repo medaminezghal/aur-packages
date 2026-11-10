@@ -1,0 +1,39 @@
+# Maintainer: luozikuan <luozikuan@gmail.com>
+# Contributor: aureolebigben <aureolebigben@gmail.com>
+# Contributor: Skunnyk <skunnyk@archlinux.fr>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=cpp-driver
+pkgname=cassandra-cpp-driver
+pkgver=2.17.1
+pkgrel=4
+pkgdesc="DataStax C/C++ Driver for Apache Cassandra"
+arch=('x86_64')
+url="https://github.com/datastax/$_name"
+license=('Apache-2.0')
+depends=('glibc'
+         'libgcc'
+         'libstdc++'
+         'libuv'
+         'openssl'
+         'krb5'
+         'zlib')
+makedepends=('cmake')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('53b4123aad59b39f2da0eb0ce7fe0e92559f7bba0770b2e958254f17bffcd7cf')
+
+build() {
+  cd "$_name-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=None -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_CXX_FLAGS="$CXXFLAGS -Wno-error" -DCASS_BUILD_SHARED=ON -DCASS_BUILD_STATIC=OFF -DCASS_USE_OPENSSL=ON -DCASS_USE_ZLIB=ON -DCASS_USE_KERBEROS=ON -DCASS_USE_TIMERFD=ON -DCASS_USE_STD_ATOMIC=ON -DCASS_BUILD_UNIT_TESTS=ON -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-$pkgver"
+  ./build/cassandra-unit-tests
+}
+
+package() {
+  cd "$_name-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+}
