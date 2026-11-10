@@ -21,6 +21,12 @@ conflicts=('kokkos'
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('491fe02cb127559dd3c996f6693686f1eab00a53fd5c184e18e663896884175e')
 
+prepare() {
+  cd "$_name-$pkgver"
+  # Pass -Wp, options (from Arch's CXXFLAGS) to the host compiler without splitting them at their commas
+  sed -i 's/^  -Wa,\*)$/  -Wa,*|-Wp,*)/' bin/nvcc_wrapper
+}
+
 build() {
   cd "$_name-$pkgver"
   export PATH="/opt/cuda/bin:$PATH"
