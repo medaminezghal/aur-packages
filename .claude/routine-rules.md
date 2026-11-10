@@ -20,7 +20,7 @@ run after it is merged.
 - python-groq / python-spitch: apply the mock-server check() convention
   (Layout conventions) on their next update PR.
 
-- Dot folders (`.<pkgname>/`, e.g. `.gklib`, `.python-pyglet`): AUR-only dependencies that other people maintain on the AUR, kept here so the `[aur-packages]` pacman repo can serve them. The leading dot is intentional: they go through every workflow except publish-to-aur.yml. Never rename or move a dot folder to a normal name (that would make publish-to-aur push to someone else's AUR package); only the owner does that, e.g. after becoming co-maintainer. Their `pkgrel` continues from the AUR package's (bump it above the AUR's), so a value above 1 on a new dot package is intended. Branch/title use the name without the dot: `bump/add-<pkgname>` + `Add <pkgname> package`.
+- `external/` folder (`external/<pkgname>/`, e.g. `external/gklib`, `external/metis`): AUR-only dependencies that other people maintain on the AUR, kept here so the `[aur-packages]` pacman repo can serve them. Add only hard dependencies (`depends`) of packages already in `[aur-packages]`, never a checkdepends one. They go through every workflow except publish-to-aur.yml. Never move a package out of `external/` (that would make publish-to-aur push to someone else's AUR package); only the owner does that, e.g. after becoming co-maintainer. Their `pkgrel` continues from the AUR package's (bump it above the AUR's), so a value above 1 on a new `external/` package is intended. Branch/title use the name without `external/`: `bump/add-<pkgname>` + `Add <pkgname> package`.
 
 ## Dependency rules (apply to every PR you touch, including new-version bump PRs)
 Read upstream's metadata at EXACTLY the packaged version/tag/commit (clone the tag, don't use main — main can differ a lot from the latest release). Also read how the source and tests actually use each dependency before adding or keeping it.
@@ -80,7 +80,7 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
 
 ## Layout conventions
 - PKGBUILD layout (new packages and every PR you touch, in an "Update syntax" commit):
-  * Header: keep every existing Maintainer/Contributor line, add the owner's line `# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>` after them (always `Maintainer`, never `Contributor`, also in dot folders), then ONE empty line.
+  * Header: keep every existing Maintainer/Contributor line, add the owner's line `# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>` after them (always `Maintainer`, never `Contributor`, also in `external/`), then ONE empty line.
   * Variables in the ArchWiki PKGBUILD order (https://wiki.archlinux.org/title/PKGBUILD), with NO empty lines between them: pkgbase, pkgname, pkgver, pkgrel, epoch, pkgdesc, arch, url, license, groups, depends, makedepends, checkdepends, optdepends, provides, conflicts, replaces, backup, options, install, changelog, source, noextract, validpgpkeys, checksums. Helper variables (`_name`, `_repo`) go right before the variable that first uses them.
   * Name variable is `_name` (the upstream name, unquoted: `_name=tokenizers`), `pkgname=python-$_name`; for split packages `_name0`, `_name1`, ... and `pkgbase=python-$_name0` (python-fastmcp is the reference). Not `_module`, `_pkgname`, `_base`, `_srcname`, `_pkgsrc`.
   * A package with one pkgname uses `package()` and top-level `depends`/`optdepends`, not `package_<name>()`.

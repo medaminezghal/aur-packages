@@ -48,7 +48,7 @@ jobs:
           case "$provider" in
             pypi)
               pkgname="$base"
-              for cand in "python-$base" ".python-$base" ".$base"; do
+              for cand in "python-$base" "external/python-$base" "external/$base"; do
                 if [[ -f "$cand/PKGBUILD" ]]; then
                   pkgname="$cand"
                   break
@@ -56,7 +56,7 @@ jobs:
               done
               ;;
             github|gitlab)
-              found=$(find . -maxdepth 1 -type d -name "*$base" | head -n1 | sed 's|^\./||')
+              found=$(find . external -mindepth 1 -maxdepth 1 -type d -name "*$base" 2> /dev/null | head -n1 | sed 's|^\./||')
               pkgname="${found:-$base}"
               ;;
             *)
@@ -73,7 +73,7 @@ jobs:
 
           echo "skip=false"    >> "$GITHUB_OUTPUT"
           echo "pkgname=$pkgname" >> "$GITHUB_OUTPUT"
-          echo "name=${pkgname#.}"  >> "$GITHUB_OUTPUT"
+          echo "name=${pkgname#external/}"  >> "$GITHUB_OUTPUT"
           echo "pkgver=$pkgver"   >> "$GITHUB_OUTPUT"
           echo "provider=$provider" >> "$GITHUB_OUTPUT"
           echo "Resolved: $pkgname $pkgver (provider: $provider)"
