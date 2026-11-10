@@ -18,6 +18,7 @@ depends=('glibc'
          'krb5'
          'zlib')
 makedepends=('cmake')
+checkdepends=('nss_wrapper')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
         'openssl-4.patch'
         'openssl-4-tests.patch')
@@ -43,7 +44,8 @@ build() {
 
 check() {
   cd "$pkgname-$pkgver"
-  ./build/cassandra-unit-tests
+  printf '127.254.254.254 cpp-driver.hostname. cpp-driver.hostname\n' > build/hosts
+  LD_PRELOAD=libnss_wrapper.so NSS_WRAPPER_HOSTS="$PWD/build/hosts" ./build/cassandra-unit-tests
 }
 
 package() {
