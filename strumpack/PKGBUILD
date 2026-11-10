@@ -23,7 +23,7 @@ depends=('glibc'
          'zfp')
 makedepends=('cmake'
              'gcc-fortran')
-_mm='https://suitesparse-collection-website.herokuapp.com/MM'
+_mm='https://www.cise.ufl.edu/research/sparse/MM'
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         "$_mm/Bai/rdb968.tar.gz"
         "$_mm/CPM/cz10228.tar.gz"
@@ -37,17 +37,17 @@ source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         "$_mm/TKK/cbuckle.tar.gz"
         "$_mm/TOKAMAK/utm300.tar.gz")
 sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP')
+            'ee6e2b85a8bd0f13bacd3ac8e16bc29b7548e99952143f1448fbf865d8cb4a2d'
+            'eb7df6302572a0c5077ec0e1061670d7f5f42467408103bc849d4a1257512622'
+            'a0a77c23c51a8779e872299c1a6b729b19eb4c598e4712891625dd6947d2c989'
+            '4c84780a718264d5415e415cae22104fdc59a4b155a22c601c49bdbbdf060c71'
+            'e7d67cf37132ca51b1a281f498c0dfd5060a058be67c36c6e1d7db4ddb2ac9a7'
+            '20904fa274cb71fac11b8eb30467c46c72e651b0caf2d082e75f841d86710d03'
+            '2dd9fd2beffbddcc569992d20cd623e6e62c6499443373e00a14982728a84579'
+            '3b3f787c39ef27a7d49010b87d9c13ba4e10f39bc72c4b5f633cf94bfa010ae1'
+            '3807962b6697d4292b6576ec71a15f3319998f1acd5a0e216fe7e8996dafdade'
+            '81b3f63df8c30ca5c35c16b1cfca8c8f8195b8ceea2716865db499e8f23b1c68'
+            '38ca1ca01b8e91a15559d6cad51f35cb9287207b61ad8698d39f34e9b6e6b226')
 
 build() {
   cd "$_name-$pkgver"
