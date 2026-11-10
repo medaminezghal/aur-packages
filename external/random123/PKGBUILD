@@ -1,0 +1,25 @@
+# Maintainer: kleintux <reg-archlinux AT klein DOT tuxli DOT ch>
+# Contributor: xantares <xantares09 at hotmail dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=random123
+pkgver=1.14.0
+pkgrel=2
+pkgdesc="counter-based random number generators library"
+arch=('any')
+url="https://github.com/DEShawResearch/$pkgname"
+license=('BSD-3-Clause')
+checkdepends=('gsl')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('effafd8656b18030b2a5b995cd3650c51a7c45052e6e1c21e48b9fa7a59d926e')
+
+check() {
+  cd "$pkgname-$pkgver"
+  make -C tests runcore runut rungsl runthread
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" prefix=/usr install-include
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
