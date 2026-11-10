@@ -32,17 +32,17 @@ prepare() {
 
 build() {
   cd "$pkgname-$pkgver"
-  make STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0
+  make STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS"
 }
 
 check() {
   cd "$pkgname-$pkgver"
-  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make tests STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0
+  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make tests STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS"
 }
 
 package() {
   cd "$pkgname-$pkgver"
-  make install STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 PREFIX=/usr DESTDIR="$pkgdir" PPKGDIR=lib/pkgconfig PCMKDIR=lib/cmake/$pkgname
+  make install STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS" PREFIX=/usr DESTDIR="$pkgdir" PPKGDIR=lib/pkgconfig PCMKDIR=lib/cmake/$pkgname
   install -Dm644 LICENSE.md -t "$pkgdir"/usr/share/licenses/$pkgname/
   find "$pkgdir" -xtype l -delete
 }
