@@ -37,12 +37,12 @@ prepare() {
 
 build() {
   cd "$pkgname-$pkgver"
-  make all
+  make all F90MOD=-J
 }
 
 check() {
   cd "$pkgname-$pkgver"
-  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make test
+  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make test F90MOD=-J
 }
 
 package() {
