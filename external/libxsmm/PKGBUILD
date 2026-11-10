@@ -1,0 +1,48 @@
+# Maintainer: Anton Kudelin <kudelin at proton dot me>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=libxsmm
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="A library for small dense and small sparse matrix-matrix multiplications"
+arch=('x86_64'
+      'aarch64')
+url="https://github.com/$pkgname/$pkgname"
+license=('BSD-3-Clause')
+depends=('gcc-libs'
+         'glibc'
+         'blas')
+makedepends=('gcc-fortran'
+             'python')
+checkdepends=('time')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
+        'fortran.patch'
+        'gcc16.patch')
+sha256sums=('704ed8f99b61a767798ed1ee1cadc5d185ca449f466a2bae37930f68c65961e9'
+            '4d0bb916c3f80b7ed372ea2e2703553afc5cbd757564380ec2f9957465336077'
+            '025131293bd25aefed83448bd5f25ef1948d58d8d736524d552f15caa475ee67')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  # Make the Fortran pkg-config files require the libraries that exist
+  patch -Np1 -i ../fortran.patch
+  # libgomp lacks omp_init_lock_with_hint
+  patch -Np1 -i ../gcc16.patch
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  make STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make tests STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make install STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 PREFIX=/usr DESTDIR="$pkgdir" PPKGDIR=lib/pkgconfig PCMKDIR=lib/cmake/$pkgname
+  install -Dm644 LICENSE.md -t "$pkgdir"/usr/share/licenses/$pkgname/
+  find "$pkgdir" -xtype l -delete
+}
