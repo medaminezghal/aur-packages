@@ -1,0 +1,78 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=seacas
+pkgname=seacas-cuda
+pkgver=2026.08.11
+pkgrel=1
+pkgdesc="Sandia Engineering Analysis Code Access System: Exodus II, IOSS, Zoltan and mesh tools (with CUDA)"
+arch=('x86_64')
+url="https://github.com/sandialabs/$_name"
+license=('BSD-3-Clause')
+depends=('glibc'
+         'libgcc'
+         'libstdc++'
+         'libgfortran'
+         'openmpi'
+         'hdf5-openmpi'
+         'netcdf-openmpi'
+         'pnetcdf-openmpi'
+         'cgns'
+         'matio'
+         'metis'
+         'parmetis'
+         'fmt'
+         'libx11'
+         'zlib'
+         'adios2'
+         'paraview-catalyst'
+         'aws-sdk-cpp'
+         'kokkos-cuda'
+         'cuda'
+         'faodel'
+         'pamgen')
+makedepends=('cmake'
+             'gcc-fortran'
+             'python'
+             'cereal'
+             'gtest'
+             'catch2')
+optdepends=('python: exodus3.py and exomerge3.py modules'
+            'python-numpy: numpy arrays in exodus3.py')
+provides=("seacas=$pkgver"
+          "exodusii=$pkgver"
+          'zoltan=3.90')
+conflicts=('seacas'
+           'exodusii'
+           'zoltan'
+           'trilinos')
+_tag=v${pkgver//./-}
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
+sha256sums=('9010d5fe17e14f556ae2a065573ab297bd861738742ead92895025d27fec31bb')
+
+prepare() {
+  cd "$_name-${_tag#v}"
+  # Run the installed Python tests from the test install in the build directory instead of /usr
+  sed -i 's|${CMAKE_INSTALL_PREFIX}/lib/tests/|${CMAKE_BINARY_DIR}/test-install${CMAKE_INSTALL_PREFIX}/lib/tests/|' packages/seacas/scripts/CMakeLists.txt
+}
+
+build() {
+  cd "$_name-${_tag#v}"
+  export PATH="/opt/cuda/bin:$PATH"
+  export OMPI_CXX=/usr/bin/nvcc_wrapper
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpif90 -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DSEACASExodus_ENABLE_STATIC=OFF -DSeacas_ENABLE_ALL_PACKAGES=ON -DSeacas_ENABLE_ALL_OPTIONAL_PACKAGES=ON -DSeacas_ENABLE_SECONDARY_TESTED_CODE=ON -DSeacas_ENABLE_Zoltan=ON -DZoltan_ENABLE_F90INTERFACE=ON -DSeacas_ENABLE_Fortran=ON -DSeacas_SKIP_FORTRANCINTERFACE_VERIFY_TEST=ON -DENABLE_ExoNull=ON -DSEACASExodus_ENABLE_THREADSAFE=ON -DTPL_ENABLE_MPI=ON -DTPL_ENABLE_Pthread=ON -DTPL_ENABLE_DLlib=ON -DTPL_ENABLE_Zlib=ON -DTPL_ENABLE_X11=ON -DTPL_ENABLE_fmt=ON -DTPL_ENABLE_HDF5=ON -DTPL_ENABLE_Netcdf=ON -DTPL_ENABLE_Pnetcdf=ON -DTPL_Netcdf_Enables_PNetcdf=ON -DTPL_ENABLE_CGNS=ON -DTPL_ENABLE_Matio=ON -DTPL_ENABLE_METIS=ON -DTPL_ENABLE_ParMETIS=ON -DTPL_ENABLE_ADIOS2=ON -DTPL_ENABLE_Catalyst2=ON -DTPL_ENABLE_AWSSDK=ON -DTPL_ENABLE_Cereal=ON -DTPL_ENABLE_GTest=ON -DTPL_ENABLE_Catch2=ON -DTPL_ENABLE_Kokkos=ON -DTPL_ENABLE_CUDA=ON -DTPL_ENABLE_Faodel=ON -DTPL_ENABLE_DataWarp=OFF -DTPL_ENABLE_Pamgen=ON -DSeacas_ENABLE_TESTS=ON -DMPI_EXEC_PRE_NUMPROCS_FLAGS=--oversubscribe -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-${_tag#v}"
+  DESTDIR="$PWD"/build/test-install cmake --install build
+  export ACCESS="$PWD"/build/test-install/usr
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$_name-${_tag#v}"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 packages/zoltan/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE-zoltan
+}
