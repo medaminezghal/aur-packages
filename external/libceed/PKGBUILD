@@ -19,6 +19,7 @@ makedepends=('python-setuptools'
              'python-build'
              'python-installer'
              'gcc-fortran'
+             'libxsmm'
              'valgrind')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('d38f14d01344ce4e4a0d61aa18d6ca73492e4c25c19624b40155667a16fee080')
@@ -33,7 +34,7 @@ prepare() {
 
 build() {
   cd "$_name-$pkgver"
-  make configure prefix=/usr OPENMP=1 CFLAGS="$CFLAGS -ffp-contract=fast -fPIC -std=c11 -MMD -MP" CXXFLAGS="$CXXFLAGS -ffp-contract=fast -fPIC -std=c++11 -MMD -MP" FFLAGS="$FFLAGS -ffp-contract=fast -fPIC -cpp -MMD -MP"
+  make configure prefix=/usr OPENMP=1 XSMM_DIR=/usr CFLAGS="$CFLAGS -ffp-contract=fast -fPIC -std=c11 -MMD -MP" CXXFLAGS="$CXXFLAGS -ffp-contract=fast -fPIC -std=c++11 -MMD -MP" FFLAGS="$FFLAGS -ffp-contract=fast -fPIC -cpp -MMD -MP"
   make
   python -m build --wheel --no-isolation
 }
@@ -46,7 +47,8 @@ check() {
 
 package_libceed() {
   depends=('glibc'
-           'libgomp')
+           'libgomp'
+           'libxsmm')
   provides=('libceed.so')
   cd "$_name-$pkgver"
   make DESTDIR="$pkgdir" prefix=/usr install
