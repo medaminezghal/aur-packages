@@ -13,12 +13,12 @@ pkgdesc="Code for Efficient Extensible Discretizations"
 arch=('x86_64')
 url="https://github.com/CEED/$_name"
 license=('BSD-2-Clause')
-makedepends=('gcc-fortran'
+makedepends=('python-setuptools'
+             'python-wheel'
              'python-cffi'
              'python-build'
              'python-installer'
-             'python-setuptools'
-             'python-wheel'
+             'gcc-fortran'
              'git'
              'valgrind')
 source=("$pkgbase::git+$url#tag=v$pkgver?signed")
@@ -55,7 +55,8 @@ package_libceed() {
 }
 
 package_python-ceed() {
-  depends=("$pkgbase"
+  depends=('python'
+           "$pkgbase"
            'python-cffi'
            'python-numpy')
   cd "$pkgbase"
