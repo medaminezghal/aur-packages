@@ -1,0 +1,50 @@
+Build the unit tests with OpenSSL 4: X509_get_subject_name() and
+X509_REQ_get_subject_name() return const pointers, so build the name
+with X509_NAME_new() and set it with X509_(REQ_)set_subject_name().
+
+diff --git a/tests/src/unit/mockssandra.cpp b/tests/src/unit/mockssandra.cpp
+index 71cddbd5..4c59a99c 100644
+--- a/tests/src/unit/mockssandra.cpp
++++ b/tests/src/unit/mockssandra.cpp
+@@ -86,6 +86,7 @@ MAKE_DELETER(EVP_PKEY_CTX, EVP_PKEY_CTX_free)
+ MAKE_DELETER(X509, X509_free)
+ MAKE_DELETER(X509_REQ, X509_REQ_free)
+ MAKE_DELETER(X509_EXTENSION, X509_EXTENSION_free)
++MAKE_DELETER(X509_NAME, X509_NAME_free)
+ 
+ template <class T>
+ struct FreeDeleter {
+@@ -192,11 +193,12 @@ String Ssl::generate_cert(const String& key, String cn, String ca_cert, String c
+     X509_REQ_set_version(x509_req.get(), 2);
+     X509_REQ_set_pubkey(x509_req.get(), pkey.get());
+ 
+-    X509_NAME* name = X509_REQ_get_subject_name(x509_req.get());
+-    X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC,
++    Scoped<X509_NAME> name(X509_NAME_new());
++    X509_NAME_add_entry_by_txt(name.get(), "C", MBSTRING_ASC,
+                                reinterpret_cast<const unsigned char*>("US"), -1, -1, 0);
+-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
++    X509_NAME_add_entry_by_txt(name.get(), "CN", MBSTRING_ASC,
+                                reinterpret_cast<const unsigned char*>(cn.c_str()), -1, -1, 0);
++    X509_REQ_set_subject_name(x509_req.get(), name.get());
+     X509_REQ_sign(x509_req.get(), pkey.get(), EVP_sha256());
+   }
+ 
+@@ -229,12 +231,13 @@ String Ssl::generate_cert(const String& key, String cn, String ca_cert, String c
+ 
+       X509_add_ext(x509.get(), x509_ex.get(), -1);
+     }
+-    X509_NAME* name = X509_get_subject_name(x509.get());
+-    X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC,
++    Scoped<X509_NAME> name(X509_NAME_new());
++    X509_NAME_add_entry_by_txt(name.get(), "C", MBSTRING_ASC,
+                                reinterpret_cast<const unsigned char*>("US"), -1, -1, 0);
+-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
++    X509_NAME_add_entry_by_txt(name.get(), "CN", MBSTRING_ASC,
+                                reinterpret_cast<const unsigned char*>(cn.c_str()), -1, -1, 0);
+-    X509_set_issuer_name(x509.get(), name);
++    X509_set_subject_name(x509.get(), name.get());
++    X509_set_issuer_name(x509.get(), name.get());
+     X509_sign(x509.get(), pkey.get(), EVP_sha256());
+   }
+ 
