@@ -16,6 +16,7 @@ depends=('glibc'
          'vtk'
          'hdf5-openmpi')
 makedepends=('cmake'
+             'gcc-fortran'
              'git'
              'netcdf'
              'proj'
