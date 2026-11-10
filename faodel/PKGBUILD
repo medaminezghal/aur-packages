@@ -36,6 +36,14 @@ prepare() {
   # Use the cereal headers shipped by Arch instead of the bundled copy
   rm -rf tpl/cereal/include
   sed -i '/install( DIRECTORY/,+1d;s|INCLUDES DESTINATION "${INCLUDE_INSTALL_DIR}/faodel/tpl-cereal" )|)|' tpl/cereal/CMakeLists.txt
+  # Build as C++17: the Boost.Lockfree headers used by NNTI need C++14 since Boost 1.87
+  sed -i 's/set( CMAKE_CXX_STANDARD 11 )/set( CMAKE_CXX_STANDARD 17 )/' CMakeLists.txt
+  # Boost 1.87 removed io_service, resolver::query/iterator and address_v4::to_ulong(); use io_context, resolve(host, service) and to_uint()
+  sed -i 's/boost::asio::io_service /boost::asio::io_context /' src/whookie/client/Client.cpp src/whookie/server/boost/server.hpp
+  sed -i '/tcp::resolver::query query(server, port);/d;s/tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);/auto endpoint_iterator = resolver.resolve(server, port);/' src/whookie/client/Client.cpp
+  sed -i 's/\*resolver.resolve({address, ssport.str()})/resolver.resolve(address, ssport.str()).begin()->endpoint()/;s/to_v4().to_ulong()/to_v4().to_uint()/' src/whookie/server/boost/server.cpp
+  # requires is a keyword in C++20, which Arrow's CMake targets force on faodel-arrow and its tests; rename the parameter in the public headers
+  sed -i 's/\(std::vector<std::string> &\?\)requires,/\1requires_,/' src/faodel-common/Bootstrap.hh src/faodel-common/BootstrapInterface.hh src/lunasa/core/Singleton.hh src/dirman/core/Singleton.hh src/opbox/core/Singleton.hh src/kelpie/core/Singleton.hh src/whookie/server/boost/server.hpp src/faodel-services/BackBurner.hh src/faodel-services/MPISyncStart.hh
 }
 
 build() {
