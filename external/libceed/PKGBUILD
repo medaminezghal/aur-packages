@@ -40,7 +40,8 @@ build() {
 
 check() {
   cd "$_name-$pkgver"
-  make test
+  local _map="-ffile-prefix-map=$srcdir=${DBGSRCDIR:-/usr/src/debug}/$pkgbase"
+  make prove CFLAGS="${CFLAGS/"$_map"/} -ffp-contract=fast -fPIC -std=c11 -MMD -MP" CXXFLAGS="${CXXFLAGS/"$_map"/} -ffp-contract=fast -fPIC -std=c++11 -MMD -MP" FFLAGS="${FFLAGS/"$_map"/} -ffp-contract=fast -fPIC -cpp -MMD -MP"
 }
 
 package_libceed() {
