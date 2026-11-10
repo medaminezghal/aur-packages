@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "*/PKGBUILD"
-      - ".*/PKGBUILD"
+      - "external/*/PKGBUILD"
 
 jobs:
   publish:
@@ -38,9 +38,9 @@ jobs:
 
           [[ -n "$dir" ]] || { echo "::error::No PKGBUILD change detected"; exit 1; }
 
-          # Folders starting with "." hold dependencies maintained by others on the AUR:
+          # Folders in external/ hold dependencies maintained by others on the AUR:
           # they are published to the pacman repository only.
-          if [[ "$dir" == .* ]]; then
+          if [[ "$dir" == external/* ]]; then
             echo "$dir is published to the pacman repository only, skipping AUR publish."
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
