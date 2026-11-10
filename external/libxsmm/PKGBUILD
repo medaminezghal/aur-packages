@@ -3,7 +3,7 @@
 
 pkgname=libxsmm
 pkgver=2.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A library for small dense and small sparse matrix-matrix multiplications"
 arch=('x86_64'
       'aarch64')
@@ -32,12 +32,12 @@ prepare() {
 
 build() {
   cd "$pkgname-$pkgver"
-  make STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS"
+  make STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS" PREFIX=/usr PPKGDIR=lib/pkgconfig PCMKDIR=lib/cmake/$pkgname
 }
 
 check() {
   cd "$pkgname-$pkgver"
-  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make tests STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS"
+  LD_LIBRARY_PATH="$srcdir/$pkgname-$pkgver/lib" make tests STATIC=0 OMP=1 BLAS=1 MKL=0 WERROR=0 ABSLIBS=0 SSE=2 AVX=0 RPM_OPT_FLAGS="$CFLAGS" PREFIX=/usr PPKGDIR=lib/pkgconfig PCMKDIR=lib/cmake/$pkgname
 }
 
 package() {
