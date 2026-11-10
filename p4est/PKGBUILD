@@ -18,7 +18,7 @@ sha256sums=('0a1e912f3529999ca6d62fee335d51f24b5650b586e95a03ef39ebf73936d7f4')
 
 build() {
   cd "$pkgname-$pkgver"
-  ./configure --prefix=/usr --disable-static --enable-mpi --enable-pthread --enable-vtk-doubles --with-metis CC=mpicc CXX=mpicxx F77=mpif77 FC=mpif90
+  ./configure --prefix=/usr --disable-static --enable-mpi --enable-pthread --enable-vtk-doubles --with-metis CC=mpicc CXX=mpicxx F77=mpif77 FC=mpif90 LIBS=-lm
   make
 }
 
