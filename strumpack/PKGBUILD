@@ -1,0 +1,68 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=STRUMPACK
+pkgname=${_name,,}
+pkgver=8.1.0
+pkgrel=1
+pkgdesc="STRUctured Matrix PACKage: sparse direct solver and preconditioner with hierarchical low-rank compression"
+arch=('x86_64')
+url="https://github.com/pghysels/$_name"
+license=('BSD-3-Clause-LBNL')
+depends=('glibc'
+         'libgcc'
+         'libgfortran'
+         'libgomp'
+         'libstdc++'
+         'openmpi'
+         'blas'
+         'lapack'
+         'scalapack'
+         'metis'
+         'parmetis'
+         'scotch'
+         'zfp')
+makedepends=('cmake'
+             'gcc-fortran')
+_mm='https://suitesparse-collection-website.herokuapp.com/MM'
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+        "$_mm/Bai/rdb968.tar.gz"
+        "$_mm/CPM/cz10228.tar.gz"
+        "$_mm/DRIVCAV/cavity16.tar.gz"
+        "$_mm/HB/bcsstk28.tar.gz"
+        "$_mm/HB/bcsstm08.tar.gz"
+        "$_mm/HB/gemat11.tar.gz"
+        "$_mm/HB/sherman4.tar.gz"
+        "$_mm/Oberwolfach/t2dal.tar.gz"
+        "$_mm/Pothen/mesh3e1.tar.gz"
+        "$_mm/TKK/cbuckle.tar.gz"
+        "$_mm/TOKAMAK/utm300.tar.gz")
+sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+
+build() {
+  cd "$_name-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DSTRUMPACK_USE_MPI=ON -DSTRUMPACK_USE_OPENMP=ON -DTPL_ENABLE_PARMETIS=ON -DTPL_ENABLE_SCOTCH=ON -DTPL_ENABLE_PTSCOTCH=ON -DTPL_ENABLE_ZFP=ON -DTPL_ENABLE_SLATE=OFF -DTPL_ENABLE_BPACK=OFF -DTPL_SCALAPACK_LIBRARIES=/usr/lib/libscalapack.so -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-$pkgver"
+  ln -sf "$srcdir"/rdb968 "$srcdir"/cz10228 "$srcdir"/cavity16 "$srcdir"/bcsstk28 "$srcdir"/bcsstm08 "$srcdir"/gemat11 "$srcdir"/sherman4 "$srcdir"/t2dal "$srcdir"/mesh3e1 "$srcdir"/cbuckle "$srcdir"/utm300 build/test/
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$_name-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
