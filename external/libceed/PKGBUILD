@@ -1,0 +1,64 @@
+# Maintainer: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: Luis Martinez <luis dot martinez at disroot dot org>
+# Contributor: Doron Behar <doron.behar@gmail.com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=libCEED
+pkgbase=${_name,,}
+pkgname=("$pkgbase"
+         'python-ceed')
+pkgver=1.1.0
+pkgrel=2
+pkgdesc="Code for Efficient Extensible Discretizations"
+arch=('x86_64')
+url="https://github.com/CEED/$_name"
+license=('BSD-2-Clause')
+makedepends=('gcc-fortran'
+             'python-cffi'
+             'python-build'
+             'python-installer'
+             'python-setuptools'
+             'python-wheel'
+             'git'
+             'valgrind')
+source=("$pkgbase::git+$url#tag=v$pkgver?signed")
+sha512sums=('1a747d1c0d00a4a9ee6d6838ba7540d12644ac7fa5c30609ca5f347541a18da8abc8e930759fe7f4ca35eeb78d319127e1ca325c24b85854a53e0b4f59128275')
+validpgpkeys=('BA543CE09D732BE604D53F6FCA6D4A3B32D335A0')
+
+prepare() {
+  cd "$pkgbase"
+  # Remove stale build artifacts
+  git clean -dfx
+  # Don't compile libCEED twice for python-ceed
+  sed -i '/always-make/d' setup.py
+}
+
+build() {
+  cd "$pkgbase"
+  make configure prefix=/usr OPENMP=1 CFLAGS="$CFLAGS -ffp-contract=fast -fPIC -std=c11 -MMD -MP" CXXFLAGS="$CXXFLAGS -ffp-contract=fast -fPIC -std=c++11 -MMD -MP" FFLAGS="$FFLAGS -ffp-contract=fast -fPIC -cpp -MMD -MP"
+  make
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$pkgbase"
+  make test
+}
+
+package_libceed() {
+  depends=('glibc'
+           'libgomp')
+  provides=('libceed.so')
+  cd "$pkgbase"
+  make DESTDIR="$pkgdir" prefix=/usr install
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_python-ceed() {
+  depends=("$pkgbase"
+           'python-cffi'
+           'python-numpy')
+  cd "$pkgbase"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
