@@ -49,6 +49,8 @@ prepare() {
   cd "$pkgname-${_tag#v}"
   # Run the installed Python tests from the test install in the build directory instead of /usr
   sed -i 's|${CMAKE_INSTALL_PREFIX}/lib/tests/|${CMAKE_BINARY_DIR}/test-install${CMAKE_INSTALL_PREFIX}/lib/tests/|' packages/seacas/scripts/CMakeLists.txt
+  # Cast away volatile when passing the Zoltan handle to Zoltan_Destroy (GCC 14+ makes -Wincompatible-pointer-types an error)
+  sed -i 's|Zoltan_Destroy(&lb);|Zoltan_Destroy((struct Zoltan_Struct **)\&lb);|' packages/zoltan/src/fort/cwrap.c
 }
 
 build() {
