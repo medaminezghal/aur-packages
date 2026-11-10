@@ -12,7 +12,8 @@ depends=('bash'
          'glibc'
          'libgcc'
          'libstdc++'
-         'hwloc')
+         'hwloc'
+         'libquadmath')
 makedepends=('cmake')
 conflicts=('trilinos')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
@@ -20,7 +21,7 @@ sha256sums=('491fe02cb127559dd3c996f6693686f1eab00a53fd5c184e18e663896884175e')
 
 build() {
   cd "$pkgname-$pkgver"
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_OPENMP=ON -DKokkos_ENABLE_HWLOC=ON -DKokkos_ENABLE_LIBDL=ON -DKokkos_ENABLE_TESTS=ON -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_OPENMP=ON -DKokkos_ENABLE_HWLOC=ON -DKokkos_ENABLE_LIBDL=ON -DKokkos_ENABLE_LIBQUADMATH=ON -DKokkos_ENABLE_TUNING=ON -DKokkos_ENABLE_TESTS=ON -Wno-dev
   cmake --build build
 }
 
