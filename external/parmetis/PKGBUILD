@@ -1,0 +1,48 @@
+# Maintainer: envolution
+# Contributor: Jed Brown <jed@59A2.org>
+# Contributor: George Eleftheriou <eleftg>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=ParMETIS
+pkgname=${_name,,}
+pkgver=4.0.3.r47.g7436de6
+pkgrel=1
+epoch=1
+pkgdesc="Parallel Graph Partitioning and Fill-reducing Matrix Ordering"
+arch=('i686' 'x86_64')
+url="https://github.com/KarypisLab/$_name"
+license=('LicenseRef-custom')
+depends=('openmpi'
+         'metis'
+         'gklib'
+         'glibc')
+makedepends=('cmake')
+_commit=7436de671433c248e4203e1640a65b778845e6fc
+source=("$_name-$pkgver.tar.gz::$url/archive/$_commit.tar.gz")
+sha256sums=('55a83a8a90639b5b787e343804de1699973f9b43cfd3bf0f5eac6ff9e3009a21')
+
+prepare() {
+  cd "$_name-$_commit"
+  # Use Arch's CFLAGS instead of -march=native
+  sed -i 's/ -march=native//' conf/gkbuild.cmake
+}
+
+build() {
+  cd "$_name-$_commit"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DSHARED=ON -DGKLIB_PATH=/usr -DMETIS_PATH=/usr -DCMAKE_SKIP_RPATH=ON -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-$_commit/graphs"
+  LD_LIBRARY_PATH="$srcdir/$_name-$_commit/build/libparmetis" mpirun --oversubscribe -np 4 ../build/programs/pm_ptest rotor.graph rotor.graph.xyz > ptest.log
+  cat ptest.log
+  if grep -q ERROR ptest.log; then return 1; fi
+  LD_LIBRARY_PATH="$srcdir/$_name-$_commit/build/libparmetis" mpirun --oversubscribe -np 4 ../build/programs/pm_mtest bricks.hex3d
+}
+
+package() {
+  cd "$_name-$_commit"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
