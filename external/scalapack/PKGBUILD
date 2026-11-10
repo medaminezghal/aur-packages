@@ -1,0 +1,39 @@
+# Maintainer: Martin Diehl <aur@martin-diehl.net>
+# Contributor: Myles English <myles at rockhead dot biz>
+# Contributor: Stefan Husmann <stefan-husmann@t-online.de>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=scalapack
+pkgver=2.2.3
+pkgrel=2
+pkgdesc='Subset of scalable LAPACK routines redesigned for distributed memory computers'
+arch=('i686' 'x86_64' 'aarch64')
+url="https://github.com/Reference-ScaLAPACK/$pkgname"
+license=('BSD-3-Clause')
+depends=('glibc'
+         'openmpi'
+         'blas'
+         'lapack')
+makedepends=('cmake'
+             'gcc-fortran')
+provides=('blacs')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('5d93701eca663925e98010dd8d0f45fd79b2191d74e5afa5711d587370a8b9dd')
+
+build() {
+  cd "$pkgname-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DUSE_OPTIMIZED_LAPACK_BLAS=ON -DSCALAPACK_BUILD_TESTS=ON -DMPIEXEC_PREFLAGS=--oversubscribe -DCMAKE_Fortran_FLAGS="$FCFLAGS -fallow-argument-mismatch" -DCMAKE_C_FLAGS="$CFLAGS -Wno-implicit-function-declaration" -DCMAKE_C_STANDARD=17
+  cmake --build build
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 PBLAS/SRC/*.h BLACS/SRC/*.h -t "$pkgdir"/usr/include/
+}
