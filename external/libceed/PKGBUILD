@@ -31,6 +31,8 @@ prepare() {
   git clean -dfx
   # Don't compile libCEED twice for python-ceed
   sed -i '/always-make/d' setup.py
+  # Use the setuptools version shipped by Arch
+  sed -i '/^requires = /s/"setuptools[<>=!~][^"]*"/"setuptools"/' pyproject.toml
 }
 
 build() {
