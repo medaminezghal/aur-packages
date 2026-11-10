@@ -18,12 +18,22 @@ depends=('glibc'
          'krb5'
          'zlib')
 makedepends=('cmake')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('e6ab5f5c60a916dd6c0dd9a19a883a4a1ab3d6b4e95cab925a186fecff08344e')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
+        'openssl-4.patch')
+sha256sums=('e6ab5f5c60a916dd6c0dd9a19a883a4a1ab3d6b4e95cab925a186fecff08344e'
+            '47fa717528dd5d482ee9b1c495e3a31d54112179676aaa7006b6b074109c72a4')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  # Constify X509 name/ASN1 string pointers for OpenSSL 4 (upstream commit b01f0dc)
+  patch -Np1 -i ../openssl-4.patch
+  # Don't turn warnings into errors (ASN1_STRING_length is deprecated since OpenSSL 4.1)
+  sed -i 's/ -Werror")/")/' src/CMakeLists.txt
+}
 
 build() {
   cd "$pkgname-$pkgver"
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=None -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_CXX_FLAGS="$CXXFLAGS -Wno-error" -DCASS_BUILD_SHARED=ON -DCASS_BUILD_STATIC=OFF -DCASS_USE_OPENSSL=ON -DCASS_USE_ZLIB=ON -DCASS_USE_KERBEROS=ON -DCASS_USE_TIMERFD=ON -DCASS_USE_STD_ATOMIC=ON -DCASS_BUILD_UNIT_TESTS=ON -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=None -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCASS_BUILD_SHARED=ON -DCASS_BUILD_STATIC=OFF -DCASS_USE_OPENSSL=ON -DCASS_USE_ZLIB=ON -DCASS_USE_KERBEROS=ON -DCASS_USE_TIMERFD=ON -DCASS_USE_STD_ATOMIC=ON -DCASS_BUILD_UNIT_TESTS=ON -Wno-dev
   cmake --build build
 }
 
