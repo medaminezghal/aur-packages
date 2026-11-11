@@ -1,0 +1,189 @@
+Accept partitioning results that differ from the stored answer files when
+they are still valid and good. The tests compare zdrive's output with
+answer files made with older METIS, ParMETIS and Scotch versions; newer
+versions give different, equally valid partitions and orderings.
+
+When an output differs, check that it covers the same objects as the
+answer. Orderings must be permutations. Partitions must use the requested
+parts and, measured on the test's Chaco graph, have a max part load
+(per weight) and an edge cut within ZOLTAN_TEST_LOAD_MARGIN (default
+1.05) and ZOLTAN_TEST_CUT_MARGIN (default 1.25) of the stored answer.
+Drop-test outputs must still match exactly.
+
+--- a/packages/zoltan/test/ctest_zoltan.pl
++++ b/packages/zoltan/test/ctest_zoltan.pl
+@@ -18,6 +18,131 @@
+   return uc($file);
+ }
+ 
++### Quality check used when an output file differs from its answer file.
++### Partitioners such as ParMETIS and Scotch give different, equally valid
++### results from one library version to another, so a result that differs
++### from the stored answer is accepted when it covers the same objects and
++### is not worse than the stored answer by more than these margins.
++$loadmargin = defined $ENV{ZOLTAN_TEST_LOAD_MARGIN} ? $ENV{ZOLTAN_TEST_LOAD_MARGIN} : 1.05;
++$cutmargin = defined $ENV{ZOLTAN_TEST_CUT_MARGIN} ? $ENV{ZOLTAN_TEST_CUT_MARGIN} : 1.25;
++
++### Read zdrive output files: header lines and GID -> [Part, Perm, IPerm].
++sub read_assignment {
++  my @files = @_;
++  my (@header, %rows);
++  foreach my $f (@files) {
++    open(my $fh, '<', $f) or return;
++    my $intable = 0;
++    my @h;
++    while (my $l = <$fh>) {
++      chomp $l;
++      if (!$intable) {
++        if ($l =~ /^\s*GID\s/) { $intable = 1; next; }
++        push @h, nowhite($l) unless $l =~ /^Global element ids/;
++        next;
++      }
++      my @t = split ' ', $l;
++      next unless @t >= 4;
++      return if exists $rows{$t[0]};
++      $rows{$t[0]} = [$t[1], $t[2], $t[3]];
++    }
++    close($fh);
++    next unless @h;
++    @header = @h unless @header;
++    return if join("\n", @h) ne join("\n", @header);
++  }
++  return (\@header, \%rows);
++}
++
++### Read a Chaco graph: vertex weights and weighted edges.
++sub read_chaco {
++  my ($file) = @_;
++  open(my $fh, '<', $file) or return;
++  my @lines = grep { !/^\s*[%#]/ } <$fh>;
++  close($fh);
++  shift @lines while @lines && $lines[0] !~ /\S/;
++  return unless @lines;
++  my @h = split ' ', shift @lines;
++  my $n = $h[0];
++  my $fmt = sprintf("%03d", defined $h[2] ? $h[2] : 0);
++  my ($vid, $vw, $ew) = map { substr($fmt, $_, 1) eq '1' } (0, 1, 2);
++  my $ncon = defined $h[3] ? $h[3] : 1;
++  my (%w, @edges);
++  foreach my $i (1..$n) {
++    my @t = split ' ', (defined $lines[$i-1] ? $lines[$i-1] : '');
++    my $v = $vid ? shift @t : $i;
++    $w{$v} = $vw ? [splice(@t, 0, $ncon)] : [1];
++    while (@t) {
++      my $u = shift @t;
++      my $c = $ew ? shift @t : 1;
++      push @edges, [$v, $u, $c] if $v < $u;
++    }
++  }
++  return (\%w, \@edges);
++}
++
++### Return (passed, message) for a test whose output differs from its answer.
++sub quality_check {
++  my ($outfiles, $answfiles) = @_;
++  my ($oh, $orows) = read_assignment(@$outfiles);
++  my ($ah, $arows) = read_assignment(@$answfiles);
++  return (0, "unreadable or duplicated objects") unless $oh && $ah;
++  return (0, "different header") if join("\n", @$oh) ne join("\n", @$ah);
++  my @gids = sort { $a <=> $b } keys %$arows;
++  return (0, "different objects") if join(',', @gids) ne join(',', sort { $a <=> $b } keys %$orows);
++  my $isorder = grep { $arows->{$_}[1] != -1 } @gids;
++  if ($isorder) {
++    foreach my $col (1, 2) {
++      my @v = sort { $a <=> $b } map { $orows->{$_}[$col] } @gids;
++      my $base = $v[0];
++      foreach my $k (0..$#v) {
++        return (0, "ordering is not a permutation") if $v[$k] != $base + $k;
++      }
++    }
++    return (1, "valid ordering");
++  }
++  my ($filename) = map { /^FILENAME=(.*)$/ ? $1 : () } @$ah;
++  return (0, "no graph file") unless defined $filename;
++  my ($graph) = grep { lc($_) eq lc("$filename.graph") } glob("*.graph");
++  return (0, "no graph file") unless $graph;
++  my ($w, $edges) = read_chaco($graph);
++  return (0, "unreadable graph") unless $w;
++  my $maxpart = $loop_np - 1;
++  foreach (@gids) { $maxpart = $arows->{$_}[0] if $arows->{$_}[0] > $maxpart; }
++  foreach (@$ah) { $maxpart = $1 - 1 if /NUM_GLOBAL_PART(?:ITION)?S=(\d+)/ && $1 - 1 > $maxpart; }
++  my (%load, @msg);
++  foreach my $r ([$orows, 'o'], [$arows, 'a']) {
++    my ($rows, $k) = @$r;
++    foreach my $g (@gids) {
++      my $p = $rows->{$g}[0];
++      return (0, "invalid part $p") if $k eq 'o' && ($p < 0 || $p > $maxpart);
++      return (0, "no weights for object $g") unless $w->{$g};
++      my @wg = @{$w->{$g}};
++      $load{$k}{$p}[$_] += $wg[$_] foreach (0..$#wg);
++    }
++  }
++  my $ok = 1;
++  my $ndim = scalar @{$w->{$gids[0]}};
++  foreach my $d (0..$ndim-1) {
++    my ($mo, $ma) = (0, 0);
++    foreach (values %{$load{o}}) { $mo = $_->[$d] if $_->[$d] > $mo; }
++    foreach (values %{$load{a}}) { $ma = $_->[$d] if $_->[$d] > $ma; }
++    my $ratio = $ma ? $mo / $ma : ($mo ? 9e9 : 1);
++    $ok = 0 if $ratio > $loadmargin;
++    push @msg, sprintf("load[%d] %g/%g=%.3f", $d, $mo, $ma, $ratio);
++  }
++  my ($co, $ca) = (0, 0);
++  foreach my $e (@$edges) {
++    my ($v, $u, $c) = @$e;
++    $co += $c if $orows->{$v}[0] != $orows->{$u}[0];
++    $ca += $c if $arows->{$v}[0] != $arows->{$u}[0];
++  }
++  my $cratio = $ca ? $co / $ca : ($co ? 9e9 : 1);
++  $ok = 0 if $cratio > $cutmargin;
++  push @msg, sprintf("cut %g/%g=%.3f", $co, $ca, $cratio);
++  return ($ok, join(' ', @msg));
++}
++
+ ##############################################################################
+ ##############################################################################
+ 
+@@ -275,6 +400,9 @@
+ 
+   ### Copy zdrive output files to output directory.
+   $failed = 0;
++  $dropfailed = 0;
++  @outfiles = ();
++  @answfiles = ();
+   move($zouterrfile, "output/$zouterrfile");
+   foreach $ii (0..$loop_np-1) {
+     if ($loop_np < 10) {$format = "%s%d";}
+@@ -296,6 +424,8 @@
+       if ($debug) {print "DEBUG comparing files:  $answfile $archfile\n";}
+       $result = compare($archfile,$answfile,sub{nowhite($_[0]) ne nowhite($_[1])});
+       if ($result != 0) {$failed++;}
++      push @outfiles, $archfile;
++      push @answfiles, $answfile;
+     }
+     else {
+       ### Failure if no output files.
+@@ -314,11 +444,22 @@
+       move($zoutdrop, $archdrop);
+       if ($debug) {print "DEBUG comparing files:  $answdrop $archdrop\n";}
+       $result = compare($archdrop,$answdrop,sub{nowhite($_[0]) ne nowhite($_[1])});
+-      if ($result != 0) {$failed = 1;}
++      if ($result != 0) {$failed = 1; $dropfailed = 1;}
+     }
+     if ($debug) {print "DEBUG COMPARISON $result   $failed\n";}
+   }
+ 
++  if ($failed > 0 && !$dropfailed) {
++    ($qok, $qmsg) = quality_check(\@outfiles, \@answfiles);
++    print LOG "Test $dirname:$testname QUALITY $qmsg\n";
++    print "Test $dirname:$testname QUALITY $qmsg\n";
++    if ($qok) {
++      print LOG "Test $dirname:$testname differs from the answer files but is valid and within the quality margins\n";
++      print "Test $dirname:$testname differs from the answer files but is valid and within the quality margins\n";
++      $failed = 0;
++    }
++  }
++
+   if ($failed ne 0) {
+     $reason = "(Diff failed on $failed files)";
+     if ($failed == -1) {

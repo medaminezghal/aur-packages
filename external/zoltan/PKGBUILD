@@ -23,11 +23,15 @@ makedepends=('cmake'
              'python')
 checkdepends=('perl')
 _tag=trilinos-release-${pkgver//./-}
-source=("Trilinos-$pkgver.tar.gz::$_repo/archive/refs/tags/$_tag.tar.gz")
-sha256sums=('8094740da60bf75b675ad556ed00e337c8547be0dc9603893c4894f4abf0396b')
+source=("Trilinos-$pkgver.tar.gz::$_repo/archive/refs/tags/$_tag.tar.gz"
+        'test-quality.patch')
+sha256sums=('8094740da60bf75b675ad556ed00e337c8547be0dc9603893c4894f4abf0396b'
+            '1985adb91ab3074b9601481bd27d9129577def50507fb09169584efbc9e2ee7f')
 
 prepare() {
   cd "Trilinos-$_tag"
+  # Accept test results that differ from the answer files made with older METIS, ParMETIS and Scotch when they are valid and within quality margins
+  patch -Np1 -i ../test-quality.patch
   # Cast away volatile when passing the Zoltan handle to Zoltan_Destroy (GCC 14+ makes -Wincompatible-pointer-types an error)
   sed -i 's|Zoltan_Destroy(&lb);|Zoltan_Destroy((struct Zoltan_Struct **)\&lb);|' packages/$pkgname/src/fort/cwrap.c
   # Use MPI_COMM_WORLD in the Fortran test driver: zoltan_get_global_comm() only exists in C
