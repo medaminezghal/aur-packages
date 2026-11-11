@@ -51,6 +51,8 @@ prepare() {
   sed -i 's/\(std::vector<std::string> &\?\)requires,/\1requires_,/' src/faodel-common/Bootstrap.hh src/faodel-common/BootstrapInterface.hh src/lunasa/core/Singleton.hh src/dirman/core/Singleton.hh src/opbox/core/Singleton.hh src/kelpie/core/Singleton.hh src/whookie/server/boost/server.hpp src/faodel-services/BackBurner.hh src/faodel-services/MPISyncStart.hh
   # mpi_kelpie_dht uses std::setw/std::setfill without including <iomanip>
   sed -i 's/#include <random>/#include <random>\n#include <iomanip>/' tests/kelpie/component/mpi_kelpie_dht.cpp
+  # mpi_kelpie_many_items starts MPI with MPI_Init (MPI_THREAD_SINGLE), but the NNTI MPI transport calls MPI from its worker threads and crashes in MPI_Irecv; request MPI_THREAD_MULTIPLE like the other network tests
+  sed -i 's/MPI_Init(&argc, &argv);/int provided;\n  MPI_Init_thread(\&argc, \&argv, MPI_THREAD_MULTIPLE, \&provided);/' tests/kelpie/component/mpi_kelpie_many_items.cpp
   # The MPI transport takes &vector[0] of an empty request list, which aborts with _GLIBCXX_ASSERTIONS; use data()
   sed -i 's/&outstanding_msg_requests_\[0\]/outstanding_msg_requests_.data()/;s/&outstanding_op_requests_\[0\]/outstanding_op_requests_.data()/' src/nnti/transports/mpi/mpi_transport.cpp
   # NntiOpVectorTest writes to a vector it only reserve()d, which aborts with _GLIBCXX_ASSERTIONS; resize it
