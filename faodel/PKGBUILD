@@ -51,6 +51,10 @@ prepare() {
   sed -i 's/\(std::vector<std::string> &\?\)requires,/\1requires_,/' src/faodel-common/Bootstrap.hh src/faodel-common/BootstrapInterface.hh src/lunasa/core/Singleton.hh src/dirman/core/Singleton.hh src/opbox/core/Singleton.hh src/kelpie/core/Singleton.hh src/whookie/server/boost/server.hpp src/faodel-services/BackBurner.hh src/faodel-services/MPISyncStart.hh
   # mpi_kelpie_dht uses std::setw/std::setfill without including <iomanip>
   sed -i 's/#include <random>/#include <random>\n#include <iomanip>/' tests/kelpie/component/mpi_kelpie_dht.cpp
+  # The MPI transport takes &vector[0] of an empty request list, which aborts with _GLIBCXX_ASSERTIONS; use data()
+  sed -i 's/&outstanding_msg_requests_\[0\]/outstanding_msg_requests_.data()/;s/&outstanding_op_requests_\[0\]/outstanding_op_requests_.data()/' src/nnti/transports/mpi/mpi_transport.cpp
+  # NntiOpVectorTest writes to a vector it only reserve()d, which aborts with _GLIBCXX_ASSERTIONS; resize it
+  sed -i 's/mirror.reserve(1024);/mirror.resize(num_op);/' tests/nnti/cpp-api/NntiOpVectorTest.cpp
 }
 
 build() {
@@ -61,7 +65,8 @@ build() {
 
 check() {
   cd "$pkgname-$pkgver"
-  ctest --test-dir build --output-on-failure
+  echo 'net.transport.name mpi' > "$srcdir"/faodel-test.conf
+  FAODEL_CONFIG="$srcdir"/faodel-test.conf ctest --test-dir build --output-on-failure
 }
 
 package() {
