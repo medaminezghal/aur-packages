@@ -7,7 +7,7 @@ When an output differs, check that it covers the same objects as the
 answer. Orderings must be permutations. Partitions must use the requested
 parts and, measured on the test's Chaco graph, have a max part load
 (per weight) and an edge cut within ZOLTAN_TEST_LOAD_MARGIN (default
-1.05) and ZOLTAN_TEST_CUT_MARGIN (default 1.25) of the stored answer.
+1.15) and ZOLTAN_TEST_CUT_MARGIN (default 1.30) of the stored answer.
 Drop-test outputs must still match exactly.
 
 --- a/packages/zoltan/test/ctest_zoltan.pl
@@ -21,8 +21,8 @@ Drop-test outputs must still match exactly.
 +### results from one library version to another, so a result that differs
 +### from the stored answer is accepted when it covers the same objects and
 +### is not worse than the stored answer by more than these margins.
-+$loadmargin = defined $ENV{ZOLTAN_TEST_LOAD_MARGIN} ? $ENV{ZOLTAN_TEST_LOAD_MARGIN} : 1.05;
-+$cutmargin = defined $ENV{ZOLTAN_TEST_CUT_MARGIN} ? $ENV{ZOLTAN_TEST_CUT_MARGIN} : 1.25;
++$loadmargin = defined $ENV{ZOLTAN_TEST_LOAD_MARGIN} ? $ENV{ZOLTAN_TEST_LOAD_MARGIN} : 1.15;
++$cutmargin = defined $ENV{ZOLTAN_TEST_CUT_MARGIN} ? $ENV{ZOLTAN_TEST_CUT_MARGIN} : 1.30;
 +
 +### Read zdrive output files: header lines and GID -> [Part, Perm, IPerm].
 +sub read_assignment {

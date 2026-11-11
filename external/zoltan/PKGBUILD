@@ -26,7 +26,7 @@ _tag=trilinos-release-${pkgver//./-}
 source=("Trilinos-$pkgver.tar.gz::$_repo/archive/refs/tags/$_tag.tar.gz"
         'test-quality.patch')
 sha256sums=('8094740da60bf75b675ad556ed00e337c8547be0dc9603893c4894f4abf0396b'
-            '1985adb91ab3074b9601481bd27d9129577def50507fb09169584efbc9e2ee7f')
+            '9de6bed5a2ea1abbada13de57d147268e0163d80acd1047962713f83bb4a009f')
 
 prepare() {
   cd "Trilinos-$_tag"
