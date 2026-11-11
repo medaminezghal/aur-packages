@@ -15,7 +15,6 @@ depends=('bash'
          'hwloc'
          'libquadmath')
 makedepends=('cmake')
-conflicts=('trilinos')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('491fe02cb127559dd3c996f6693686f1eab00a53fd5c184e18e663896884175e')
 
