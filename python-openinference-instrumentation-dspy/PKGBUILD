@@ -13,7 +13,7 @@ depends=('python' 'python-opentelemetry-api' 'python-opentelemetry-instrumentati
 makedepends=('python-hatchling' 'python-build' 'python-installer')
 checkdepends=('python-dspy' 'python-opentelemetry-sdk' 'python-pytest-recording' 'python-litellm' 'python-urllib3' 'python-vcrpy')
 optdepends=('python-dspy: instruments')
-source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('7c820f9e47e4aca063101468ec91fe0dc3170aec1ec66261825fe336b2977a0e')
 
 build() {
