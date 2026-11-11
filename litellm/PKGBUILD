@@ -27,6 +27,7 @@ depends=('python'
          'python-click'
          'python-jinja'
          'python-aiohttp'
+         'python-anyio'
          'python-pydantic'
          'python-pydantic-settings'
          'python-jsonschema'
@@ -92,8 +93,6 @@ optdepends=('gunicorn: proxy'
             
             'python-numpydoc: utils'
             
-            'python-diskcache: caching'
-
             'python-mcp: mcp'
             'python-httpx2: mcp'
             'python-pydantic: mcp'
