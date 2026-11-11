@@ -13,6 +13,7 @@ depends=('bash'
          'libgcc'
          'libstdc++'
          'hwloc'
+         'libquadmath'
          'cuda')
 makedepends=('cmake')
 provides=("kokkos=$pkgver")
@@ -30,7 +31,7 @@ prepare() {
 build() {
   cd "$_name-$pkgver"
   export PATH="/opt/cuda/bin:$PATH"
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER="$PWD"/bin/nvcc_wrapper -DBUILD_SHARED_LIBS=ON -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_OPENMP=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ENABLE_CUDA_CONSTEXPR=ON -DKokkos_ARCH_TURING75=ON -DKokkos_ENABLE_HWLOC=ON -DKokkos_ENABLE_LIBDL=ON -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_COMPILER="$PWD"/bin/nvcc_wrapper -DBUILD_SHARED_LIBS=ON -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_OPENMP=ON -DKokkos_ENABLE_CUDA=ON -DKokkos_ENABLE_CUDA_CONSTEXPR=ON -DKokkos_ARCH_TURING75=ON -DKokkos_ENABLE_HWLOC=ON -DKokkos_ENABLE_LIBDL=ON -DKokkos_ENABLE_LIBQUADMATH=ON -DKokkos_ENABLE_TUNING=ON -Wno-dev
   cmake --build build
 }
 
