@@ -45,6 +45,7 @@ conflicts=('seacas'
            'exodusii'
            'zoltan'
            'trilinos')
+options=('!lto')
 _tag=v${pkgver//./-}
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
 sha256sums=('9010d5fe17e14f556ae2a065573ab297bd861738742ead92895025d27fec31bb')
