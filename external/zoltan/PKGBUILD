@@ -22,7 +22,6 @@ makedepends=('cmake'
              'gcc-fortran'
              'python')
 checkdepends=('perl')
-conflicts=('trilinos')
 _tag=trilinos-release-${pkgver//./-}
 source=("Trilinos-$pkgver.tar.gz::$_repo/archive/refs/tags/$_tag.tar.gz")
 sha256sums=('8094740da60bf75b675ad556ed00e337c8547be0dc9603893c4894f4abf0396b')
