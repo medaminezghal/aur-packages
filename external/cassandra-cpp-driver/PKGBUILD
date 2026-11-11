@@ -24,13 +24,13 @@ source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
         'openssl-4-tests.patch')
 sha256sums=('e6ab5f5c60a916dd6c0dd9a19a883a4a1ab3d6b4e95cab925a186fecff08344e'
             '47fa717528dd5d482ee9b1c495e3a31d54112179676aaa7006b6b074109c72a4'
-            'de7077c1de2c3e6dd9bb83d21ddf59667c568003c6545c37fc9b058f25af4707')
+            '196e4f86b65ddbf001259808ed216cdb4f905e5a6f466325d720c86661cba20c')
 
 prepare() {
   cd "$pkgname-$pkgver"
   # Constify X509 name/ASN1 string pointers for OpenSSL 4 (upstream commit b01f0dc)
   patch -Np1 -i ../openssl-4.patch
-  # Build new X509 names in the unit tests instead of editing the const ones OpenSSL 4 returns
+  # Fix the unit tests for OpenSSL 4: build new X509 names instead of editing the const ones, use a valid request version
   patch -Np1 -i ../openssl-4-tests.patch
   # Don't turn warnings into errors (ASN1_STRING_length is deprecated since OpenSSL 4.1)
   sed -i 's/ -Werror")/")/' src/CMakeLists.txt
