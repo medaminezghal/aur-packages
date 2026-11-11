@@ -19,8 +19,7 @@ depends=('python'
          'python-setuptools')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-pytest-asyncio'
               'python-litellm'
               'python-fastapi'
