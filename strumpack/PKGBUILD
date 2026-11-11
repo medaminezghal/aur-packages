@@ -35,7 +35,9 @@ source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         "$_mm/Oberwolfach/t2dal.tar.gz"
         "$_mm/Pothen/mesh3e1.tar.gz"
         "$_mm/TKK/cbuckle.tar.gz"
-        "$_mm/TOKAMAK/utm300.tar.gz")
+        "$_mm/TOKAMAK/utm300.tar.gz"
+        'hss-extract-empty-blocks.patch'
+        'deterministic-symmetrize.patch')
 sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             'ee6e2b85a8bd0f13bacd3ac8e16bc29b7548e99952143f1448fbf865d8cb4a2d'
             'eb7df6302572a0c5077ec0e1061670d7f5f42467408103bc849d4a1257512622'
@@ -47,7 +49,17 @@ sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             '3b3f787c39ef27a7d49010b87d9c13ba4e10f39bc72c4b5f633cf94bfa010ae1'
             '3807962b6697d4292b6576ec71a15f3319998f1acd5a0e216fe7e8996dafdade'
             '81b3f63df8c30ca5c35c16b1cfca8c8f8195b8ceea2716865db499e8f23b1c68'
-            '38ca1ca01b8e91a15559d6cad51f35cb9287207b61ad8698d39f34e9b6e6b226')
+            '38ca1ca01b8e91a15559d6cad51f35cb9287207b61ad8698d39f34e9b6e6b226'
+            'fed3b23167887d696260156d03f51d0404392223d32a31f0f7f59656ccd3244b'
+            'a0aab8a5c4cd28cbcb40b0be1552ff2cbb7ae6a457113170b1a0b24befbdf351')
+
+prepare() {
+  cd "$_name-$pkgver"
+  # Don't index an empty vector in the distributed HSS extraction (trips _GLIBCXX_ASSERTIONS in SPARSE_mpi_24 and SPARSE_mpi_31)
+  patch -Np1 -i ../hss-extract-empty-blocks.patch
+  # Sort the entries that pad the sparsity pattern, so the ordering no longer depends on the thread timing (random SPARSE_seq_27 and SPARSE_seq_77 failures)
+  patch -Np1 -i ../deterministic-symmetrize.patch
+}
 
 build() {
   cd "$_name-$pkgver"
