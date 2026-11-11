@@ -33,7 +33,6 @@ depends=('glibc'
 makedepends=('cmake'
              'gcc-fortran'
              'python'
-             'boost'
              'cereal'
              'gtest'
              'catch2')
@@ -57,13 +56,19 @@ prepare() {
   sed -i 's|${CMAKE_INSTALL_PREFIX}/lib/tests/|${CMAKE_BINARY_DIR}/test-install${CMAKE_INSTALL_PREFIX}/lib/tests/|' packages/seacas/scripts/CMakeLists.txt
   # Cast away volatile when passing the Zoltan handle to Zoltan_Destroy (GCC 14+ makes -Wincompatible-pointer-types an error)
   sed -i 's|Zoltan_Destroy(&lb);|Zoltan_Destroy((struct Zoltan_Struct **)\&lb);|' packages/zoltan/src/fort/cwrap.c
+  # Use MPI_COMM_WORLD in the Fortran test driver again: the Zoltan update replaced it with zoltan_get_global_comm(), which only exists in C
+  sed -i 's/zoltan_get_global_comm()/MPI_COMM_WORLD/' packages/zoltan/src/fdriver/fdr_*.f90
+  # Use the mpi module in the Fortran test driver so the MPI calls have explicit interfaces (gfortran 10+ rejects mixed argument types through mpif.h)
+  sed -i 's/include "mpif.h"/use mpi/' packages/zoltan/src/fdriver/mpi_h.f
+  # Print the S3 error messages into an ostringstream, as the rest of Ioss does (fmt 11+ treats a std::string first argument as the format string)
+  sed -i 's/std::string errmsg;/std::ostringstream errmsg;/' packages/seacas/libraries/ioss/src/s3/Ios3_DatabaseIO.C
 }
 
 build() {
   cd "$_name-${_tag#v}"
   export PATH="/opt/cuda/bin:$PATH"
   export OMPI_CXX=/usr/bin/nvcc_wrapper
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpif90 -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DSEACASExodus_ENABLE_STATIC=OFF -DSeacas_ENABLE_ALL_PACKAGES=ON -DSeacas_ENABLE_ALL_OPTIONAL_PACKAGES=ON -DSeacas_ENABLE_SECONDARY_TESTED_CODE=ON -DSeacas_ENABLE_Zoltan=ON -DZoltan_ENABLE_F90INTERFACE=ON -DSeacas_ENABLE_Fortran=ON -DSeacas_SKIP_FORTRANCINTERFACE_VERIFY_TEST=ON -DENABLE_ExoNull=ON -DSEACASExodus_ENABLE_THREADSAFE=ON -DTPL_ENABLE_MPI=ON -DTPL_ENABLE_Pthread=ON -DTPL_ENABLE_DLlib=ON -DTPL_ENABLE_Zlib=ON -DTPL_ENABLE_X11=ON -DTPL_ENABLE_fmt=ON -DTPL_ENABLE_HDF5=ON -DHDF5_ALLOW_PACKAGE_PREFIND=OFF -DTPL_ENABLE_Netcdf=ON -DTPL_ENABLE_Pnetcdf=ON -DTPL_Netcdf_Enables_PNetcdf=ON -DTPL_ENABLE_CGNS=ON -DTPL_ENABLE_Matio=ON -DTPL_ENABLE_METIS=ON -DTPL_ENABLE_ParMETIS=ON -DTPL_ENABLE_ADIOS2=ON -DADIOS2_LIBRARY_NAMES="adios2_c;adios2_cxx;adios2_c_mpi;adios2_cxx_mpi" -DTPL_ENABLE_Catalyst2=ON -DTPL_Catalyst2_INCLUDE_DIRS="/usr/include/catalyst-2.1;/usr/include/conduit" -DTPL_Catalyst2_LIBRARIES="/usr/lib/libcatalyst.so;/usr/lib/libconduit.so" -DTPL_ENABLE_AWSSDK=ON -DTPL_ENABLE_Cereal=ON -DTPL_ENABLE_GTest=ON -DTPL_ENABLE_Catch2=ON -DTPL_ENABLE_Kokkos=ON -DTPL_Kokkos_INCLUDE_DIRS=/usr/include -DTPL_Kokkos_LIBRARIES=/usr/lib/libkokkoscore.so -DTPL_ENABLE_CUDA=ON -DCUDA_LIBRARY_DIRS=/opt/cuda/lib64 -DTPL_ENABLE_Faodel=ON -DBOOST_ROOT=/usr -DTPL_ENABLE_DataWarp=OFF -DTPL_ENABLE_Pamgen=ON -DSeacas_ENABLE_TESTS=ON -DMPI_EXEC_PRE_NUMPROCS_FLAGS=--oversubscribe -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpif90 -DBUILD_SHARED_LIBS=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DSEACASExodus_ENABLE_STATIC=OFF -DSeacas_ENABLE_ALL_PACKAGES=ON -DSeacas_ENABLE_ALL_OPTIONAL_PACKAGES=ON -DSeacas_ENABLE_SECONDARY_TESTED_CODE=ON -DSeacas_ENABLE_Zoltan=ON -DZoltan_ENABLE_F90INTERFACE=ON -DSeacas_ENABLE_Fortran=ON -DSeacas_SKIP_FORTRANCINTERFACE_VERIFY_TEST=ON -DENABLE_ExoNull=ON -DSEACASExodus_ENABLE_THREADSAFE=ON -DTPL_ENABLE_MPI=ON -DTPL_ENABLE_Pthread=ON -DTPL_ENABLE_DLlib=ON -DTPL_ENABLE_Zlib=ON -DTPL_ENABLE_X11=ON -DTPL_ENABLE_fmt=ON -DTPL_ENABLE_HDF5=ON -DHDF5_ALLOW_PACKAGE_PREFIND=OFF -DTPL_ENABLE_Netcdf=ON -DTPL_ENABLE_Pnetcdf=ON -DTPL_Netcdf_Enables_PNetcdf=ON -DTPL_ENABLE_CGNS=ON -DTPL_ENABLE_Matio=ON -DTPL_ENABLE_METIS=ON -DTPL_ENABLE_ParMETIS=ON -DTPL_ENABLE_ADIOS2=ON -DADIOS2_LIBRARY_NAMES="adios2_c;adios2_cxx;adios2_c_mpi;adios2_cxx_mpi" -DTPL_ENABLE_Catalyst2=ON -DTPL_Catalyst2_INCLUDE_DIRS="/usr/include/catalyst-2.1;/usr/include/conduit" -DTPL_Catalyst2_LIBRARIES="/usr/lib/libcatalyst.so;/usr/lib/libconduit.so" -DTPL_ENABLE_AWSSDK=ON -DTPL_ENABLE_Cereal=ON -DTPL_ENABLE_GTest=ON -DTPL_ENABLE_Catch2=ON -DTPL_ENABLE_Kokkos=ON -DTPL_Kokkos_INCLUDE_DIRS=/usr/include -DTPL_Kokkos_LIBRARIES=/usr/lib/libkokkoscore.so -DTPL_ENABLE_CUDA=ON -DCUDA_LIBRARY_DIRS=/opt/cuda/lib64 -DTPL_ENABLE_Faodel=ON -DFaodel_INCLUDE_DIRS=/usr/include/faodel -DFaodel_LIBRARY_NAMES="kelpie;dirman;opbox;lunasa;nnti;faodel-services;whookie;faodel-common;sbl;faodel-tcmalloc;faodel-spinlock" -DTPL_ENABLE_DataWarp=OFF -DTPL_ENABLE_Pamgen=ON -DSeacas_ENABLE_TESTS=ON -DMPI_EXEC_PRE_NUMPROCS_FLAGS=--oversubscribe -Wno-dev
   cmake --build build
 }
 
