@@ -34,10 +34,9 @@ prepare() {
   cd "$pkgname-$pkgver"
   # Find the XDR headers and library in libtirpc, so NNTI uses XDR instead of falling back to Cereal
   patch -Np1 -i ../libtirpc.patch
-  # Use the tcmalloc shipped by Arch's gperftools instead of the bundled copy, which installs a conflicting /usr/lib/libtcmalloc.so
-  rm -rf tpl/gperftools
-  sed -i '/add_subdirectory( tpl\/gperftools )/d;s/"-ltcmalloc -lspinlock"/"-ltcmalloc"/' CMakeLists.txt
-  sed -i 's/LIST( APPEND Lunasa_IMPORTS tcmalloc spinlock )/LIST( APPEND Lunasa_IMPORTS tcmalloc )/' src/lunasa/CMakeLists.txt
+  # Lunasa needs the bundled tcmalloc fork (it doesn't replace malloc and gets its memory only from Lunasa's allocator); rename its libraries so they don't conflict with gperftools' /usr/lib/libtcmalloc.so
+  printf 'set_target_properties( tcmalloc PROPERTIES OUTPUT_NAME faodel-tcmalloc )\nset_target_properties( spinlock PROPERTIES OUTPUT_NAME faodel-spinlock )\n' >> tpl/gperftools/CMakeLists.txt
+  sed -i 's/"-ltcmalloc -lspinlock"/"-lfaodel-tcmalloc -lfaodel-spinlock"/' CMakeLists.txt
   # Use the cereal headers shipped by Arch instead of the bundled copy
   rm -rf tpl/cereal/include
   sed -i '/install( DIRECTORY/,+1d;s|INCLUDES DESTINATION "${INCLUDE_INSTALL_DIR}/faodel/tpl-cereal" )|)|' tpl/cereal/CMakeLists.txt
