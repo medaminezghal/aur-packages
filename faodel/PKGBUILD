@@ -23,12 +23,17 @@ depends=('glibc'
          'cereal')
 makedepends=('cmake'
              'boost'
-             'gtest')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('8fa3ca830a6e65b45df84e35f25bbc0b108b27b4996f20a21cfbe28e9775cb96')
+             'gtest'
+             'rpcsvc-proto')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+        'libtirpc.patch')
+sha256sums=('8fa3ca830a6e65b45df84e35f25bbc0b108b27b4996f20a21cfbe28e9775cb96'
+            '199fa5de463a0f85c0c369bedc2c70842dc70a65efd0b71d68cc417ca4472d27')
 
 prepare() {
   cd "$pkgname-$pkgver"
+  # Find the XDR headers and library in libtirpc, so NNTI uses XDR instead of falling back to Cereal
+  patch -Np1 -i ../libtirpc.patch
   # Use the tcmalloc shipped by Arch's gperftools instead of the bundled copy, which installs a conflicting /usr/lib/libtcmalloc.so
   rm -rf tpl/gperftools
   sed -i '/add_subdirectory( tpl\/gperftools )/d;s/"-ltcmalloc -lspinlock"/"-ltcmalloc"/' CMakeLists.txt
@@ -52,7 +57,7 @@ prepare() {
 
 build() {
   cd "$pkgname-$pkgver"
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DBUILD_SHARED_LIBS=ON -DBOOST_ROOT=/usr -DGTEST_ROOT=/usr -DHDF5_ROOT=/usr -DBUILD_TESTS=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DFaodel_ENABLE_MPI_SUPPORT=ON -DFaodel_ENABLE_TCMALLOC=ON -DFaodel_ENABLE_IOM_HDF5=ON -DFaodel_ENABLE_IOM_LEVELDB=ON -DFaodel_ENABLE_IOM_CASSANDRA=ON -DFaodel_ENABLE_ARROW=ON -DFaodel_NETWORK_LIBRARY=nnti -DFaodel_THREADING_MODEL=pthreads -DMPIEXEC_PREFLAGS=--oversubscribe -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DBUILD_SHARED_LIBS=ON -DBOOST_ROOT=/usr -DGTEST_ROOT=/usr -DHDF5_ROOT=/usr -DBUILD_TESTS=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF -DFaodel_ENABLE_MPI_SUPPORT=ON -DFaodel_ENABLE_TCMALLOC=ON -DFaodel_ENABLE_IOM_HDF5=ON -DFaodel_ENABLE_IOM_LEVELDB=ON -DFaodel_ENABLE_IOM_CASSANDRA=ON -DFaodel_ENABLE_ARROW=ON -DFaodel_NETWORK_LIBRARY=nnti -DFaodel_NNTI_SERIALIZATION_METHOD=XDR -DFaodel_THREADING_MODEL=pthreads -DMPIEXEC_PREFLAGS=--oversubscribe -Wno-dev
   cmake --build build
 }
 
