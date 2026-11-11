@@ -38,8 +38,7 @@ makedepends=('cmake'
 optdepends=('python: exodus3.py and exomerge3.py modules'
             'python-numpy: numpy arrays in exodus3.py')
 provides=("exodusii=$pkgver")
-conflicts=('exodusii'
-           'trilinos')
+conflicts=('exodusii')
 _tag=v${pkgver//./-}
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz"
         'fix-vector-one-past-end-indexing.patch'
