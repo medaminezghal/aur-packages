@@ -1,0 +1,56 @@
+# Maintainer: eDgar [edgar [is here] openmail {dot} cc>
+# Contributor (creator): Bruno Pagani <archange@archlinux.org>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=CGNS
+pkgname=cgns-parallel
+pkgver=4.5.2
+pkgrel=1
+pkgdesc="Standard for recording and recovering computer data associated with the numerical solution of fluid dynamics equations (with parallel I/O)"
+arch=('x86_64')
+url="https://cgns.github.io/"
+license=('Zlib')
+depends=('glibc'
+         'glu'
+         'hdf5-openmpi'
+         'libgcc'
+         'libgfortran'
+         'libglvnd'
+         'libx11'
+         'libxmu'
+         'openmpi'
+         'tcl'
+         'tk')
+makedepends=('cmake'
+             'gcc-fortran')
+provides=("cgns=$pkgver")
+conflicts=('cgns')
+source=("$_name-$pkgver.tar.gz::https://github.com/$_name/$_name/archive/v$pkgver.tar.gz"
+        'test-cgsize.patch')
+sha256sums=('95075e1fd0b51d97b1b96b73ebe03b1a551fbcc9cd2b2b6f487ccccedcff5964'
+            '4ac16b5ec9159cfe233d4b94d036a0d14ee8b1596b562f22af896247caef38ff')
+
+prepare() {
+  cd "$_name-$pkgver"
+  # Pass cgsize_t integers in the parallel polyhedral Fortran test: cgsize_t is 32-bit with CGNS_ENABLE_LEGACY
+  patch -Np1 -i ../test-cgsize.patch
+}
+
+build() {
+  cd "$_name-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_SKIP_RPATH=ON -DCGNS_BUILD_CGNSTOOLS=ON -DCGNS_BUILD_SHARED=ON -DCGNS_ENABLE_64BIT=ON -DCGNS_ENABLE_FORTRAN=ON -DCGNS_ENABLE_HDF5=ON -DHDF5_NEED_MPI=ON -DCGNS_ENABLE_PARALLEL=ON -DCGNS_ENABLE_LEGACY=ON -DCGNS_ENABLE_SCOPING=OFF -DCGNS_ENABLE_TESTS=ON -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-$pkgver"
+  export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
+  LD_LIBRARY_PATH="$PWD"/build/src ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$_name-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 license.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
+  rm "$pkgdir"/usr/bin/*.desktop
+}
