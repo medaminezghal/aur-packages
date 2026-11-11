@@ -1,0 +1,36 @@
+# Maintainer: Carlos Aznarán <caznaranl@uni.pe>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=kokkos
+pkgver=5.3.0
+pkgrel=1
+pkgdesc="C++ performance portability programming ecosystem"
+arch=('x86_64')
+url="https://github.com/$pkgname/$pkgname"
+license=('Apache-2.0 WITH LLVM-exception')
+depends=('bash'
+         'glibc'
+         'libgcc'
+         'libstdc++'
+         'hwloc'
+         'libquadmath')
+makedepends=('cmake')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('71590c348be05d83b12b3b21ccac36072be0006e23ada3ff4cb91f018cfbb042')
+
+build() {
+  cd "$pkgname-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DKokkos_ENABLE_SERIAL=ON -DKokkos_ENABLE_OPENMP=ON -DKokkos_ENABLE_HWLOC=ON -DKokkos_ENABLE_LIBDL=ON -DKokkos_ENABLE_LIBQUADMATH=ON -DKokkos_ENABLE_TUNING=ON -DKokkos_ENABLE_TESTS=ON -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
