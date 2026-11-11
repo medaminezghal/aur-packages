@@ -48,11 +48,23 @@ provides=("seacas=$pkgver"
 conflicts=('seacas')
 options=('!lto')
 _tag=v${pkgver//./-}
-source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
-sha256sums=('9010d5fe17e14f556ae2a065573ab297bd861738742ead92895025d27fec31bb')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz"
+        'fix-vector-one-past-end-indexing.patch'
+        'fix-utst-sort.patch'
+        'fix-node-map-without-node-blocks.patch')
+sha256sums=('9010d5fe17e14f556ae2a065573ab297bd861738742ead92895025d27fec31bb'
+            'c5514e0b24abb34c42de1842b086ef4a1084ef39ef44d5ebf0e72fc34193e3b4'
+            'e6168502bdd02d7d8d466f35b0c99339d15efaabe408d8c08acb5131cf39d50c'
+            'ea33c91e69f426d83fb0f4c289faf12b4bbc5c97e332669f281305f6a88bee65')
 
 prepare() {
   cd "$_name-${_tag#v}"
+  # Upstream fix for one-past-end std::vector indexing that aborts Utst_blockbatchread and Utst_nem_spread under _GLIBCXX_ASSERTIONS (sandialabs/seacas@80471a3)
+  patch -Np1 -i ../fix-vector-one-past-end-indexing.patch
+  # Upstream fix for the out-of-range std::vector access in Utst_sort (sandialabs/seacas@2adf30b)
+  patch -Np1 -i ../fix-utst-sort.patch
+  # Skip the parallel Exodus node map output for blob-only regions instead of asserting, fixing Utst_blob_write_read_MPI_4
+  patch -Np1 -i ../fix-node-map-without-node-blocks.patch
   # Run the installed Python tests from the test install in the build directory instead of /usr
   sed -i 's|${CMAKE_INSTALL_PREFIX}/lib/tests/|${CMAKE_BINARY_DIR}/test-install${CMAKE_INSTALL_PREFIX}/lib/tests/|' packages/seacas/scripts/CMakeLists.txt
   # Remove the bundled Zoltan to use the zoltan package, keeping only the dependencies file TriBITS reads for every listed package
