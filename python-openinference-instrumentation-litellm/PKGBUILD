@@ -7,7 +7,7 @@ pkgrel=1
 pkgdesc="OpenInference liteLLM Instrumentation."
 arch=('any')
 _repo="https://github.com/Arize-ai/openinference"
-url="$_repo/tree/main/${pkgname/-//instrumentation/}"
+url="$_repo/tree/main/python/instrumentation/$_name"
 license=('Apache-2.0')
 depends=('python'
          'python-opentelemetry-api'
