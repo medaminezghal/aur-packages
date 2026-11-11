@@ -5,8 +5,90 @@ on:
     types: [new-release]
 
 jobs:
+  resolve:
+    name: Resolve packages
+    runs-on: ubuntu-latest
+
+    outputs:
+      packages: ${{ steps.resolve.outputs.packages }}
+      pkgver: ${{ steps.resolve.outputs.pkgver }}
+      provider: ${{ steps.resolve.outputs.provider }}
+      skip: ${{ steps.resolve.outputs.skip }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve package names
+        id: resolve
+        run: |
+          provider="${{ github.event.client_payload.provider }}"
+          project="${{ github.event.client_payload.project }}"
+          version="${{ github.event.client_payload.version }}"
+
+          # Turn tags like v1.2.3, v2026-08-11 or trilinos-release-17-3-0 into 1.2.3, 2026.08.11, 17.3.0
+          pkgver=$(sed -E 's/^[^0-9]*//; s/-/./g' <<< "$version")
+
+          if [[ -z "$pkgver" || "$pkgver" =~ [a-zA-Z] ]]; then
+            echo "Skipping pre-release or unparsable version: $version"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          base="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')"
+
+          # Upstreams that provide several packages are listed in .github/upstreams
+          mapped=$(awk -v p="${project,,}" '!/^[[:space:]]*(#|$)/ && tolower($1) == p { $1 = ""; print }' .github/upstreams)
+
+          candidates=()
+          if [[ -n "$mapped" ]]; then
+            read -ra candidates <<< "$mapped"
+          else
+            case "$provider" in
+              pypi)
+                pkgname="$base"
+                for cand in "python-$base" "external/python-$base" "external/$base"; do
+                  if [[ -f "$cand/PKGBUILD" ]]; then
+                    pkgname="$cand"
+                    break
+                  fi
+                done
+                ;;
+              github|gitlab)
+                found=$(find . external -mindepth 1 -maxdepth 1 -type d -name "*$base" 2> /dev/null | head -n1 | sed 's|^\./||')
+                pkgname="${found:-$base}"
+                ;;
+              *)
+                echo "::error::Unsupported provider: $provider"
+                exit 1
+                ;;
+            esac
+            candidates=("$pkgname")
+          fi
+
+          packages=()
+          for pkgname in "${candidates[@]}"; do
+            if [[ -f "$pkgname/PKGBUILD" ]]; then
+              packages+=("$pkgname")
+            else
+              echo "Package '$pkgname' not in repo yet, skipping it."
+            fi
+          done
+
+          if (( ${#packages[@]} == 0 )); then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "packages=$(printf '%s\n' "${packages[@]}" | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
+          echo "pkgver=$pkgver" >> "$GITHUB_OUTPUT"
+          echo "provider=$provider" >> "$GITHUB_OUTPUT"
+          echo "Resolved: ${packages[*]} $pkgver (provider: $provider)"
+
   open-pr:
-    name: Bump package version
+    name: Bump ${{ matrix.pkgname }}
+    needs: resolve
+    if: needs.resolve.outputs.skip == 'false'
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
@@ -15,6 +97,11 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        pkgname: ${{ fromJSON(needs.resolve.outputs.packages) }}
 
     steps:
       - name: Update system
@@ -28,59 +115,17 @@ jobs:
       - name: Setup git identity
         run: git config --global safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Resolve package name
+      - name: Set package name
         id: resolve
         run: |
-          provider="${{ github.event.client_payload.provider }}"
-          project="${{ github.event.client_payload.project }}"
-          version="${{ github.event.client_payload.version }}"
-
-          pkgver="${version#v}"
-
-          if [[ "$pkgver" =~ [a-zA-Z] ]]; then
-            echo "Skipping pre-release version: $pkgver"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          base="$(echo "${project##*/}" | tr '[:upper:]' '[:lower:]')"
-
-          case "$provider" in
-            pypi)
-              pkgname="$base"
-              for cand in "python-$base" "external/python-$base" "external/$base"; do
-                if [[ -f "$cand/PKGBUILD" ]]; then
-                  pkgname="$cand"
-                  break
-                fi
-              done
-              ;;
-            github|gitlab)
-              found=$(find . external -mindepth 1 -maxdepth 1 -type d -name "*$base" 2> /dev/null | head -n1 | sed 's|^\./||')
-              pkgname="${found:-$base}"
-              ;;
-            *)
-              echo "::error::Unsupported provider: $provider"
-              exit 1
-              ;;
-          esac
-
-          if [[ ! -d "$pkgname" || ! -f "$pkgname/PKGBUILD" ]]; then
-            echo "Package '$pkgname' not in repo yet, skipping."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "skip=false"    >> "$GITHUB_OUTPUT"
+          pkgname="${{ matrix.pkgname }}"
           echo "pkgname=$pkgname" >> "$GITHUB_OUTPUT"
-          echo "name=${pkgname#external/}"  >> "$GITHUB_OUTPUT"
-          echo "pkgver=$pkgver"   >> "$GITHUB_OUTPUT"
-          echo "provider=$provider" >> "$GITHUB_OUTPUT"
-          echo "Resolved: $pkgname $pkgver (provider: $provider)"
+          echo "name=${pkgname#external/}" >> "$GITHUB_OUTPUT"
+          echo "pkgver=${{ needs.resolve.outputs.pkgver }}" >> "$GITHUB_OUTPUT"
+          echo "provider=${{ needs.resolve.outputs.provider }}" >> "$GITHUB_OUTPUT"
 
       - name: Bump version and update checksums
         id: bump
-        if: steps.resolve.outputs.skip == 'false'
         run: |
           pkgname="${{ steps.resolve.outputs.pkgname }}"
           pkgver="${{ steps.resolve.outputs.pkgver }}"
@@ -142,7 +187,6 @@ jobs:
           fi
 
       - name: Generate app token
-        if: steps.resolve.outputs.skip == 'false'
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
@@ -150,7 +194,6 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
   
       - name: Create pull request
-        if: steps.resolve.outputs.skip == 'false'
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}

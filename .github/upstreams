@@ -1,0 +1,6 @@
+# Upstream projects that provide several packages in this repo.
+# Format: <owner>/<repo> <package folder> [<package folder> ...]
+# A new release of the project opens one PR per listed package.
+# Projects not listed here keep the default name lookup.
+trilinos/Trilinos pamgen external/zoltan
+sandialabs/seacas seacas seacas-cuda
