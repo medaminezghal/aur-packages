@@ -45,8 +45,7 @@ optdepends=('python: exodus3.py and exomerge3.py modules'
             'python-numpy: numpy arrays in exodus3.py')
 provides=("seacas=$pkgver"
           "exodusii=$pkgver")
-conflicts=('seacas'
-           'exodusii')
+conflicts=('seacas')
 options=('!lto')
 _tag=v${pkgver//./-}
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz")
