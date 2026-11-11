@@ -28,7 +28,7 @@ checkdepends=('python-pytest-asyncio'
               'python-opentelemetry-instrumentation-httpx'
               'python-pytest-recording'
               'python-tenacity')
-source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz"
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz"
         "fix-duplicated-thinking-text.patch"
         "litellm-1.101-streaming-cost.patch"
         "litellm-1.109-tests.patch")
