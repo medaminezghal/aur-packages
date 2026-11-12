@@ -66,6 +66,8 @@ prepare() {
   sed -i 's/cuCtxCreate( *\(&\(([^)]*)\|\w*\)\), /cuCtxCreate(\1, NULL, /' components/cuda/tests/*.cu
   # The nvml tests link libpapi.a without LDFLAGS, so add the system libpfm to their PAPILIB
   sed -i 's|^PAPILIB := ../../../libpapi.a  -ldl$|& -lpfm|' components/nvml/tests/Makefile
+  # hipcc rejects the C-only -std=gnu17 in CFLAGS when building the rocm_smi tests
+  sed -i 's/$(HIPCC) $(CFLAGS)/$(HIPCC) $(filter-out -std=gnu17,$(CFLAGS))/' components/rocm_smi/tests/Makefile
 }
 
 build() {
