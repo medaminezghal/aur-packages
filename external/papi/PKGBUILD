@@ -58,7 +58,7 @@ build() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
   export CFLAGS="-fPIC -std=gnu17 $CFLAGS" PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
   ./configure --prefix=/usr --mandir=/usr/share/man --with-perf-events --with-pfm-prefix=/usr --with-components="appio coretemp cuda infiniband intel_gpu io lmsensors lustre net nvml pcp powercap rapl rocm_smi rocp_sdk sde stealtime topdown"
-  make
+  make all
 }
 
 check() {
