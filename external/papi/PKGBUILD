@@ -74,6 +74,8 @@ prepare() {
   sed -i 's/^\(\tLDFLAGS += -Llib .*\)$/\1 -lpfm -lstdc++/' components/sde/tests/Makefile
   # Overflow_Static_Test links libpapi.a without LDFLAGS, so add libpfm and libstdc++ after the archives
   sed -i 's|^\t$(CC) .* $(datadir)/libsde\.a -ldl -lrt$|& -lpfm -lstdc++|' components/sde/tests/Makefile
+  # Don't overflow the 129-byte error buffer with ROCm SMI's long status string when rsmi_init fails (no AMD GPU)
+  sed -i 's/strcpy(error_string, status_string);/snprintf(error_string, sizeof(error_string), "%s", status_string);/' components/rocm_smi/rocs.c
 }
 
 build() {
