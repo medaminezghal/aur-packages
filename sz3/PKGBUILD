@@ -1,0 +1,37 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=SZ3
+pkgname=sz3
+pkgver=3.4.0
+pkgrel=1
+pkgdesc="Modular error-bounded lossy compression framework for scientific data"
+arch=('x86_64')
+url="https://github.com/szcompressor/$_name"
+license=('LicenseRef-SZ3')
+depends=('glibc'
+         'libgcc'
+         'libgomp'
+         'libstdc++'
+         'zstd'
+         'hdf5')
+makedepends=('cmake')
+checkdepends=('gtest')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('4e1559d291cd0b892350bd74ddb749ad4aa4d6fbba170e588eb54f325a529e0d')
+
+build() {
+  cd "$_name-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DBUILD_H5Z_FILTER=ON -DBUILD_MDZ=ON -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-$pkgver"
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$_name-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 copyright-and-BSD-license.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
