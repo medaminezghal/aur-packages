@@ -19,8 +19,7 @@ depends=('python'
          'python-typing_extensions')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-dspy'
               'python-opentelemetry-sdk'
               'python-pytest-recording'
