@@ -52,6 +52,8 @@ prepare() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
   # Look for librocm_smi64.so in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
   sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
+  # PCP 7 split pmUnits.pad into extraUnit and extraScale
+  sed -i 's/desc\.units\.pad,/desc.units.extraScale,/' components/pcp/linux-pcp.c
 }
 
 build() {
