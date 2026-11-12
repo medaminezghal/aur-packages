@@ -42,7 +42,6 @@ makedepends=('python-hatchling'
              'python-hatch-fancy-pypi-readme'
              'python-build'
              'python-installer'
-             'python-wheel'
              'pnpm'
              'npm')
 checkdepends=('ipython'
