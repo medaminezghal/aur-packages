@@ -39,7 +39,7 @@ prepare() {
   cd "$_name-$pkgver"
   # Use the maturin version shipped by Arch
   sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml
-  cd ../kosoku
+  cd "$srcdir"/kosoku
   git checkout --quiet "$(git tag -l 'v*' --sort=-v:refname | head -1)"
   # Use the maturin version shipped by Arch
   sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml
@@ -48,7 +48,7 @@ prepare() {
 build() {
   cd "$_name-$pkgver"
   python -m build --wheel --no-isolation
-  cd ../kosoku
+  cd "$srcdir"/kosoku
   python -m build --wheel --no-isolation
 }
 
