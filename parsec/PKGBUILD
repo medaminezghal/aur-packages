@@ -33,7 +33,8 @@ makedepends=('cmake'
              'valgrind'
              'level-zero-headers')
 checkdepends=('python-pytables'
-              'python-networkx')
+              'python-networkx'
+              'inetutils')
 optdepends=('python-pandas: read PaRSEC traces as tables'
             'python-pytables: convert PaRSEC traces to HDF5')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-$pkgver.tar.gz"
