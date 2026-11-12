@@ -1,0 +1,51 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=parsec
+pkgname=parsec-rocm
+pkgver=4.0.2411
+pkgrel=1
+pkgdesc="Generic framework for architecture aware scheduling and management of micro-tasks on distributed many-core heterogeneous architectures (with ROCm)"
+arch=('x86_64')
+url="https://github.com/ICLDisco/$_name"
+license=('BSD-3-Clause-Open-MPI')
+depends=('glibc'
+         'libgcc'
+         'libgfortran'
+         'libstdc++'
+         'hwloc'
+         'openmpi'
+         'papi'
+         'graphviz'
+         'gd'
+         'libxml2'
+         'level-zero-loader'
+         'python'
+         'hip-runtime-amd')
+makedepends=('cmake'
+             'gcc-fortran'
+             'bison'
+             'flex'
+             'perl'
+             'python-pip'
+             'python-setuptools'
+             'cython'
+             'valgrind'
+             'level-zero-headers')
+optdepends=('python-pandas: read PaRSEC traces as tables'
+            'python-pytables: convert PaRSEC traces to HDF5')
+provides=("parsec=$pkgver")
+conflicts=('parsec')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_name-$pkgver.tar.gz")
+sha256sums=('3f5750565b9f673626284dd0ba835dadea3633577fee50ac217baf43a335f2ef')
+
+build() {
+  cd "$_name-$_name-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DPARSEC_DIST_WITH_MPI=ON -DPARSEC_GPU_WITH_LEVEL_ZERO=ON -DPARSEC_GPU_WITH_OPENCL=OFF -DPARSEC_GPU_ALLOC_PER_TILE=ON -DPARSEC_PROF_TRACE=ON -DPARSEC_PROF_TRACE_SYSTEM="PaRSEC Binary Tracing Format" -DPARSEC_PROF_PINS=ON -DPARSEC_PROF_GRAPHER=ON -DPARSEC_PROF_TRACE_SCHEDULING_EVENTS=ON -DPARSEC_PROF_TRACE_ACTIVE_ARENA_SET=ON -DPARSEC_PROF_TRACE_PTG_INTERNAL_INIT=ON -DPARSEC_PROF_RUSAGE_EU=ON -DBUILD_TESTING=OFF -DPARSEC_GPU_WITH_CUDA=OFF -DPARSEC_GPU_WITH_HIP=ON -DCMAKE_PREFIX_PATH=/opt/rocm -Wno-dev
+  cmake --build build
+}
+
+package() {
+  cd "$_name-$_name-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
