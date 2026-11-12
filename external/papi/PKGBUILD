@@ -70,6 +70,8 @@ prepare() {
   sed -i 's/$(HIPCC) $(CFLAGS)/$(HIPCC)/' components/rocm_smi/tests/Makefile
   # The rocm_smi tests replace LDFLAGS when linking libpapi.a, so add the system libpfm there
   sed -i 's/^LDFLAGS = -ldl -g -pthread$/& -lpfm/' components/rocm_smi/tests/Makefile
+  # The sde tests link libpapi.a, which holds the C++ intel_gpu code, with the C compiler, so add libpfm and libstdc++
+  sed -i 's/^\(\tLDFLAGS += -Llib .*\)$/\1 -lpfm -lstdc++/' components/sde/tests/Makefile
 }
 
 build() {
