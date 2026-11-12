@@ -1,0 +1,12 @@
+diff --git a/src/components/rocp_sdk/sdk_class.hpp b/src/components/rocp_sdk/sdk_class.hpp
+index 31d9582d..c5acb9a1 100644
+--- a/src/components/rocp_sdk/sdk_class.hpp
++++ b/src/components/rocp_sdk/sdk_class.hpp
+@@ -27,7 +27,6 @@ extern "C"
+ #include <cxxabi.h>
+ #include <atomic>
+ #include <cassert>
+-#include <chrono>
+ #include <cstddef>
+ #include <cstdint>
+ #include <cstdio>
