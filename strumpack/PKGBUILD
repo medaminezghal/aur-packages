@@ -37,7 +37,8 @@ source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         "$_mm/TKK/cbuckle.tar.gz"
         "$_mm/TOKAMAK/utm300.tar.gz"
         'hss-extract-empty-blocks.patch'
-        'deterministic-symmetrize.patch')
+        'deterministic-symmetrize.patch'
+        'gmres-verify-convergence.patch')
 sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             'ee6e2b85a8bd0f13bacd3ac8e16bc29b7548e99952143f1448fbf865d8cb4a2d'
             'eb7df6302572a0c5077ec0e1061670d7f5f42467408103bc849d4a1257512622'
@@ -51,7 +52,8 @@ sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             '81b3f63df8c30ca5c35c16b1cfca8c8f8195b8ceea2716865db499e8f23b1c68'
             '38ca1ca01b8e91a15559d6cad51f35cb9287207b61ad8698d39f34e9b6e6b226'
             'fed3b23167887d696260156d03f51d0404392223d32a31f0f7f59656ccd3244b'
-            'a0aab8a5c4cd28cbcb40b0be1552ff2cbb7ae6a457113170b1a0b24befbdf351')
+            'a0aab8a5c4cd28cbcb40b0be1552ff2cbb7ae6a457113170b1a0b24befbdf351'
+            '0664690ff2f640298ec8bb5503b174a9fe3089eeef149007318837f313ccbe58')
 
 prepare() {
   cd "$_name-$pkgver"
@@ -59,6 +61,8 @@ prepare() {
   patch -Np1 -i ../hss-extract-empty-blocks.patch
   # Sort the entries that pad the sparsity pattern, so the ordering no longer depends on the thread timing (random SPARSE_seq_27 and SPARSE_seq_77 failures)
   patch -Np1 -i ../deterministic-symmetrize.patch
+  # Check the recomputed residual before GMRES reports convergence, instead of trusting the Arnoldi estimate (wrong solutions accepted in SPARSE_mpi_2 and SPARSE_mpi_22)
+  patch -Np1 -i ../gmres-verify-convergence.patch
 }
 
 build() {
@@ -70,7 +74,7 @@ build() {
 check() {
   cd "$_name-$pkgver"
   ln -sf "$srcdir"/rdb968 "$srcdir"/cz10228 "$srcdir"/cavity16 "$srcdir"/bcsstk28 "$srcdir"/bcsstm08 "$srcdir"/gemat11 "$srcdir"/sherman4 "$srcdir"/t2dal "$srcdir"/mesh3e1 "$srcdir"/cbuckle "$srcdir"/utm300 build/test/
-  ctest --test-dir build --output-on-failure
+  SCOTCH_DETERMINISTIC=1 ctest --test-dir build --output-on-failure
 }
 
 package() {

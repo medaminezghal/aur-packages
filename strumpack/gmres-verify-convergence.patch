@@ -1,0 +1,42 @@
+Verify the convergence of GMRES. The inner loop stops as soon as the
+Arnoldi estimate of the residual meets the tolerance, without ever
+computing the residual. With an ill-conditioned preconditioner the
+estimate drifts away from the real residual, and GMRES reports
+convergence for a wrong solution (SPARSE_mpi_22: 10 iterations, 1% error;
+SPARSE_mpi_2: 19 iterations, 24% error). Only leave the outer loop after
+the recomputed residual meets the tolerance, otherwise restart.
+
+diff --git a/src/iterative/GMRes.cpp b/src/iterative/GMRes.cpp
+index e7fd4962..a0e4a552 100644
+--- a/src/iterative/GMRes.cpp
++++ b/src/iterative/GMRes.cpp
+@@ -130,7 +130,11 @@ namespace strumpack {
+                       << "\trel.res = " << std::setw(12)
+                       << rho/rho0 << std::endl;
+           if ((rho < atol) || (rho/rho0 < rtol) || (totit >= maxit)) {
+-            no_conv = false;
++            // rho is only the Arnoldi estimate of the residual, which
++            // drifts from the real one when the preconditioner is
++            // ill-conditioned: update x and let the start of the
++            // outer loop check the recomputed residual
++            if (totit >= maxit) no_conv = false;
+             nrit = it;
+             break;
+           }
+diff --git a/src/iterative/GMResMPI.cpp b/src/iterative/GMResMPI.cpp
+index a81dd98b..560ac193 100644
+--- a/src/iterative/GMResMPI.cpp
++++ b/src/iterative/GMResMPI.cpp
+@@ -140,7 +140,11 @@ namespace strumpack {
+                       << "\trel.res = " << std::setw(12)
+                       << rho/rho0 << std::endl;
+           if ((rho < atol) || (rho/rho0 < rtol) || (totit >= maxit)) {
+-            no_conv = false;
++            // rho is only the Arnoldi estimate of the residual, which
++            // drifts from the real one when the preconditioner is
++            // ill-conditioned: update x and let the start of the
++            // outer loop check the recomputed residual
++            if (totit >= maxit) no_conv = false;
+             nrit = it;
+             break;
+           }
