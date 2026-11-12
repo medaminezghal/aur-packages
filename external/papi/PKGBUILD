@@ -64,6 +64,8 @@ prepare() {
   sed -i 's/desc\.units\.pad,/desc.units.extraScale,/' components/pcp/linux-pcp.c
   # CUDA 13 added a CUctxCreateParams argument to cuCtxCreate
   sed -i 's/cuCtxCreate( *\(&\(([^)]*)\|\w*\)\), /cuCtxCreate(\1, NULL, /' components/cuda/tests/*.cu
+  # The nvml tests link libpapi.a without LDFLAGS, so add the system libpfm to their PAPILIB
+  sed -i 's|^PAPILIB := ../../../libpapi.a  -ldl$|& -lpfm|' components/nvml/tests/Makefile
 }
 
 build() {
