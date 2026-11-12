@@ -45,11 +45,19 @@ optdepends=('cuda: cuda and nvml components'
 
             'python: papi_hl_output_writer.py')
 options=('staticlibs')
-source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-${pkgver//./-}-t.tar.gz")
-sha256sums=('f806e77e8cd08a0d3e4c002d8a8d3fefc64840ff663c2ac46bd66398c779c6db')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-${pkgver//./-}-t.tar.gz"
+        'rocm7.patch'
+        'gcc16.patch')
+sha256sums=('f806e77e8cd08a0d3e4c002d8a8d3fefc64840ff663c2ac46bd66398c779c6db'
+            '69a1958dc01d794a25c6f3ee9fdea16cb2378d1c6266c893035ba3a8d61173e6'
+            '1d33ba5c623026bf4dbbfc1be7e7cfa2eba5df37ecf59bd51c569571b9a5c9a8')
 
 prepare() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  # Use the rocprofiler-sdk 1.x (ROCm 7) callback types in the rocp_sdk component (upstream commit 589c09de)
+  patch -Np2 -i ../../rocm7.patch
+  # Drop the unused <chrono> include, which breaks with GCC 16 after HIP's __noinline__ macro (upstream commit 0f522a4b)
+  patch -Np2 -i ../../gcc16.patch
   # Look for librocm_smi64.so in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
   sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
   # PCP 7 split pmUnits.pad into extraUnit and extraScale
