@@ -1,0 +1,78 @@
+# Maintainer: Alonso Rodríguez <alonso.rodriguez (at) udc.es>
+# Contributor: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: wuxb <wuxb45@gmail.com>
+# Contributor: eolianoe <eolianoe At GoogleMAIL DoT com>
+# Contributor: Jed Brown <jed@59A2.org>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=papi
+pkgver=7.2.0
+pkgrel=3
+pkgdesc="Performance Application Programming Interface"
+arch=('x86_64')
+url="https://github.com/icl-utk-edu/$pkgname"
+license=('BSD-3-Clause')
+depends=('glibc'
+         'libgcc'
+         'libstdc++'
+         'libpfm')
+makedepends=('gcc-fortran'
+             'cuda'
+             'hsa-rocr'
+             'rocprofiler'
+             'rocm-smi-lib'
+             'level-zero-headers'
+             'intel-metrics-discovery'
+             'lm_sensors'
+             'pcp')
+checkdepends=('nvidia-utils'
+              'hip-runtime-amd'
+              'rocblas'
+              'level-zero-loader')
+optdepends=('cuda: cuda and nvml components'
+            'nvidia-utils: cuda and nvml components'
+
+            'rocprofiler: rocp_sdk component'
+
+            'rocm-smi-lib: rocm_smi component'
+
+            'level-zero-loader: intel_gpu component'
+            'intel-metrics-discovery: intel_gpu component'
+
+            'lm_sensors: lmsensors component'
+
+            'pcp: pcp component'
+
+            'python: papi_hl_output_writer.py')
+options=('staticlibs')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-${pkgver//./-}-t.tar.gz")
+sha256sums=('f806e77e8cd08a0d3e4c002d8a8d3fefc64840ff663c2ac46bd66398c779c6db')
+
+prepare() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  # Look for librocm_smi64.so in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
+  sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
+}
+
+build() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  export CFLAGS="-fPIC -std=gnu17 $CFLAGS" PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
+  ./configure --prefix=/usr --mandir=/usr/share/man --with-perf-events --with-pfm-prefix=/usr --with-components="appio coretemp cuda infiniband intel_gpu io lmsensors lustre net nvml pcp powercap rapl rocm_smi rocp_sdk sde stealtime topdown"
+  make
+}
+
+check() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  export PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
+  make tests
+  make fulltest | tee fulltest.log
+  ! grep -q FAILED fulltest.log
+}
+
+package() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  install -d "$pkgdir"/usr/bin
+  make DESTDIR="$pkgdir" install
+  chmod 644 "$pkgdir"/usr/share/papi/papi_events.csv
+  install -Dm644 ../LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
