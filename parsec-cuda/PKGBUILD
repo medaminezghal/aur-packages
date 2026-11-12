@@ -51,6 +51,8 @@ prepare() {
   patch -Np1 -i ../use-python-build-installer.patch
   # Graphviz >= 3 gvRenderData() takes a size_t length
   sed -i 's/gvRenderData(\(gvc, [A-Za-z]*, "png", result\), length);/{ size_t len; gvRenderData(\1, \&len); *length = len; }/' tools/profiling/graph.c
+  # Point the Python tool symlinks in /usr/bin at /usr/libexec instead of the DESTDIR path
+  sed -i 's|create_symlink \\$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}|create_symlink ${CMAKE_INSTALL_PREFIX}|' tools/profiling/python/CMakeLists.txt
 }
 
 build() {
