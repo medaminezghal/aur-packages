@@ -77,7 +77,7 @@ optdepends=('python-authlib: oauth'
             'ruff: needed for custom component docs generation'
 
             'ffmpeg: audio/video processing')
-source=("$url/archive/refs/tags/$_name@$pkgver.tar.gz"
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_name@$pkgver.tar.gz"
         'httpx2.patch'
         'mcp-v2.patch')
 sha256sums=('5ba9320d4fe7ea9f8b0cfefe0b0ea67304bb14daf87e36c1f112b0e87d10df37'
