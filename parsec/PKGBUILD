@@ -34,6 +34,15 @@ optdepends=('python-pandas: read PaRSEC traces as tables'
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-$pkgver.tar.gz")
 sha256sums=('3f5750565b9f673626284dd0ba835dadea3633577fee50ac217baf43a335f2ef')
 
+prepare() {
+  cd "$pkgname-$pkgname-$pkgver"
+  # Pass size_t lengths to gvRenderData, as graphviz's API requires
+  sed -i 's/#define graph_h/#define graph_h\n\n#include <stddef.h>/' tools/profiling/graph.h
+  sed -i 's/char \*\*result, unsigned int \*length)/char **result, size_t *length)/' tools/profiling/graph.c tools/profiling/graph.h
+  sed -i 's/unsigned int len;/size_t len;/;s/unsigned int length;/size_t length;/' tools/profiling/dbp-dot2png.c
+  sed -i 's/unsigned int i, n, e, l;/unsigned int i, n, e;\n    size_t l;/' tools/profiling/testgraph.c
+}
+
 build() {
   cd "$pkgname-$pkgname-$pkgver"
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DPARSEC_DIST_WITH_MPI=ON -DPARSEC_GPU_WITH_LEVEL_ZERO=ON -DPARSEC_GPU_WITH_OPENCL=OFF -DPARSEC_GPU_ALLOC_PER_TILE=ON -DPARSEC_PROF_TRACE=ON -DPARSEC_PROF_TRACE_SYSTEM="PaRSEC Binary Tracing Format" -DPARSEC_PROF_PINS=ON -DPARSEC_PROF_GRAPHER=ON -DPARSEC_PROF_TRACE_SCHEDULING_EVENTS=ON -DPARSEC_PROF_TRACE_ACTIVE_ARENA_SET=ON -DPARSEC_PROF_TRACE_PTG_INTERNAL_INIT=ON -DPARSEC_PROF_RUSAGE_EU=ON -DBUILD_TESTING=ON -DPARSEC_GPU_WITH_CUDA=OFF -DPARSEC_GPU_WITH_HIP=OFF -Wno-dev
