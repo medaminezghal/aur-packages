@@ -1,0 +1,47 @@
+Return a value from every non-void usort function. par::partitionW(),
+par::sampleSort(), par::splitComm() and par::splitCommUsingSplittingRank()
+are declared int but fall off the end, which is undefined behaviour. GCC
+compiles it to a trap instruction, so every sort through
+SpParHelper::KeyValuePSort dies with SIGILL (Indexing_Test, SpAsgn_Test).
+Return 1, the success value the other usort functions use.
+
+diff --git a/usort/include/usort/parUtils.tcc b/usort/include/usort/parUtils.tcc
+index 8713956b..a8fb7b4f 100755
+--- a/usort/include/usort/parUtils.tcc
++++ b/usort/include/usort/parUtils.tcc
+@@ -810,6 +810,7 @@ return 1;
+       MPI_Barrier(comm);
+ #endif
+ 
++      return 1;
+     }//end function
+ 
+   /* Hari Notes ....
+@@ -1860,6 +1861,7 @@ if(comm!=new_comm)MPI_Comm_free(&new_comm);
+ #ifdef _PROFILE_SORT
+ 	 		total_sort.stop();
+ #endif
++      return 1;
+     }//end function
+ 
+   //------------------------------------------------------------------------
+diff --git a/usort/src/parUtils.cpp b/usort/src/parUtils.cpp
+index a44e79f4..de984c42 100755
+--- a/usort/src/parUtils.cpp
++++ b/usort/src/parUtils.cpp
+@@ -175,6 +175,7 @@ namespace par {
+     delete [] ranksIdle;
+     ranksIdle = NULL;
+ 
++    return 1;
+   }//end function
+ 
+   int splitCommUsingSplittingRank(int splittingRank, MPI_Comm* new_comm,
+@@ -219,6 +220,7 @@ namespace par {
+     delete [] ranksIdle;
+     ranksIdle = NULL;
+ 
++    return 1;
+   }//end function
+ 
+   //create Comm groups and remove empty processors...
