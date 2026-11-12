@@ -1,0 +1,122 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgbase=parsec
+pkgname=(parsec parsec-cuda parsec-rocm)
+pkgver=4.0.2411
+pkgrel=1
+pkgdesc="Generic framework for architecture aware scheduling and management of micro-tasks on distributed many-core heterogeneous architectures"
+arch=('x86_64')
+url="https://github.com/ICLDisco/$pkgbase"
+license=('BSD-3-Clause-Open-MPI')
+makedepends=('cmake'
+             'gcc-fortran'
+             'bison'
+             'flex'
+             'perl'
+             'python'
+             'python-pip'
+             'python-setuptools'
+             'cython'
+             'hwloc'
+             'openmpi'
+             'papi'
+             'graphviz'
+             'gd'
+             'libxml2'
+             'valgrind'
+             'level-zero-headers'
+             'level-zero-loader'
+             'cuda'
+             'hip-runtime-amd')
+source=("$pkgbase-$pkgver.tar.gz::$url/archive/refs/tags/$pkgbase-$pkgver.tar.gz")
+sha256sums=('3f5750565b9f673626284dd0ba835dadea3633577fee50ac217baf43a335f2ef')
+
+_build() {
+  cmake -S . -B "$1" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON -DPARSEC_DIST_WITH_MPI=ON -DPARSEC_GPU_WITH_LEVEL_ZERO=ON -DPARSEC_GPU_WITH_OPENCL=OFF -DPARSEC_GPU_ALLOC_PER_TILE=ON -DPARSEC_PROF_TRACE=ON -DPARSEC_PROF_TRACE_SYSTEM="PaRSEC Binary Tracing Format" -DPARSEC_PROF_PINS=ON -DPARSEC_PROF_GRAPHER=ON -DPARSEC_PROF_TRACE_SCHEDULING_EVENTS=ON -DPARSEC_PROF_TRACE_ACTIVE_ARENA_SET=ON -DPARSEC_PROF_TRACE_PTG_INTERNAL_INIT=ON -DPARSEC_PROF_RUSAGE_EU=ON -Wno-dev "${@:2}"
+  cmake --build "$1"
+}
+
+build() {
+  cd "$pkgbase-$pkgbase-$pkgver"
+  _build build -DPARSEC_GPU_WITH_CUDA=OFF -DPARSEC_GPU_WITH_HIP=OFF
+  _build build-cuda -DPARSEC_GPU_WITH_CUDA=ON -DPARSEC_GPU_WITH_HIP=OFF -DCUDAToolkit_ROOT=/opt/cuda
+  _build build-rocm -DPARSEC_GPU_WITH_CUDA=OFF -DPARSEC_GPU_WITH_HIP=ON -DCMAKE_PREFIX_PATH=/opt/rocm
+}
+
+check() {
+  cd "$pkgbase-$pkgbase-$pkgver"
+  export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
+  ctest --test-dir build --output-on-failure
+  ctest --test-dir build-cuda --output-on-failure
+  ctest --test-dir build-rocm --output-on-failure
+}
+
+_package() {
+  DESTDIR="$pkgdir" cmake --install "$1"
+  install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_parsec() {
+  depends=('glibc'
+           'libgcc'
+           'libgfortran'
+           'libstdc++'
+           'hwloc'
+           'openmpi'
+           'papi'
+           'graphviz'
+           'gd'
+           'libxml2'
+           'level-zero-loader'
+           'python')
+  optdepends=('python-pandas: read PaRSEC traces as tables'
+              'python-pytables: convert PaRSEC traces to HDF5')
+  cd "$pkgbase-$pkgbase-$pkgver"
+  _package build
+}
+
+package_parsec-cuda() {
+  pkgdesc+=" (with CUDA)"
+  depends=('glibc'
+           'libgcc'
+           'libgfortran'
+           'libstdc++'
+           'hwloc'
+           'openmpi'
+           'papi'
+           'graphviz'
+           'gd'
+           'libxml2'
+           'level-zero-loader'
+           'python'
+           'cuda')
+  optdepends=('python-pandas: read PaRSEC traces as tables'
+              'python-pytables: convert PaRSEC traces to HDF5')
+  provides=("parsec=$pkgver")
+  conflicts=('parsec')
+  cd "$pkgbase-$pkgbase-$pkgver"
+  _package build-cuda
+}
+
+package_parsec-rocm() {
+  pkgdesc+=" (with ROCm)"
+  depends=('glibc'
+           'libgcc'
+           'libgfortran'
+           'libstdc++'
+           'hwloc'
+           'openmpi'
+           'papi'
+           'graphviz'
+           'gd'
+           'libxml2'
+           'level-zero-loader'
+           'python'
+           'hip-runtime-amd')
+  optdepends=('python-pandas: read PaRSEC traces as tables'
+              'python-pytables: convert PaRSEC traces to HDF5')
+  provides=("parsec=$pkgver")
+  conflicts=('parsec')
+  cd "$pkgbase-$pkgbase-$pkgver"
+  _package build-rocm
+}
