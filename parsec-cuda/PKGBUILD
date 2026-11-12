@@ -38,6 +38,12 @@ conflicts=('parsec')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_name-$pkgver.tar.gz")
 sha256sums=('3f5750565b9f673626284dd0ba835dadea3633577fee50ac217baf43a335f2ef')
 
+prepare() {
+  cd "$_name-$_name-$pkgver"
+  # Graphviz >= 3 gvRenderData() takes a size_t length
+  sed -i 's/gvRenderData(\(gvc, [A-Za-z]*, "png", result\), length);/{ size_t len; gvRenderData(\1, \&len); *length = len; }/' tools/profiling/graph.c
+}
+
 build() {
   cd "$_name-$_name-$pkgver"
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DPARSEC_DIST_WITH_MPI=ON -DPARSEC_GPU_WITH_LEVEL_ZERO=ON -DPARSEC_GPU_WITH_OPENCL=OFF -DPARSEC_GPU_ALLOC_PER_TILE=ON -DPARSEC_PROF_TRACE=ON -DPARSEC_PROF_TRACE_SYSTEM="PaRSEC Binary Tracing Format" -DPARSEC_PROF_PINS=ON -DPARSEC_PROF_GRAPHER=ON -DPARSEC_PROF_TRACE_SCHEDULING_EVENTS=ON -DPARSEC_PROF_TRACE_ACTIVE_ARENA_SET=ON -DPARSEC_PROF_TRACE_PTG_INTERNAL_INIT=ON -DPARSEC_PROF_RUSAGE_EU=ON -DBUILD_TESTING=OFF -DPARSEC_GPU_WITH_CUDA=ON -DPARSEC_GPU_WITH_HIP=OFF -DCUDAToolkit_ROOT=/opt/cuda -Wno-dev
