@@ -103,6 +103,8 @@ prepare(){
   sed -i 's/"server": server, "path": path}/"server": server, "path": path.split("?")[0], "query_string": path.partition("?")[2].encode()}/' test/test_routes.py
   # Python 3.14 reads files with a bigger buffer, so the file must be larger than it for the truncation to be seen
   sed -i 's/RangedFileResponse.chunk_size \* 4)/RangedFileResponse.chunk_size * 64)/' test/test_ranged_response.py
+  # @gradio/model3d lives in js/model3D: find the package folder case-insensitively (WorkflowCanvas template)
+  sed -i 's|Path(local_js_dir / name.split("/")\[1\] / "package.json")|Path(next(d for d in local_js_dir.iterdir() if d.name.lower() == name.split("/")[1]) / "package.json")|' gradio/cli/commands/components/_create_utils.py
 }
 
 build() {
