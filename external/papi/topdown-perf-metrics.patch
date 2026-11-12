@@ -1,0 +1,24 @@
+diff --git a/src/components/topdown/topdown.c b/src/components/topdown/topdown.c
+index c961e1d..9c39720 100644
+--- a/src/components/topdown/topdown.c
++++ b/src/components/topdown/topdown.c
+@@ -395,6 +395,19 @@ _topdown_init_component(int cidx)
+ 		}
+ 	}
+ 
++	/* The kernel only exposes the slots event when the PMU really has PERF_METRICS, */
++	/* which is not the case in most virtual machines even on a supported model */
++	if (access("/sys/bus/event_source/devices/cpu/events/slots", F_OK) != 0 &&
++	    access("/sys/bus/event_source/devices/cpu_core/events/slots", F_OK) != 0)
++	{
++		strCpy = strncpy(_topdown_vector.cmp_info.disabled_reason,
++						 "PERF_METRICS not available (no slots event in sysfs)", PAPI_MAX_STR_LEN);
++		_topdown_vector.cmp_info.disabled_reason[PAPI_MAX_STR_LEN - 1] = 0;
++		if (strCpy == NULL)
++			HANDLE_STRING_ERROR;
++		retval = PAPI_ENOSUPP;
++		goto fn_fail;
++	}
+ 	/* if there is a core type requirement for this platform, check it */
+ 	if (!active_core_type_is(required_core_type) && required_core_type != INTEL_CORE_TYPE_HOMOGENEOUS) {
+ 		core_type_to_name(required_core_type, typeStr);
