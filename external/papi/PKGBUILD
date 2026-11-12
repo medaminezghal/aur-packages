@@ -32,8 +32,7 @@ checkdepends=('nvidia-utils'
 optdepends=('cuda: cuda and nvml components'
             'nvidia-utils: cuda and nvml components'
 
-            'rocprofiler: rocm component'
-            'hsa-rocr: rocm component'
+            'rocprofiler: rocp_sdk component'
 
             'rocm-smi-lib: rocm_smi component'
 
@@ -51,22 +50,22 @@ sha256sums=('f806e77e8cd08a0d3e4c002d8a8d3fefc64840ff663c2ac46bd66398c779c6db')
 
 prepare() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
-  # Look for the ROCm libraries in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
-  sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm/roc_common.c components/rocm/roc_profiler.c components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
+  # Look for librocm_smi64.so in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
+  sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
   # PCP 7 split pmUnits.pad into extraUnit and extraScale
   sed -i 's/desc\.units\.pad,/desc.units.extraScale,/' components/pcp/linux-pcp.c
 }
 
 build() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
-  export CFLAGS="-fPIC -std=gnu17 $CFLAGS" PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
-  ./configure --prefix=/usr --mandir=/usr/share/man --with-perf-events --with-pfm-prefix=/usr --with-components="appio coretemp cuda infiniband intel_gpu io lmsensors lustre net nvml pcp powercap rapl rocm rocm_smi sde stealtime topdown"
+  export CFLAGS="-fPIC -std=gnu17 $CFLAGS" PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
+  ./configure --prefix=/usr --mandir=/usr/share/man --with-perf-events --with-pfm-prefix=/usr --with-components="appio coretemp cuda infiniband intel_gpu io lmsensors lustre net nvml pcp powercap rapl rocm_smi rocp_sdk sde stealtime topdown"
   make all
 }
 
 check() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
-  export PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
+  export PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
   make tests
   make fulltest | tee fulltest.log
   ! grep -q FAILED fulltest.log
