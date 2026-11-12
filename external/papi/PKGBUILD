@@ -62,6 +62,8 @@ prepare() {
   sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
   # PCP 7 split pmUnits.pad into extraUnit and extraScale
   sed -i 's/desc\.units\.pad,/desc.units.extraScale,/' components/pcp/linux-pcp.c
+  # CUDA 13 added a CUctxCreateParams argument to cuCtxCreate
+  sed -i 's/cuCtxCreate( *\(&\(([^)]*)\|\w*\)\), /cuCtxCreate(\1, NULL, /' components/cuda/tests/*.cu
 }
 
 build() {
