@@ -1,0 +1,47 @@
+Stop the AWPM Phase2 scans at the end of recvTuples. The loops that walk
+the tuples of one column (`std::get<0>(recvTuples[idx1]) == mi`) have no
+bounds check, so after the last column they read recvTuples[size()]. That
+is out of bounds, and _GLIBCXX_ASSERTIONS aborts on it: STRUMPACK's
+SPARSE_mpi_CombBLAS test (matching job 6, GetAWPM) aborted in
+CSRMatrixMPI::matching.
+
+diff --git a/Applications/BipartiteMatchings/ApproxWeightPerfectMatching.h b/Applications/BipartiteMatchings/ApproxWeightPerfectMatching.h
+index 745558ba..ed4f98c4 100644
+--- a/Applications/BipartiteMatchings/ApproxWeightPerfectMatching.h
++++ b/Applications/BipartiteMatchings/ApproxWeightPerfectMatching.h
+@@ -600,7 +600,7 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
+                 IT idx1 = k;
+                 IT idx2 = colptr[lcol];
+                 
+-                for(; std::get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
++                for(; idx1 < static_cast<IT>(recvTuples.size()) && std::get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
+                 {
+                     
+                     IT mj = std::get<1>(recvTuples[idx1]) ;
+@@ -627,7 +627,7 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
+                         idx2 ++;
+                 }
+                 
+-                for(;std::get<0>(recvTuples[idx1]) == mi ; idx1++);
++                for(; idx1 < static_cast<IT>(recvTuples.size()) && std::get<0>(recvTuples[idx1]) == mi ; idx1++);
+                 k = idx1;
+              
+         }
+@@ -671,7 +671,7 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
+             IT idx1 = k;
+             IT idx2 = colptr[lcol];
+             
+-            for(; std::get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
++            for(; idx1 < static_cast<IT>(recvTuples.size()) && std::get<0>(recvTuples[idx1]) == mi && idx2 < colptr[lcol+1];) //**
+             {
+                 
+                 IT mj = std::get<1>(recvTuples[idx1]) ;
+@@ -712,7 +712,7 @@ std::vector< std::tuple<IT,IT,IT,NT> > Phase2(const AWPM_param<IT>& param, std::
+                     idx2 ++;
+             }
+             
+-            for(;std::get<0>(recvTuples[idx1]) == mi ; idx1++);
++            for(; idx1 < static_cast<IT>(recvTuples.size()) && std::get<0>(recvTuples[idx1]) == mi ; idx1++);
+             k = idx1;
+         }
+         
