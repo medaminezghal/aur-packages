@@ -20,7 +20,8 @@ depends=('glibc'
          'metis'
          'parmetis'
          'scotch'
-         'zfp')
+         'zfp'
+         'combblas')
 makedepends=('cmake'
              'gcc-fortran')
 _mm='https://www.cise.ufl.edu/research/sparse/MM'
@@ -63,7 +64,7 @@ prepare() {
 
 build() {
   cd "$_name-$pkgver"
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DSTRUMPACK_USE_MPI=ON -DSTRUMPACK_USE_OPENMP=ON -DTPL_ENABLE_PARMETIS=ON -DTPL_ENABLE_SCOTCH=ON -DTPL_ENABLE_PTSCOTCH=ON -DTPL_ENABLE_ZFP=ON -DTPL_ENABLE_SLATE=OFF -DTPL_ENABLE_BPACK=OFF -DTPL_SCALAPACK_LIBRARIES=/usr/lib/libscalapack.so -Wno-dev
+  COMBBLASAPP_DIR=/usr/include/CombBLAS/Applications cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DSTRUMPACK_USE_MPI=ON -DSTRUMPACK_USE_OPENMP=ON -DTPL_ENABLE_PARMETIS=ON -DTPL_ENABLE_SCOTCH=ON -DTPL_ENABLE_PTSCOTCH=ON -DTPL_ENABLE_ZFP=ON -DTPL_ENABLE_COMBBLAS=ON -DTPL_ENABLE_SLATE=OFF -DTPL_ENABLE_BPACK=OFF -DTPL_SCALAPACK_LIBRARIES=/usr/lib/libscalapack.so -Wno-dev
   cmake --build build
 }
 
