@@ -41,14 +41,18 @@ optdepends=('python-pandas: read PaRSEC traces as tables'
 provides=("parsec=$pkgver")
 conflicts=('parsec')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_name-$pkgver.tar.gz"
-        'use-python-build-installer.patch')
+        'use-python-build-installer.patch'
+        'cuda-13.patch')
 sha256sums=('3f5750565b9f673626284dd0ba835dadea3633577fee50ac217baf43a335f2ef'
-            '602834fbc4ca080af6e31ca942301b89ae0d33089421bc9f9ce70b81d004e170')
+            '602834fbc4ca080af6e31ca942301b89ae0d33089421bc9f9ce70b81d004e170'
+            '7d4cbc862015310a4a9831a9275889b13f02ebfd1e1ea008af1ceafd07186f1e')
 
 prepare() {
   cd "$_name-$_name-$pkgver"
   # Build and install the pbt2ptt Python module with python-build and python-installer instead of pip
   patch -Np1 -i ../use-python-build-installer.patch
+  # CUDA 13 removed clockRate, computeMode and memoryClockRate from cudaDeviceProp (upstream commit 658ff5ed)
+  patch -Np1 -i ../cuda-13.patch
   # Graphviz >= 3 gvRenderData() takes a size_t length
   sed -i 's/gvRenderData(\(gvc, [A-Za-z]*, "png", result\), length);/{ size_t len; gvRenderData(\1, \&len); *length = len; }/' tools/profiling/graph.c
   # Point the Python tool symlinks in /usr/bin at /usr/libexec instead of the DESTDIR path
