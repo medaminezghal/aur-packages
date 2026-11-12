@@ -48,11 +48,15 @@ options=('staticlibs')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-${pkgver//./-}-t.tar.gz"
         'rocm7.patch'
         'gcc16.patch'
-        'net-test.patch')
+        'net-test.patch'
+        'lmsensors-no-sensors.patch'
+        'topdown-perf-metrics.patch')
 sha256sums=('f806e77e8cd08a0d3e4c002d8a8d3fefc64840ff663c2ac46bd66398c779c6db'
             '69a1958dc01d794a25c6f3ee9fdea16cb2378d1c6266c893035ba3a8d61173e6'
             '1d33ba5c623026bf4dbbfc1be7e7cfa2eba5df37ecf59bd51c569571b9a5c9a8'
-            'a37cb1fcfa3d57028440d47f3a98de9b3212cf5c58d1f049afeb793894200b83')
+            'a37cb1fcfa3d57028440d47f3a98de9b3212cf5c58d1f049afeb793894200b83'
+            '269aa4b3d10445fd378bcd56081e66281b9c4bacbe8890736ccf3dbc1a8de497'
+            '45c0096eff5540b1dee4119e1f7c3073c712c79240ede477fe482072601606f2')
 
 prepare() {
   cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
@@ -62,6 +66,10 @@ prepare() {
   patch -Np2 -i ../../gcc16.patch
   # Add the net events to net_values_by_name by their full names instead of the unqualified lo:rx:bytes names (upstream commit a23a07e8)
   patch -Np2 -i ../../net-test.patch
+  # Disable the lmsensors component when no sensors are found instead of exposing a bogus event 0
+  patch -Np2 -i ../../lmsensors-no-sensors.patch
+  # Disable the topdown component when the kernel doesn't expose PERF_METRICS (no slots event), e.g. in VMs
+  patch -Np2 -i ../../topdown-perf-metrics.patch
   # Look for librocm_smi64.so in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
   sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
   # PCP 7 split pmUnits.pad into extraUnit and extraScale
