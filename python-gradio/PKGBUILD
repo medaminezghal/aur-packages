@@ -87,6 +87,8 @@ sha256sums=('5ba9320d4fe7ea9f8b0cfefe0b0ea67304bb14daf87e36c1f112b0e87d10df37'
 
 prepare(){
   cd "$_name-$_name-$pkgver"
+  # Use the hatchling and hatch plugin versions shipped by Arch
+  sed -i '/^requires = \[/,/\]/s/"\([^"<>=!~]*\)[<>=!~][^"]*"/"\1"/' pyproject.toml
   # Move from httpx to httpx2, needed by safehttpx 0.2.0 (backport of upstream eb54503, #13920)
   patch -Np1 -i ../httpx2.patch
   # Port the MCP integration and its tests to mcp 2 (backport of upstream ee4d8a8, #13921)
