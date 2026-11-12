@@ -36,11 +36,8 @@ sha256sums=('3f5750565b9f673626284dd0ba835dadea3633577fee50ac217baf43a335f2ef')
 
 prepare() {
   cd "$pkgname-$pkgname-$pkgver"
-  # Pass size_t lengths to gvRenderData, as graphviz's API requires
-  sed -i 's/#define graph_h/#define graph_h\n\n#include <stddef.h>/' tools/profiling/graph.h
-  sed -i 's/char \*\*result, unsigned int \*length)/char **result, size_t *length)/' tools/profiling/graph.c tools/profiling/graph.h
-  sed -i 's/unsigned int len;/size_t len;/;s/unsigned int length;/size_t length;/' tools/profiling/dbp-dot2png.c
-  sed -i 's/unsigned int i, n, e, l;/unsigned int i, n, e;\n    size_t l;/' tools/profiling/testgraph.c
+  # Graphviz >= 3 gvRenderData() takes a size_t length
+  sed -i 's/gvRenderData(\(gvc, [A-Za-z]*, "png", result\), length);/{ size_t len; gvRenderData(\1, \&len); *length = len; }/' tools/profiling/graph.c
 }
 
 build() {
