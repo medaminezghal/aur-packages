@@ -1,0 +1,56 @@
+# Maintainer: Anton Kudelin <kudelin at protonmail dot com>
+# Contributor: Christian Pfeiffer <cpfeiffer at live de>
+# Contributor: Michael Straube <straubem gmx de>
+# Contributor: xantares <xantares09 at hotmail dot com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name=CombBLAS
+pkgname=combblas
+pkgver=2.0.0
+pkgrel=2
+pkgdesc="A library offering a set of linear algebra primitives for graph analytics"
+arch=('x86_64')
+url="https://github.com/PASSIONLab/$_name"
+license=('BSD-3-Clause-LBNL')
+depends=('glibc'
+         'libgcc'
+         'libgomp'
+         'libstdc++'
+         'openmpi')
+makedepends=('cmake')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+        "https://people.eecs.berkeley.edu/~aydin/CombBLAS_FILES/testdata_combblas1.6.1.tgz"
+        'usort-missing-returns.patch'
+        'usort-vector-end-pointers.patch')
+sha256sums=('632a94201a042a2a9aa86803f50ee38b7bf0aa1cfef6ba0eb34ea4007f79a679'
+            '07d5683d8435bf1ae6febbf0021203fd23570bbab9c56affe1dc0dcf023ac207'
+            '23b38ac5933b9c08ab03d78b0ba97fb7dc4e181ead8f3d59818080d8ff13e548'
+            '4f4f07a49904e6360f48618e91d8eeb4dad3c31ced4a0cdc8b854fefcfd3b57c')
+
+prepare() {
+  cd "$_name-$pkgver"
+  # Return from the non-void usort functions that fall off the end (GCC traps there, SIGILL in Indexing_Test and SpAsgn_Test)
+  patch -Np1 -i ../usort-missing-returns.patch
+  # Take std::vector element addresses with data() instead of &v[i] (out-of-bounds indexes that _GLIBCXX_ASSERTIONS aborts on in Indexing_Test and SpAsgn_Test)
+  patch -Np1 -i ../usort-vector-end-pointers.patch
+}
+
+build() {
+  cd "$_name-$pkgver"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DBUILD_TESTING=ON -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "$_name-$pkgver"
+  ln -sfn "$srcdir"/TESTDATA build/TESTDATA
+  PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "$_name-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 Applications/*.h -t "$pkgdir"/usr/include/$_name/Applications/
+  install -Dm644 Applications/BipartiteMatchings/*.h -t "$pkgdir"/usr/include/$_name/Applications/BipartiteMatchings/
+}
