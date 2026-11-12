@@ -53,7 +53,8 @@ package_paraview-sz3-plugin() {
            'zstd'
            'paraview')
   cd "$_name-$pkgver"
-  install -d "$pkgdir"/usr/lib
-  cp -a build/install/usr/lib/paraview "$pkgdir"/usr/lib/
+  install -d "$pkgdir"/usr/lib "$pkgdir"/usr/include
+  cp -a build/install/usr/lib/paraview build/install/usr/lib/libvtkSZ3ReaderCS.a "$pkgdir"/usr/lib/
+  cp -a build/install/usr/include/paraview_plugins build/install/usr/include/paraview_plugins.h "$pkgdir"/usr/include/
   install -Dm644 copyright-and-BSD-license.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
