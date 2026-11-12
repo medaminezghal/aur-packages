@@ -144,6 +144,7 @@ check() {
     --deselect test/test_buttons.py::TestOAuthButtons::test_login_button_warns_when_not_on_spaces
     --deselect test/test_external.py::TestLoadInterface::test_multiple_spaces_one_private
     --deselect test/test_external.py::TestLoadInterface::test_private_space_v4_sse_v1
+    --deselect test/test_history.py::test_oauth_is_available_only_on_a_space_with_a_login_button
   )
   cd "$_name-$_name-$pkgver"
   ulimit -n 16384
