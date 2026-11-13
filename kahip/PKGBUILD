@@ -9,14 +9,14 @@ pkgdesc="Karlsruhe HIGH Quality Partitioning"
 arch=('x86_64')
 url="https://github.com/KaHIP/KaHIP"
 license=('MIT' 'BSD-3-Clause')
-depends=('glibc'
+depends=('python'
+         'glibc'
          'gperftools'
          'libgcc'
          'libgomp'
          'libstdc++'
          'metis'
-         'openmpi'
-         'python')
+         'openmpi')
 makedepends=('cmake'
              'pybind11')
 options=(!lto)
