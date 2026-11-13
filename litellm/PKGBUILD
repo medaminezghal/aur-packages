@@ -5,7 +5,7 @@
 # Contributor: Sir-Photch <sir-photch@posteo.me>
 
 pkgname=litellm
-pkgver=1.106.5
+pkgver=1.109.1
 pkgrel=1
 pkgdesc='Library to easily interface with LLM API providers.'
 arch=('x86_64' 'aarch64')
@@ -27,6 +27,7 @@ depends=('python'
          'python-click'
          'python-jinja'
          'python-aiohttp'
+         'python-anyio'
          'python-pydantic'
          'python-pydantic-settings'
          'python-jsonschema'
@@ -92,8 +93,6 @@ optdepends=('gunicorn: proxy'
             
             'python-numpydoc: utils'
             
-            'python-diskcache: caching'
-
             'python-mcp: mcp'
             'python-httpx2: mcp'
             'python-pydantic: mcp'
@@ -144,11 +143,12 @@ optdepends=('gunicorn: proxy'
 provides=("python-${pkgname}")
 options=(!lto !strip)
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('1290b46a0d4458944ba3b448fb09b928276b82a04487d6ba2457a20f3793a120')
+sha256sums=('008277b20c6404c7c1a24d2e1bb739cc091c1ff56e2ddf9efe5865ac0704729f')
 
 prepare() {
   cd "$pkgname-$pkgver"
-  sed -i 's/maturin==[0-9.]*/maturin/g' pyproject.toml
+  # Use the maturin version shipped by Arch
+  sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml
 }
 
 build() {

@@ -1,0 +1,30 @@
+diff --git a/src/components/lmsensors/linux-lmsensors.c b/src/components/lmsensors/linux-lmsensors.c
+index 72e9911..de488cf 100644
+--- a/src/components/lmsensors/linux-lmsensors.c
++++ b/src/components/lmsensors/linux-lmsensors.c
+@@ -311,6 +311,13 @@ _lmsensors_init_component( int cidx )
+     num_events = detectSensors(  );
+     SUBDBG("Found %d sensors\n",num_events);
+ 
++    if ( num_events <= 0 ) {
++       strncpy(_lmsensors_vector.cmp_info.disabled_reason,
++	      "No sensors found",PAPI_MAX_STR_LEN);
++       res = PAPI_ENOSUPP;
++       goto fn_fail;
++    }
++
+     _lmsensors_vector.cmp_info.num_mpx_cntrs = num_events;
+     _lmsensors_vector.cmp_info.num_cntrs = num_events;
+ 
+@@ -672,9 +679,10 @@ _lmsensors_ntv_code_to_name( unsigned int EventCode, char *name, int len )
+ 
+ 	if (index>=0 && index<num_events) {
+ 	   strncpy( name, lm_sensors_native_table[index].name, len );
++	   return PAPI_OK;
+ 	}
+ 
+-	return PAPI_OK;
++	return PAPI_ENOEVNT;
+ }
+ 
+ /*

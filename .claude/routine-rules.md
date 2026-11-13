@@ -20,7 +20,7 @@ run after it is merged.
 - python-groq / python-spitch: apply the mock-server check() convention
   (Layout conventions) on their next update PR.
 
-- Dot folders (`.<pkgname>/`, e.g. `.gklib`, `.python-pyglet`): AUR-only dependencies that other people maintain on the AUR, kept here so the `[aur-packages]` pacman repo can serve them. The leading dot is intentional: they go through every workflow except publish-to-aur.yml. Never rename or move a dot folder to a normal name (that would make publish-to-aur push to someone else's AUR package); only the owner does that, e.g. after becoming co-maintainer. Their `pkgrel` continues from the AUR package's (bump it above the AUR's), so a value above 1 on a new dot package is intended. Branch/title use the name without the dot: `bump/add-<pkgname>` + `Add <pkgname> package`.
+- `external/` folder (`external/<pkgname>/`, e.g. `external/gklib`, `external/metis`): AUR-only dependencies that other people maintain on the AUR, kept here so the `[aur-packages]` pacman repo can serve them. Add only hard dependencies (`depends`) of packages already in `[aur-packages]`, never a checkdepends one. They go through every workflow except publish-to-aur.yml. Never move a package out of `external/` (that would make publish-to-aur push to someone else's AUR package); only the owner does that, e.g. after becoming co-maintainer. Their `pkgrel` continues from the AUR package's (bump it above the AUR's), so a value above 1 on a new `external/` package is intended. Branch/title use the name without `external/`: `bump/add-<pkgname>` + `Add <pkgname> package`.
 
 ## Dependency rules (apply to every PR you touch, including new-version bump PRs)
 Read upstream's metadata at EXACTLY the packaged version/tag/commit (clone the tag, don't use main — main can differ a lot from the latest release). Also read how the source and tests actually use each dependency before adding or keeping it.
@@ -71,10 +71,16 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
    - Re-check on every PR you touch for that package: if upstream adds new uses the stdlib doesn't cover, or a sed no longer matches, fix the sed or restore the package, and tell the owner in the PR comment.
    - Backport packages (rule 1 class b) keep their own rule: they are removed without patching when nothing imports them on $ARCH_PY.
    Known replacements: `zstd` (python-zstd) → `compression.zstd` (Python >= 3.14), used by python-pyqwest's tests.
+13. Build-system constraints: ALWAYS remove the version constraints of every entry in upstream's `[build-system] requires`, in prepare(), whether or not the version Arch ships meets them. Never keep a constraint because Arch currently satisfies it, and never wait for Arch to catch up.
+   - Do it for every pyproject.toml the PKGBUILD builds, including extra sources built in build() (e.g. pyvoy in python-pyqwest, after its `git checkout`).
+   - Restrict the sed to the `requires = ` line (or the `/^requires = \[/,/\]/` range when the list spans several lines), so constraints elsewhere (dev groups, extras) stay untouched, and match any constraint instead of the current literal one, so the sed survives version bumps: `sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml`. One sed per line, all the files it edits on that same line.
+   - Comment above it: `# Use the <backend> version shipped by Arch` (e.g. `# Use the maturin version shipped by Arch`).
+   - Add it in the next PR you open or touch for the package (bumps and fix PRs alike), never in a separate cleanup PR; existing seds that match only a literal constraint (e.g. `uv_build>=0.13.0,<0.14.0`) are converted to the generic form in that same PR. Commit "Fix build".
+   - If the build then really fails because Arch's version lacks something upstream needs, don't patch around it: comment the exact error on the PR for the owner (rule 8 style).
 
 ## Layout conventions
 - PKGBUILD layout (new packages and every PR you touch, in an "Update syntax" commit):
-  * Header: keep every existing Maintainer/Contributor line, add the owner's line `# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>` after them (always `Maintainer`, never `Contributor`, also in dot folders), then ONE empty line.
+  * Header: keep every existing Maintainer/Contributor line, add the owner's line `# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>` after them (always `Maintainer`, never `Contributor`, also in `external/`), then ONE empty line.
   * Variables in the ArchWiki PKGBUILD order (https://wiki.archlinux.org/title/PKGBUILD), with NO empty lines between them: pkgbase, pkgname, pkgver, pkgrel, epoch, pkgdesc, arch, url, license, groups, depends, makedepends, checkdepends, optdepends, provides, conflicts, replaces, backup, options, install, changelog, source, noextract, validpgpkeys, checksums. Helper variables (`_name`, `_repo`) go right before the variable that first uses them.
   * Name variable is `_name` (the upstream name, unquoted: `_name=tokenizers`), `pkgname=python-$_name`; for split packages `_name0`, `_name1`, ... and `pkgbase=python-$_name0` (python-fastmcp is the reference). Not `_module`, `_pkgname`, `_base`, `_srcname`, `_pkgsrc`.
   * A package with one pkgname uses `package()` and top-level `depends`/`optdepends`, not `package_<name>()`.
@@ -132,3 +138,4 @@ Determine the Python version Arch currently ships: `curl -s "https://archlinux.o
 - (j) The source follows the Sources rules (tarball by default; git only for a stated rule-3 reason, with `git clean -dfx` in prepare()), and build()/check() were dry-run from it.
 - (k) A license file is installed exactly when the License files rule needs it, right after the package install line.
 - (l) Every dependency was checked for a rule-12 stdlib replacement, and every existing replacement sed still matches at the new tag.
+- (m) Every `[build-system] requires` constraint is removed in prepare() with a generic rule-13 sed (extra built sources included).

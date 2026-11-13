@@ -1,7 +1,7 @@
 # my-aur-packages
 This a repository which will hold the packages sources: PKGBUILD, patches...
 
-## Pacman repository
+## pacman repository
 
 Every package added or updated on `main` is built and published to a signed pacman repository hosted on the [`repo` release](../../releases/tag/repo). The build check adds it before building, so dependencies maintained here are installed prebuilt instead of being built from source.
 
