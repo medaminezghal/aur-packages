@@ -12,8 +12,7 @@ license=('MIT')
 depends=('python')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name-v$pkgver.tar.gz")
 sha256sums=('7f6ab0e3b1c4f936934c41802363b7b1eb398a863401746550619048a47b7944')
 
