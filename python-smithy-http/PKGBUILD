@@ -19,14 +19,18 @@ checkdepends=('python-pytest'
               'python-freezegun'
               'python-awscrt'
               'python-smithy-cbor'
+              'python-smithy-json'
+              'python-smithy-aws-event-stream'
               'python-aiohttp'
               'python-yarl'
-              'python-urllib3'
-              'python-smithy-json'
-              'python-smithy-aws-event-stream')
+              'python-urllib3')
 optdepends=('python-awscrt: awscrt'
 
             'python-smithy-cbor: cbor'
+
+            'python-smithy-json: json'
+
+            'python-smithy-aws-event-stream: eventstream'
 
             'python-aiohttp: aiohttp'
             'python-yarl: aiohttp'
