@@ -7,7 +7,7 @@ pkgrel=1
 pkgdesc='XML serialization and deserialization support for Smithy tooling.'
 arch=('any')
 _repo='https://github.com/smithy-lang/smithy-python'
-url="$_repo/tree/develop/packages/smithy-xml"
+url="$_repo/tree/develop/packages/$_name"
 license=('Apache-2.0')
 depends=('python'
          'python-smithy-core')
