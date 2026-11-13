@@ -24,7 +24,7 @@ source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
 sha256sums=('aab786da291e22ddcf2fcca82cbc3aaa51615ba8bb2ddea2b24adfa73fa5145d')
 
 build() {
-  cd "$srcdir"/$_name/packages/$_name
+  cd "$_name/packages/$_name"
   python -m build --wheel --no-isolation
 }
 
@@ -34,11 +34,11 @@ check() {
     --disable-warnings
     --override-ini="addopts="
   )
-  cd "$srcdir"/$_name/packages/$_name
+  cd "$_name/packages/$_name"
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name/packages/$_name
+  cd "$_name/packages/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
