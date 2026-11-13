@@ -118,7 +118,6 @@ check() {
   local pytest_options=(
     -vv
     --disable-warnings
-    --deselect tests/integration/cross_version
   )
   cd "a2a-python-$pkgver"
   PYTHONPATH="$PWD/src" pytest "${pytest_options[@]}"
