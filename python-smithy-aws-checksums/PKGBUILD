@@ -1,8 +1,8 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
-_name=smithy-checksums
+_name=smithy-aws-checksums
 pkgname=python-$_name
-pkgver=0.1.0
+pkgver=0.1.1
 pkgrel=1
 pkgdesc='Checksum algorithms for Smithy tooling, with native acceleration.'
 arch=('x86_64' 'aarch64')
@@ -17,7 +17,7 @@ makedepends=('python-maturin'
              'python-installer')
 checkdepends=('python-pytest')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name/v$pkgver.tar.gz")
-sha256sums=('8933605127686a1e46c00c25f13641c94d2f5b37fbc88b2c1ae54791aaab63b6')
+sha256sums=('c5211f7c75c4835dabadcada8cee253f15e842db58bcceef74d79e7ca8d6fedd')
 
 build() {
   cd "smithy-python-$_name-v$pkgver/packages/$_name"
