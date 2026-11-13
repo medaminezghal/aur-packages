@@ -66,6 +66,8 @@ sha256sums=('9fd2760b683631d6b9f9d7c2ade1027bed56627446c58bbebbfe35e290d2f53a')
 
 prepare() {
   cd "$_name-$pkgver"
+  # Use the setuptools version shipped by Arch
+  sed -i '/^requires = /s/"setuptools[<>=!~][^"]*"/"setuptools"/' pyproject.toml
   # Set the version from the release tag, as upstream's release workflow does
   sed -i "/#replace_package_version_marker/{n;s/^version=\"[^\"]*\"/version=\"$pkgver\"/;}" pyproject.toml
 }
