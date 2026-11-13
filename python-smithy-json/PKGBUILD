@@ -9,9 +9,16 @@ arch=('any')
 _repo='https://github.com/smithy-lang/smithy-python'
 url="$_repo/tree/develop/packages/smithy-json"
 license=('Apache-2.0')
-depends=('python' 'python-smithy-core')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel' 'git')
-checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-freezegun')
+depends=('python'
+         'python-smithy-core')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer'
+             'python-wheel'
+             'git')
+checkdepends=('python-pytest'
+              'python-pytest-asyncio'
+              'python-freezegun')
 source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
 sha256sums=('e7d1a183fa5f4bff436ec7eb0dc586236c59d654e715ccd5d9e1b24f0e7ff665')
 
