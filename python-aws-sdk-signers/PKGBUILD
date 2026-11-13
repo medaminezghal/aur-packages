@@ -13,17 +13,16 @@ depends=('python')
 makedepends=('python-hatchling'
              'python-build'
              'python-installer'
-             'python-wheel'
-             'git')
+             'python-wheel')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-freezegun'
               'python-smithy-aws-event-stream')
-source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
-sha256sums=('aab786da291e22ddcf2fcca82cbc3aaa51615ba8bb2ddea2b24adfa73fa5145d')
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name/v$pkgver.tar.gz")
+sha256sums=('75846466cbf43d3bc1226b4c4f268f78fa05fbbfa1c9f352166c0efba3d282e6')
 
 build() {
-  cd "$srcdir"/$_name/packages/$_name
+  cd "smithy-python-$_name-v$pkgver/packages/$_name"
   python -m build --wheel --no-isolation
 }
 
@@ -33,11 +32,11 @@ check() {
     --disable-warnings
     --override-ini="addopts="
   )
-  cd "$srcdir"/$_name/packages/$_name
+  cd "smithy-python-$_name-v$pkgver/packages/$_name"
   PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
 }
 
 package() {
-  cd "$srcdir"/$_name/packages/$_name
+  cd "smithy-python-$_name-v$pkgver/packages/$_name"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
