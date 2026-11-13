@@ -12,8 +12,7 @@ license=('Apache-2.0')
 depends=('python')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-freezegun'
