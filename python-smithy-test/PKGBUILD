@@ -2,7 +2,7 @@
 
 _name=smithy-test
 pkgname=python-$_name
-pkgver=0.1.0
+pkgver=0.3.0
 pkgrel=1
 pkgdesc='Test-support helpers for generated Smithy clients.'
 arch=('any')
@@ -17,7 +17,7 @@ makedepends=('python-hatchling'
              'git')
 checkdepends=('python-pytest')
 source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
-sha256sums=('9355f1aed64cf1ea03806a76efc1c6c419d6caa2cf3733fa692153fb99e83abe')
+sha256sums=('aab786da291e22ddcf2fcca82cbc3aaa51615ba8bb2ddea2b24adfa73fa5145d')
 
 build() {
   cd "$srcdir"/$_name/packages/$_name
