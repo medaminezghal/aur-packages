@@ -22,7 +22,8 @@ checkdepends=('python-pytest'
               'python-smithy-aws-checksums'
               'python-smithy-aws-event-stream'
               'python-smithy-json'
-              'python-smithy-xml')
+              'python-smithy-xml'
+              'python-smithy-cbor')
 optdepends=('python-smithy-aws-checksums: checksums'
 
             'python-smithy-aws-event-stream: eventstream'
