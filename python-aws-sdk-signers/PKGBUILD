@@ -10,8 +10,15 @@ _repo='https://github.com/smithy-lang/smithy-python'
 url="$_repo/tree/develop/packages/aws-sdk-signers"
 license=('Apache-2.0')
 depends=('python')
-makedepends=('python-hatchling' 'python-build' 'python-installer' 'python-wheel' 'git')
-checkdepends=('python-pytest' 'python-pytest-asyncio' 'python-freezegun' 'python-smithy-aws-event-stream')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer'
+             'python-wheel'
+             'git')
+checkdepends=('python-pytest'
+              'python-pytest-asyncio'
+              'python-freezegun'
+              'python-smithy-aws-event-stream')
 source=("$_name::git+$_repo.git#tag=$_name/v$pkgver")
 sha256sums=('aab786da291e22ddcf2fcca82cbc3aaa51615ba8bb2ddea2b24adfa73fa5145d')
 
