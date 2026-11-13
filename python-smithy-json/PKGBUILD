@@ -13,11 +13,8 @@ depends=('python'
          'python-smithy-core')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel')
-checkdepends=('python-pytest'
-              'python-pytest-asyncio'
-              'python-freezegun')
+             'python-installer')
+checkdepends=('python-pytest')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name/v$pkgver.tar.gz")
 sha256sums=('c58faf9d195be4003be4e5d727f5356402a65f1de89c7c0845a91927bc355c4c')
 
