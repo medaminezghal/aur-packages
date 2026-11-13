@@ -18,7 +18,8 @@ makedepends=('python-hatchling'
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
               'python-httpx'
-              'python-hypothesis')
+              'python-hypothesis'
+              'python-trio')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$_name-v$pkgver.tar.gz")
 sha256sums=('3f951ab0d66a9fe512853a950c8dddc2717f2e985b304215e8105ca9a52f094c')
 
