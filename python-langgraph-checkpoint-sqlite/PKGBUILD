@@ -46,4 +46,5 @@ check() {
 package() {
   cd "langgraph-checkpointsqlite-$pkgver/libs/checkpoint-sqlite"
   python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
