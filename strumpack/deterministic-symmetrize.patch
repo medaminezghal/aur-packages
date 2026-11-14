@@ -1,0 +1,26 @@
+Make symmetrize_sparsity deterministic. The threads append the entries
+that pad the sparsity pattern in the order they reach the critical
+section, so the graph given to METIS/Scotch, and with it the fill-reducing
+ordering, changes from run to run with OMP_NUM_THREADS > 1. Sort the
+padded entries of each row (all zeros), which gives the same graph as a
+single thread. Fixes the random failures of SPARSE_seq_27 and
+SPARSE_seq_77 (cavity16, 8 threads).
+
+diff --git a/src/sparse/CompressedSparseMatrix.cpp b/src/sparse/CompressedSparseMatrix.cpp
+index 5140374b..73be1429 100644
+--- a/src/sparse/CompressedSparseMatrix.cpp
++++ b/src/sparse/CompressedSparseMatrix.cpp
+@@ -184,6 +184,13 @@ namespace strumpack {
+             }
+           }
+         }
++      // the threads above append the padded entries in a
++      // nondeterministic order, sort them to get the same graph (and
++      // reordering) as with a single thread
++#pragma omp parallel for
++      for (integer_t i=0; i<n_; i++)
++        std::sort(a2_ind.begin()+a2_ptr[i]+(ptr_[i+1]-ptr_[i]),
++                  a2_ind.begin()+a2_ptr[i+1]);
+       std::swap(ptr_, a2_ptr);
+       std::swap(ind_, a2_ind);
+       std::swap(val_, a2_val);
