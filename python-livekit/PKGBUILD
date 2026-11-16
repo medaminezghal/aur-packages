@@ -23,8 +23,6 @@ makedepends=('python-setuptools'
              'python-installer')
 checkdepends=('python-pytest'
               'python-pytest-asyncio'
-              'python-matplotlib'
-              'python-pydantic'
               'python-livekit-api')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/rtc-v$pkgver.tar.gz"
         "$_repo/raw/refs/tags/rtc-v$pkgver/tests/rtc/fixtures/test_audio.wav"
