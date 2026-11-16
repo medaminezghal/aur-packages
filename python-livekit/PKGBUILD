@@ -26,7 +26,7 @@ checkdepends=('python-pytest'
               'python-matplotlib'
               'python-pydantic'
               'python-livekit-api')
-source=("$_repo/archive/refs/tags/rtc-v$pkgver.tar.gz"
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/rtc-v$pkgver.tar.gz"
         "$_repo/raw/refs/tags/rtc-v$pkgver/tests/rtc/fixtures/test_audio.wav"
         "$_repo/raw/refs/tags/rtc-v$pkgver/tests/rtc/fixtures/test_echo_capture.wav"
         "$_repo/raw/refs/tags/rtc-v$pkgver/tests/rtc/fixtures/test_echo_render.wav"
