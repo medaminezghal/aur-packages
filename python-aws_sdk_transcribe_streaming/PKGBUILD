@@ -17,12 +17,11 @@ depends=('python'
          'python-smithy-http'
          'python-aiohttp'
          'python-yarl'
-         'python-awscrt')
+         'python-urllib3')
 makedepends=('python-hatchling'
              'python-build'
-             'python-installer'
-             'python-wheel'
-             'git')
+             'python-installer')
+optdepends=('python-awscrt: awscrt')
 source=("https://files.pythonhosted.org/packages/source/${_name::1}/$_name/$_name-$pkgver.tar.gz")
 sha256sums=('563a0e791395c3ae2eba107156ebc4e2fe9bfcc1b237d9f2c0c34e273139b62b')
 
