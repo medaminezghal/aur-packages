@@ -43,6 +43,8 @@ sha256sums_aarch64=('df550ece8cfd912f2fa21f7191e88b81a1ae6cad5c3a7ccffba20a779bd
 
 prepare(){
   cd "python-sdks-rtc-v$pkgver"
+  # Use the setuptools version shipped by Arch
+  sed -i '/^requires = \[/,/\]/s/"setuptools[<>=!~][^"]*"/"setuptools"/' $_name-rtc/pyproject.toml
   cp -f "$srcdir"/test_audio.wav tests/rtc/fixtures/test_audio.wav
   cp -f "$srcdir"/test_echo_capture.wav tests/rtc/fixtures/test_echo_capture.wav
   cp -f "$srcdir"/test_echo_render.wav tests/rtc/fixtures/test_echo_render.wav
