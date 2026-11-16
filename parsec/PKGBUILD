@@ -2,7 +2,7 @@
 
 pkgname=parsec
 pkgver=4.0.2411
-pkgrel=1
+pkgrel=2
 pkgdesc="Generic framework for architecture aware scheduling and management of micro-tasks on distributed many-core heterogeneous architectures"
 arch=('x86_64')
 url="https://github.com/ICLDisco/$pkgname"
