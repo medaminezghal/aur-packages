@@ -6,7 +6,8 @@ pkgver=0.13.0
 pkgrel=1
 pkgdesc='aws_sdk_transcribe_streaming client.'
 arch=('any')
-url="https://pypi.org/project/aws_sdk_transcribe_streaming"
+_repo='https://github.com/awslabs/aws-sdk-python'
+url="$_repo/tree/develop/clients/${_name//_/-}"
 license=('Apache-2.0')
 depends=('python'
          'python-smithy-aws-core'
