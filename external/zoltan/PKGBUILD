@@ -1,0 +1,62 @@
+# Maintainer: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: Cong Gu <gucong43216@gmail.com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=zoltan
+pkgver=17.3.0
+pkgrel=1
+pkgdesc="Parallel Partitioning, Load Balancing and Data-Management Services (from Trilinos)"
+arch=('x86_64')
+_repo='https://github.com/trilinos/Trilinos'
+url="$_repo/tree/develop/packages/$pkgname"
+license=('BSD-3-Clause')
+depends=('glibc'
+         'libgcc'
+         'libgfortran'
+         'openmpi'
+         'metis'
+         'parmetis'
+         'scotch'
+         'zlib')
+makedepends=('cmake'
+             'gcc-fortran'
+             'python')
+checkdepends=('perl')
+_tag=trilinos-release-${pkgver//./-}
+source=("Trilinos-$pkgver.tar.gz::$_repo/archive/refs/tags/$_tag.tar.gz"
+        'test-quality.patch')
+sha256sums=('8094740da60bf75b675ad556ed00e337c8547be0dc9603893c4894f4abf0396b'
+            '9de6bed5a2ea1abbada13de57d147268e0163d80acd1047962713f83bb4a009f')
+
+prepare() {
+  cd "Trilinos-$_tag"
+  # Accept test results that differ from the answer files made with older METIS, ParMETIS and Scotch when they are valid and within quality margins
+  patch -Np1 -i ../test-quality.patch
+  # Cast away volatile when passing the Zoltan handle to Zoltan_Destroy (GCC 14+ makes -Wincompatible-pointer-types an error)
+  sed -i 's|Zoltan_Destroy(&lb);|Zoltan_Destroy((struct Zoltan_Struct **)\&lb);|' packages/$pkgname/src/fort/cwrap.c
+  # Use MPI_COMM_WORLD in the Fortran test driver: zoltan_get_global_comm() only exists in C
+  sed -i 's/zoltan_get_global_comm()/MPI_COMM_WORLD/' packages/$pkgname/src/fdriver/fdr_*.f90
+  # Use the mpi module in the Fortran test driver so the MPI calls have explicit interfaces (gfortran 10+ rejects mixed argument types through mpif.h)
+  sed -i 's/include "mpif.h"/use mpi/' packages/$pkgname/src/fdriver/mpi_h.f
+}
+
+build() {
+  cd "Trilinos-$_tag"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=None -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpif90 -DBUILD_SHARED_LIBS=ON -DTrilinos_ENABLE_ALL_PACKAGES=OFF -DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF -DTrilinos_ENABLE_Fortran=ON -DTrilinos_ENABLE_Zoltan=ON -DTrilinos_INSTALL_TriBITS=OFF -DTrilinos_GENERATE_REPO_VERSION_FILE=OFF -DTrilinos_GENERATE_VERSION_DATE_FILES=OFF -DZoltan_ENABLE_F90INTERFACE=ON -DZoltan_ENABLE_HUND=ON -DZoltan_ENABLE_TESTS=ON -DZoltan_ENABLE_EXAMPLES=ON -DTPL_ENABLE_MPI=ON -DTPL_ENABLE_METIS=ON -DTPL_ENABLE_ParMETIS=ON -DTPL_ENABLE_Scotch=ON -DScotch_INCLUDE_DIRS=/usr/include/scotch -DTPL_ENABLE_Zlib=ON -DMPI_EXEC_PRE_NUMPROCS_FLAGS=--oversubscribe -Wno-dev
+  cmake --build build
+}
+
+check() {
+  cd "Trilinos-$_tag"
+  export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  cd "Trilinos-$_tag"
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 packages/$pkgname/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  rm -r "$pkgdir"/usr/include/TrilinosConfig.cmake "$pkgdir"/usr/include/Trilinos_version.h "$pkgdir"/usr/lib/cmake/Trilinos
+  mv "$pkgdir"/usr/lib/external_packages "$pkgdir"/usr/lib/cmake/Zoltan/
+  sed -i 's|/\.\./\.\./external_packages/|/external_packages/|' "$pkgdir"/usr/lib/cmake/Zoltan/ZoltanConfig.cmake
+}

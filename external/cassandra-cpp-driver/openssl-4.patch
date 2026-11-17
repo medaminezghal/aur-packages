@@ -1,0 +1,64 @@
+From b01f0dcfbec419ffeaee31f9a61f4bc86f790dec Mon Sep 17 00:00:00 2001
+From: Remi Collet <remi@remirepo.net>
+Date: Wed, 2 Sep 2026 12:15:35 +0200
+Subject: [PATCH] Constify to fix build with OpenSSL 4
+
+patch by Remi Collet; reviewed by Bret McGuire and Yifan Cai
+reference: https://github.com/apache/cassandra-cpp-driver/pull/590
+---
+ src/ssl/ssl_openssl_impl.cpp | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/ssl/ssl_openssl_impl.cpp b/src/ssl/ssl_openssl_impl.cpp
+index f20f006a..596fe904 100644
+--- a/src/ssl/ssl_openssl_impl.cpp
++++ b/src/ssl/ssl_openssl_impl.cpp
+@@ -284,19 +284,19 @@ public:
+ 
+ private:
+   static Result match_common_name_ipaddr(X509* cert, const String& address) {
+-    X509_NAME* name = X509_get_subject_name(cert);
++    const X509_NAME* name = X509_get_subject_name(cert);
+     if (name == NULL) {
+       return INVALID_CERT;
+     }
+ 
+     int i = -1;
+     while ((i = X509_NAME_get_index_by_NID(name, NID_commonName, i)) > 0) {
+-      X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(name, i);
++      const X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(name, i);
+       if (name_entry == NULL) {
+         return INVALID_CERT;
+       }
+ 
+-      ASN1_STRING* str = X509_NAME_ENTRY_get_data(name_entry);
++      const ASN1_STRING* str = X509_NAME_ENTRY_get_data(name_entry);
+       if (str == NULL) {
+         return INVALID_CERT;
+       }
+@@ -315,19 +315,19 @@ private:
+   }
+ 
+   static Result match_common_name_dns(X509* cert, const String& hostname) {
+-    X509_NAME* name = X509_get_subject_name(cert);
++    const X509_NAME* name = X509_get_subject_name(cert);
+     if (name == NULL) {
+       return INVALID_CERT;
+     }
+ 
+     int i = -1;
+     while ((i = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0) {
+-      X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(name, i);
++      const X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(name, i);
+       if (name_entry == NULL) {
+         return INVALID_CERT;
+       }
+ 
+-      ASN1_STRING* str = X509_NAME_ENTRY_get_data(name_entry);
++      const ASN1_STRING* str = X509_NAME_ENTRY_get_data(name_entry);
+       if (str == NULL) {
+         return INVALID_CERT;
+       }
+-- 
+2.43.0
+

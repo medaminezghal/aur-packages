@@ -1,0 +1,35 @@
+Pass cgsize_t integers to cgp_poly_elements_read_data_offsets_f and
+cgp_poly_elements_read_data_elements_f in the parallel polyhedral test.
+start_l and end_l are 64-bit, but cgsize_t is 32-bit when CGNS is built
+with CGNS_ENABLE_LEGACY (as Arch's cgns is), and gfortran rejects the
+mismatched INTEGER(8) actual arguments.
+
+--- a/src/ptests/test_poly_unstructured_f90.F90
++++ b/src/ptests/test_poly_unstructured_f90.F90
+@@ -57,6 +57,7 @@
+   INTEGER(cgsize_t) :: nbNodeWrite
+   INTEGER(cgsize_t) :: start, end
+   INTEGER(C_INT64_T) :: start_l, end_l, nb_read
++  INTEGER(cgsize_t) :: start_c, end_c
+   INTEGER(cgsize_t) :: iNode, jNode, iCell, jCell, i, j, k
+   INTEGER(cgsize_t) :: local_size(1)
+   INTEGER(cgsize_t) :: sizes(3)
+@@ -416,14 +417,16 @@
+      nb_read = cellOnProcEnd - cellOnProcStart
+ 
+      ALLOCATE(offsets_read(nb_read + 1))
++     start_c = INT(start_l, cgsize_t)
++     end_c = INT(end_l, cgsize_t)
+   
+-     CALL cgp_poly_elements_read_data_offsets_f(F, B, iZone, S, start_l, end_l, offsets_read, ierr)
++     CALL cgp_poly_elements_read_data_offsets_f(F, B, iZone, S, start_c, end_c, offsets_read, ierr)
+      IF (ierr /= CG_OK) CALL cgp_error_exit_f
+ 
+      size_read = offsets_read(nb_read + 1)
+      ALLOCATE(cells_read(size_read))
+ 
+-     CALL cgp_poly_elements_read_data_elements_f(F, B, iZone, S, start_l, end_l, offsets_read, cells_read, ierr)
++     CALL cgp_poly_elements_read_data_elements_f(F, B, iZone, S, start_c, end_c, offsets_read, cells_read, ierr)
+      IF (ierr /= CG_OK) CALL cgp_error_exit_f
+ 
+      count = 1

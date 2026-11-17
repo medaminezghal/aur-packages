@@ -1,0 +1,31 @@
+Map long long and unsigned long long to MPI_LONG_LONG and
+MPI_UNSIGNED_LONG_LONG in MPIType. The specializations are for int64_t
+and uint64_t, which are long and unsigned long on Linux, so long long
+fell through to the generic template and got an MPI_Type_contiguous
+byte type. MPI reductions (MPI_SUM, MPI_MAX, ...) reject such a type
+with MPI_ERR_OP: STRUMPACK's SPARSE_mpi_CombBLAS test (GetAWPM with
+long long indices) aborted in SpParMat::getnrow's MPI_Allreduce.
+
+diff --git a/include/CombBLAS/MPIType.h b/include/CombBLAS/MPIType.h
+index 5546c0b..2f5fcfd 100644
+--- a/include/CombBLAS/MPIType.h
++++ b/include/CombBLAS/MPIType.h
+@@ -35,6 +35,7 @@
+ #include <map>
+ #include <mpi.h>
+ #include <stdint.h>
++#include <type_traits>
+ 
+ namespace combblas {
+ 
+@@ -105,6 +106,10 @@ extern MPIDataTypeCache mpidtc;	// global variable
+ template <typename T> 
+ MPI_Datatype MPIType ( void )
+ {
++	if (std::is_same<T, long long>::value)
++		return MPI_LONG_LONG;
++	if (std::is_same<T, unsigned long long>::value)
++		return MPI_UNSIGNED_LONG_LONG;
+ 	std::type_info const* t = &typeid(T);
+ 	MPI_Datatype datatype = mpidtc.get(t);
+ 
