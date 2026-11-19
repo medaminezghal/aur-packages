@@ -28,7 +28,7 @@ checkdepends=('python-dspy'
               'python-urllib3'
               'python-vcrpy')
 optdepends=('python-dspy: instruments')
-source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
+source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('87358f63a22ec22f8f48957cbeec85d395136cd27825aabfc4f7694b2fb8bd31')
 
 build() {
