@@ -20,7 +20,8 @@ depends=('glibc'
          'zfp'
          'fftw'
          'python'
-         'python-numpy')
+         'python-numpy'
+         'parsec')
 makedepends=('cmake'
              'gcc-fortran'
              'pybind11')
@@ -42,7 +43,7 @@ prepare() {
 
 build() {
   cd "$_name-$pkgver"
-  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -Denable_mpi=ON -Denable_openmp=ON -Denable_python=ON -Denable_fftw=ON -DTPL_BLAS_LIBRARIES=/usr/lib/libblas.so -DTPL_LAPACK_LIBRARIES=/usr/lib/liblapack.so -DTPL_SCALAPACK_LIBRARIES=/usr/lib/libscalapack.so -DTPL_ZFP_LIBRARIES="/usr/lib/libzFORp.so;/usr/lib/libzfp.so" -DTPL_ZFP_INCLUDE=/usr/include -DCMAKE_Fortran_FLAGS="$FFLAGS -ftrampoline-impl=heap" -Wno-dev
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DBUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -Denable_mpi=ON -Denable_openmp=ON -Denable_toplevel_openmp=ON -Denable_parsec=ON -Denable_python=ON -Denable_fftw=ON -DTPL_BLAS_LIBRARIES=/usr/lib/libblas.so -DTPL_LAPACK_LIBRARIES=/usr/lib/liblapack.so -DTPL_SCALAPACK_LIBRARIES=/usr/lib/libscalapack.so -DTPL_ZFP_LIBRARIES="/usr/lib/libzFORp.so;/usr/lib/libzfp.so" -DTPL_ZFP_INCLUDE=/usr/include -DCMAKE_Fortran_FLAGS="$FFLAGS -ftrampoline-impl=heap" -Wno-dev
   cmake --build build
 }
 
