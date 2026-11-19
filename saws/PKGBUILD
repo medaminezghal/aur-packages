@@ -3,7 +3,7 @@
 
 pkgname=saws
 pkgver=20260503
-pkgrel=1
+pkgrel=2
 pkgdesc="Scientific Application Web Server: monitor and steer running programs (such as PETSc) from a web browser"
 arch=('x86_64')
 url="https://gitlab.com/petsc/$pkgname"
