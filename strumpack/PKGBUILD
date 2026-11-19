@@ -63,6 +63,8 @@ prepare() {
   patch -Np1 -i ../deterministic-symmetrize.patch
   # ButterflyPACK 5.0.0 merged its per-precision libraries into the single ButterflyPACK::butterflypack target
   sed -i '/^if(ButterflyPACK_FOUND)/,/^endif()/{/ButterflyPACK::[sdc]butterflypack$/d;s/ButterflyPACK::zbutterflypack)/ButterflyPACK::butterflypack)/}' CMakeLists.txt
+  # Set PAPI_LIBRARIES from PAPI_LIBRARY instead of METIS_LIBRARY in the bundled FindPAPI.cmake, which shadows PaRSEC's when PaRSECConfig.cmake (pulled in by ButterflyPACK) looks for PAPI
+  sed -i '/^  set(PAPI_LIBRARIES /s/\${METIS_LIBRARY}/${PAPI_LIBRARY}/' cmake/Modules/FindPAPI.cmake
 }
 
 build() {
