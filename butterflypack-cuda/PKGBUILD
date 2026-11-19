@@ -34,7 +34,7 @@ conflicts=('butterflypack')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         'magma-offset-precisions.patch')
 sha256sums=('9a6ba1685b0181851faba3f020285893c61318f6abcfca2309cc26703485ecf5'
-            '21463f63336bee030756e50b46cc4292b9548557e70610eea3726458ca006458')
+            '1a9c3789fd0698b8d12b65efdb76679f4010a42e33b15cfad0c199ac6a90537e')
 
 prepare() {
   cd "$_name-$pkgver"
