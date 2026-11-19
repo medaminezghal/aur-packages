@@ -19,6 +19,13 @@ run after it is merged.
   `# Remove tests that need docker`.
 - python-groq / python-spitch: apply the mock-server check() convention
   (Layout conventions) on their next update PR.
+- butterflypack ARPACK: off in `butterflypack` because the `zzdotc`/`ccdotc`
+  symbols of arpack-ng >= 3.9 clash with ScaLAPACK's (eigen tests segfault).
+  A PR enabling it is opened once opencollab/arpack-ng#506 is merged; its CI
+  can fail until Arch's `arpack` ships that fix. Never remove ARPACK from that
+  PR or from `butterflypack-cuda`/`butterflypack-rocm`, never exclude the eigen
+  tests, and don't work around the clash: comment once with the Arch `arpack`
+  version gap and leave the PR to the owner.
 
 - `external/` folder (`external/<pkgname>/`, e.g. `external/gklib`, `external/metis`): AUR-only dependencies that other people maintain on the AUR, kept here so the `[aur-packages]` pacman repo can serve them. Add only hard dependencies (`depends`) of packages already in `[aur-packages]`, never a checkdepends one. They go through every workflow except publish-to-aur.yml. Never move a package out of `external/` (that would make publish-to-aur push to someone else's AUR package); only the owner does that, e.g. after becoming co-maintainer. Their `pkgrel` continues from the AUR package's (bump it above the AUR's), so a value above 1 on a new `external/` package is intended. Branch/title use the name without `external/`: `bump/add-<pkgname>` + `Add <pkgname> package`.
 
