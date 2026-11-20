@@ -4,8 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "*/PKGBUILD"
-      - "external/*/PKGBUILD"
+      - "**/PKGBUILD"
 
 jobs:
   publish:
@@ -33,8 +32,10 @@ jobs:
 
           # Deleted PKGBUILDs are left out (--diff-filter=d): when a package is moved, the
           # deleted old path (e.g. external/<pkg>) must not be taken for the package.
-          dir=$(git diff-tree --no-commit-id -r --name-only --diff-filter=d HEAD^1 HEAD \
+          # A PKGBUILD moved to another folder without changes (R100) has nothing new to publish.
+          dir=$(git diff-tree --no-commit-id -r --name-status -M --diff-filter=d HEAD^1 HEAD \
                   -- '*/PKGBUILD' \
+                | awk '$1 != "R100" { print $NF }' \
                 | head -n1 \
                 | sed 's|/PKGBUILD||')
 

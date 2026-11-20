@@ -4,8 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "*/PKGBUILD"
-      - "external/*/PKGBUILD"
+      - "**/PKGBUILD"
   workflow_dispatch:
     inputs:
       package:
@@ -67,8 +66,10 @@ jobs:
           if [[ -n "$INPUT_PACKAGE" ]]; then
             dirs=$(tr ' ' '\n' <<< "$INPUT_PACKAGE")
           else
-            dirs=$(git diff-tree --no-commit-id -r --name-only HEAD^1 HEAD \
+            # A PKGBUILD moved to another folder without changes (R100) is already in the repository
+            dirs=$(git diff-tree --no-commit-id -r --name-status -M HEAD^1 HEAD \
                      -- '*/PKGBUILD' \
+                   | awk '$1 != "R100" { print $NF }' \
                    | sed 's|/PKGBUILD||')
           fi
 
