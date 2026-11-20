@@ -52,11 +52,13 @@ source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$_tag.tar.gz"
         'fix-vector-one-past-end-indexing.patch'
         'fix-utst-sort.patch'
         'fix-node-map-without-node-blocks.patch'
+        'fix-ctx-cgio-linkage.patch'
         'fmt-uint128-bitwise-not.patch')
 sha256sums=('9010d5fe17e14f556ae2a065573ab297bd861738742ead92895025d27fec31bb'
             'c5514e0b24abb34c42de1842b086ef4a1084ef39ef44d5ebf0e72fc34193e3b4'
             'e6168502bdd02d7d8d466f35b0c99339d15efaabe408d8c08acb5131cf39d50c'
             'ea33c91e69f426d83fb0f4c289faf12b4bbc5c97e332669f281305f6a88bee65'
+            'd29dd5a20cd2c140c42b67f94e35f0562d5a3f14eabdf2972cdd11f849302f1c'
             '929be1d3af590d180ad117e72e1a713b04564ee305629a9bdf773e1d78340252')
 
 prepare() {
@@ -67,6 +69,8 @@ prepare() {
   patch -Np1 -i ../fix-utst-sort.patch
   # Skip the parallel Exodus node map output for blob-only regions instead of asserting, fixing Utst_blob_write_read_MPI_4
   patch -Np1 -i ../fix-node-map-without-node-blocks.patch
+  # Upstream fix declaring CGNS's ctx_cgio outside the anonymous namespace, which nvcc otherwise makes a hidden symbol that libIocgns cannot link to (sandialabs/seacas@25eb1cf)
+  patch -Np1 -i ../fix-ctx-cgio-linkage.patch
   # fmt 12.2 lacks the operator~ of its fallback uint128, which nvcc uses since it has no __int128 there (fmtlib/fmt@588b3a0, not released yet): build against a copy of the fmt headers with that upstream fix, found through CPLUS_INCLUDE_PATH so its path stays out of the CXXFLAGS that TriBITS writes into the installed CMake configs
   mkdir -p ../fmt-include
   cp -r /usr/include/fmt ../fmt-include/
