@@ -33,7 +33,7 @@ checkdepends=('python-respx'
               'nodejs')
 optdepends=('python-aiohttp: aiohttp'
             'python-httpx-aiohttp: aiohttp')
-source=("$url/archive/refs/tags/v$pkgver.tar.gz")
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('986f953670aec7cb7a780501361b36a559f108892503d6f9a58bb449e7b3cdd9')
 
 prepare() {
