@@ -4,7 +4,7 @@
 _name=GKlib
 pkgname=${_name,,}
 pkgver=0.0.1
-pkgrel=1
+pkgrel=2
 epoch=1
 pkgdesc="A library of various helper routines and frameworks used by many of the lab's software"
 arch=('x86_64')
