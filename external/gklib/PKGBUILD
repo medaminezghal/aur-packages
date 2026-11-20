@@ -19,18 +19,13 @@ source=("$_name::git+$url.git#tag=v$pkgver")
 sha256sums=('9978fc259424638b35bbe5b2e6d90650f32fb0a660a763a1876aae01556c3283')
 
 build() {
-  cd "$srcdir"/$_name
-  cmake -S . -B build \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=None \
-    -DSHARED=ON \
-    -DOPENMP=ON \
-    -Wno-dev
+  cd "$_name"
+  cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DSHARED=ON -DOPENMP=ON -Wno-dev
   cmake --build build
 }
 
 package() {
-  cd "$srcdir"/$_name
+  cd "$_name"
   DESTDIR="$pkgdir" cmake --install build
   install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
 }
