@@ -18,8 +18,7 @@ depends=('python'
 makedepends=('python-hatchling'
              'python-hatch-fancy-pypi-readme'
              'python-build'
-             'python-installer'
-             'python-wheel')
+             'python-installer')
 checkdepends=('python-respx'
               'python-pytest'
               'python-pytest-asyncio'
@@ -28,9 +27,7 @@ checkdepends=('python-respx'
               'python-rich'
               'python-pytest-xdist'
               'python-aiohttp'
-              'python-httpx-aiohttp'
-              'npm'
-              'nodejs')
+              'python-httpx-aiohttp')
 optdepends=('python-aiohttp: aiohttp'
             'python-httpx-aiohttp: aiohttp')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
