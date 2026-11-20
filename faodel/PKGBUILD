@@ -2,7 +2,7 @@
 
 pkgname=faodel
 pkgver=1.2306.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Flexible, Asynchronous, Object Data-Exchange Libraries for HPC data management"
 arch=('x86_64')
 url="https://github.com/sandialabs/$pkgname"
@@ -57,6 +57,8 @@ prepare() {
   sed -i 's/&outstanding_msg_requests_\[0\]/outstanding_msg_requests_.data()/;s/&outstanding_op_requests_\[0\]/outstanding_op_requests_.data()/' src/nnti/transports/mpi/mpi_transport.cpp
   # NntiOpVectorTest writes to a vector it only reserve()d, which aborts with _GLIBCXX_ASSERTIONS; resize it
   sed -i 's/mirror.reserve(1024);/mirror.resize(num_op);/' tests/nnti/cpp-api/NntiOpVectorTest.cpp
+  # Key.hh includes Types.hh before defining Key, so Types.hh's ObjectCapacities (a std::vector<Key> member) is parsed with an incomplete Key when Key.hh is included first, which nvcc and clang reject; include only FaodelTypes.hh (for rc_t) before Key and Types.hh after it
+  sed -i 's|#include "kelpie/common/Types.hh"|#include "faodel-common/FaodelTypes.hh"|;s|#endif  // KELPIE_KEY_HH|#include "kelpie/common/Types.hh"\n\n&|' src/kelpie/Key.hh
 }
 
 build() {
