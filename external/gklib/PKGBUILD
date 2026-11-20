@@ -13,19 +13,18 @@ license=('Apache-2.0')
 depends=('glibc'
          'libgcc'
          'libgomp')
-makedepends=('cmake'
-             'git')
-source=("$_name::git+$url.git#tag=v$pkgver")
-sha256sums=('9978fc259424638b35bbe5b2e6d90650f32fb0a660a763a1876aae01556c3283')
+makedepends=('cmake')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('9ab4e0b4c3e06fde1de5b83991b9bcd9a3f424e8fe435e46020045fdc8a8e2b9')
 
 build() {
-  cd "$_name"
+  cd "$_name-$pkgver"
   cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=None -DSHARED=ON -DOPENMP=ON -Wno-dev
   cmake --build build
 }
 
 package() {
-  cd "$_name"
+  cd "$_name-$pkgver"
   DESTDIR="$pkgdir" cmake --install build
   install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
 }
