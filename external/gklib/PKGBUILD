@@ -9,7 +9,7 @@ epoch=1
 pkgdesc="A library of various helper routines and frameworks used by many of the lab's software"
 arch=('x86_64')
 url="https://github.com/KarypisLab/$_name"
-license=('Apache-2.0')
+license=('Apache-2.0 AND LGPL-2.1-or-later')
 depends=('glibc'
          'libgcc'
          'libgomp')
@@ -26,5 +26,4 @@ build() {
 package() {
   cd "$_name-$pkgver"
   DESTDIR="$pkgdir" cmake --install build
-  install -Dm644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
 }
