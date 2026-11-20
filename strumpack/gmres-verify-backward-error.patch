@@ -1,0 +1,62 @@
+--- a/src/SparseSolverMPIDist.cpp
++++ b/src/SparseSolverMPIDist.cpp
+@@ -319,6 +319,41 @@
+            opts_.gmres_restart(), opts_.GramSchmidt_type(),
+            use_initial_guess, opts_.verbose() && is_root_);
+       };
++    // GMRES is left preconditioned, so it stops on the preconditioned
++    // residual, which can be much smaller than the true residual when
++    // the preconditioner is a rough (compressed) approximation. Check
++    // the componentwise backward error and restart GMRES from the
++    // current solution while it is too large and still decreasing.
++    auto gmres_verified =
++      [&](const std::function<void(scalar_t*)>& prec) {
++        gmres(prec);
++        int totit = this->Krylov_its_;
++        auto bw = mat_mpi_->max_scaled_residual(x.data(), bloc.data());
++        while (bw > opts_.rel_tol() && totit < opts_.maxit()) {
++          if (opts_.verbose() && is_root_)
++            std::cout << "# GMRES restart from current solution,"
++                      << " componentwise backward error = " << bw
++                      << std::endl;
++          std::vector<scalar_t> x_prev(x.data(), x.data()+nloc);
++          int its = 0;
++          iterative::GMResMPI<scalar_t>
++            (comm_, spmv, prec, nloc, x.data(), bloc.data(),
++             opts_.rel_tol(), opts_.abs_tol(), its,
++             opts_.maxit() - totit, opts_.gmres_restart(),
++             opts_.GramSchmidt_type(), true,
++             opts_.verbose() && is_root_);
++          totit += its;
++          auto bw_new = mat_mpi_->max_scaled_residual(x.data(), bloc.data());
++          if (!(bw_new < bw)) {
++            // no improvement, keep the previous solution
++            std::copy(x_prev.begin(), x_prev.end(), x.data());
++            break;
++          }
++          if (!(bw_new < bw / 2)) break;
++          bw = bw_new;
++        }
++        this->Krylov_its_ = totit;
++      };
+     auto bicgstab =
+       [&](const std::function<void(scalar_t*)>& prec) {
+         assert(x.cols() == 1);
+@@ -347,7 +382,7 @@
+     switch (opts_.Krylov_solver()) {
+     case KrylovSolver::AUTO: {
+       if (opts_.compression() != CompressionType::NONE && x.cols() == 1)
+-        gmres(MFsolve);
++        gmres_verified(MFsolve);
+       else refine();
+     }; break;
+     case KrylovSolver::REFINE: {
+@@ -357,7 +392,7 @@
+       gmres([](scalar_t*){});
+     }; break;
+     case KrylovSolver::PREC_GMRES: {
+-      gmres(MFsolve);
++      gmres_verified(MFsolve);
+     }; break;
+     case KrylovSolver::BICGSTAB: {
+       bicgstab([](scalar_t*){});
