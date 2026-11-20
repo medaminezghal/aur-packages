@@ -18,7 +18,8 @@ depends=('glibc'
          'intel-oneapi-mkl-sycl')
 makedepends=('cmake'
              'testsweeper'
-             'intel-oneapi-dpcpp-cpp')
+             'intel-oneapi-dpcpp-cpp'
+             'procps-ng')
 checkdepends=('python')
 provides=("blaspp=$pkgver")
 conflicts=('blaspp')
