@@ -35,6 +35,8 @@ sha256sums=('986f953670aec7cb7a780501361b36a559f108892503d6f9a58bb449e7b3cdd9')
 
 prepare() {
   cd "$_name-python-$pkgver"
+  # Use the hatchling version shipped by Arch
+  sed -i '/^requires = /s/"hatchling[<>=!~][^"]*"/"hatchling"/' pyproject.toml
   sed -i 's/from typing_extensions import Literal, Annotated/from typing_extensions import Literal, Annotated, TypeAliasType/g' tests/test_models.py
   sed -i 's/from openai import BaseModel/from spitch import BaseModel/g' src/spitch/_response.py
 }
