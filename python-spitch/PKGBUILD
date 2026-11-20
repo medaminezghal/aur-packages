@@ -37,8 +37,6 @@ prepare() {
   cd "$_name-python-$pkgver"
   # Use the hatchling version shipped by Arch
   sed -i '/^requires = /s/"hatchling[<>=!~][^"]*"/"hatchling"/' pyproject.toml
-  sed -i 's/from typing_extensions import Literal, Annotated/from typing_extensions import Literal, Annotated, TypeAliasType/g' tests/test_models.py
-  sed -i 's/from openai import BaseModel/from spitch import BaseModel/g' src/spitch/_response.py
 }
 
 build() {
@@ -52,15 +50,9 @@ check() {
     -vv
     --disable-warnings
     -p 'no:benchmark'
-    # Need to be fixed by developers
-    --deselect tests/api_resources/test_speech.py
-    --deselect tests/api_resources/test_files.py
-    --deselect tests/api_resources/test_text.py
   )
   cd "$_name-python-$pkgver"
-  trap 'pkill -f steady' EXIT
-  ./scripts/mock --daemon
-  PYTHONPATH=$PWD/src pytest "${pytest_options[@]}" tests
+  PYTHONPATH="$PWD"/src python scripts/mock pytest "${pytest_options[@]}" tests
 }
 
 package() {
