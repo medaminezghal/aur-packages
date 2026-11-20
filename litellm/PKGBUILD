@@ -39,7 +39,9 @@ depends=('python'
 makedepends=('python-maturin'
              'python-build'
              'python-installer')
-optdepends=('gunicorn: proxy'
+optdepends=('python-nemo-switchyard: switchyard'
+
+            'gunicorn: proxy'
             'uvicorn: proxy'
             'python-granian: proxy'
             'python-uvloop: proxy'
@@ -73,6 +75,7 @@ optdepends=('gunicorn: proxy'
             'python-soundfile: proxy'
             'python-pyroscope-io: proxy'
             'python-expression: proxy'
+            'python-semver: proxy'
             
             'python-rich: cli'
             'python-pyyaml: cli'
@@ -108,7 +111,8 @@ optdepends=('gunicorn: proxy'
 
             'python-google-cloud-speech: stt-vertex-chirp'
 
-            'python-nvidia-riva-client: stt-nvidia-riva'
+            'python-grpcio: stt-nvidia-riva'
+            'python-protobuf: stt-nvidia-riva'
             'python-soundfile: stt-nvidia-riva'
             'python-audioread: stt-nvidia-riva'
             'python-numpy: stt-nvidia-riva'
