@@ -55,7 +55,7 @@ sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             '38ca1ca01b8e91a15559d6cad51f35cb9287207b61ad8698d39f34e9b6e6b226'
             'fed3b23167887d696260156d03f51d0404392223d32a31f0f7f59656ccd3244b'
             'a0aab8a5c4cd28cbcb40b0be1552ff2cbb7ae6a457113170b1a0b24befbdf351'
-            '6f6faf84e49eb8f2d97a319786ae637cc3aca359754fd468feedacc24b51513b')
+            'f552ce3c417d394be1da6ae657296c5a9a19779d644acdddcf4c92184da68358')
 
 prepare() {
   cd "$_name-$pkgver"
@@ -63,7 +63,7 @@ prepare() {
   patch -Np1 -i ../hss-extract-empty-blocks.patch
   # Sort the entries that pad the sparsity pattern, so the ordering no longer depends on the thread timing (random SPARSE_seq_27 and SPARSE_seq_77 failures)
   patch -Np1 -i ../deterministic-symmetrize.patch
-  # Restart GMRES from the current solution while the componentwise backward error is above the tolerance and still decreasing, since left-preconditioned GMRES stops on the preconditioned residual (SPARSE_mpi_22)
+  # Check the componentwise backward error after GMRES: restart GMRES while it still decreases, then fall back to iterative refinement if GMRES stagnates, since left-preconditioned GMRES stops on the preconditioned residual (SPARSE_mpi_22 and SPARSE_mpi_2)
   patch -Np1 -i ../gmres-verify-backward-error.patch
   # ButterflyPACK 5.0.0 merged its per-precision libraries into the single ButterflyPACK::butterflypack target
   sed -i '/^if(ButterflyPACK_FOUND)/,/^endif()/{/ButterflyPACK::[sdc]butterflypack$/d;s/ButterflyPACK::zbutterflypack)/ButterflyPACK::butterflypack)/}' CMakeLists.txt
