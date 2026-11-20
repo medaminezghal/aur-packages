@@ -22,12 +22,12 @@ makedepends=('python-hatchling'
 checkdepends=('python-respx'
               'python-pytest'
               'python-pytest-asyncio'
+              'python-pytest-xdist'
               'python-time-machine'
               'python-dirty-equals'
               'python-rich'
-              'python-pytest-xdist'
-              'python-aiohttp'
-              'python-httpx-aiohttp')
+              'python-httpx-aiohttp'
+              'python-aiohttp')
 optdepends=('python-aiohttp: aiohttp'
             'python-httpx-aiohttp: aiohttp')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
