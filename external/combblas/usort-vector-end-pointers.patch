@@ -1,0 +1,715 @@
+Take element addresses of std::vector with data() in usort. The sorts
+pass &v[0] and &v[v.size()] (or &v[nelem]) as ranges and MPI buffers.
+Indexing one past the end, or element 0 of an empty vector, is out of
+bounds, and _GLIBCXX_ASSERTIONS aborts on it: every sort through
+SpParHelper::KeyValuePSort aborted in Indexing_Test and SpAsgn_Test. Use
+v.data() + i, the same address without indexing.
+
+diff --git a/usort/include/usort/parUtils.tcc b/usort/include/usort/parUtils.tcc
+index a8fb7b4f..e84b83b1 100755
+--- a/usort/include/usort/parUtils.tcc
++++ b/usort/include/usort/parUtils.tcc
+@@ -378,7 +378,7 @@ namespace par {
+     s_cnt[i]=s_cnt_[i]*sizeof(T)+2*sizeof(int);
+   }
+   std::vector<int> sdisp(np); sdisp[0]=0;
+-  omp_par::scan(&s_cnt[0],&sdisp[0],np);
++  omp_par::scan(s_cnt.data(),sdisp.data(),np);
+ 
+   char* sbuff=new char[sdisp[np-1]+s_cnt[np-1]];
+   #pragma omp parallel for
+@@ -398,7 +398,7 @@ namespace par {
+     std::vector<int> new_range(kway+1);
+     for(int i=0;i<=kway;i++)
+       new_range[i]=(range[0]*(kway-i)+range[1]*i)/kway;
+-    int p_class=(std::upper_bound(&new_range[0],&new_range[kway],pid)-&new_range[0]-1);
++    int p_class=(std::upper_bound(new_range.data(),(new_range.data()+kway),pid)-new_range.data()-1);
+     int new_np=new_range[p_class+1]-new_range[p_class];
+     int new_pid=pid-new_range[p_class];
+ 
+@@ -413,14 +413,14 @@ namespace par {
+         int partner=(new_pid<cmp_np?       new_range[i]+new_pid: new_range[i+1]-1) ;
+         assert(     (new_pid<cmp_np? true: new_range[i]+new_pid==new_range[i+1]  )); //Remove this.
+         MPI_Sendrecv(&s_cnt[new_range[i]-new_range[0]], cmp_np, MPI_INT, partner, 0,
+-                     &r_cnt[new_np   *i ], new_np, MPI_INT, partner, 0, c, &status);
++                     (r_cnt.data()+new_np   *i), new_np, MPI_INT, partner, 0, c, &status);
+ 
+         //Handle extra communication.
+         if(new_pid==new_np-1 && cmp_np>new_np){
+           int partner=new_range[i+1]-1;
+           std::vector<int> s_cnt_ext(cmp_np, 0);
+-          MPI_Sendrecv(&s_cnt_ext[       0], cmp_np, MPI_INT, partner, 0,
+-                       &r_cnt_ext[new_np*i], new_np, MPI_INT, partner, 0, c, &status);
++          MPI_Sendrecv(s_cnt_ext.data(), cmp_np, MPI_INT, partner, 0,
++                       (r_cnt_ext.data()+new_np*i), new_np, MPI_INT, partner, 0, c, &status);
+         }
+       }
+ 
+@@ -430,8 +430,8 @@ namespace par {
+       int rbuff_size, rbuff_size_ext;
+       char *rbuff, *rbuff_ext;
+       {
+-        omp_par::scan(&r_cnt    [0], &rdisp    [0],new_np*kway);
+-        omp_par::scan(&r_cnt_ext[0], &rdisp_ext[0],new_np*kway);
++        omp_par::scan(r_cnt.data(), rdisp.data(),new_np*kway);
++        omp_par::scan(r_cnt_ext.data(), rdisp_ext.data(),new_np*kway);
+         rbuff_size     = rdisp    [new_np*kway-1] + r_cnt    [new_np*kway-1];
+         rbuff_size_ext = rdisp_ext[new_np*kway-1] + r_cnt_ext[new_np*kway-1];
+         rbuff     = new char[rbuff_size    ];
+@@ -483,7 +483,7 @@ namespace par {
+           cnt_new[(i*2  )*kway+j]=r_cnt    [j*new_np+i];
+           cnt_new[(i*2+1)*kway+j]=r_cnt_ext[j*new_np+i];
+         }
+-        omp_par::scan(&cnt_new[0], &disp_new[0],2*new_np*kway);
++        omp_par::scan(cnt_new.data(), disp_new.data(),2*new_np*kway);
+ 
+         #pragma omp parallel for
+         for(int i=0;i<new_np;i++)
+@@ -848,7 +848,7 @@ return 1;
+ #ifdef _PROFILE_SORT
+ 				seq_sort.start();
+ #endif        
+-				omp_par::merge_sort(&arr[0],&arr[arr.size()]);
++				omp_par::merge_sort(arr.data(),(arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+ 				seq_sort.stop();
+ 				total_sort.stop();
+@@ -873,7 +873,7 @@ return 1;
+ #ifdef _PROFILE_SORT
+ 			seq_sort.start();
+ #endif			
+-      omp_par::merge_sort(&arr[0], &arr[arr.size()]);
++      omp_par::merge_sort(arr.data(), (arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+ 			seq_sort.stop();
+ #endif			
+@@ -904,15 +904,15 @@ return 1;
+           // Gather all splitters. O( log(p) )
+           int glb_splt_count;
+ 
+-          par::Mpi_Allgather<int>(&splt_count, &glb_splt_cnts[0], 1, comm);
+-          omp_par::scan(&glb_splt_cnts[0],&glb_splt_disp[0],npes);
++          par::Mpi_Allgather<int>(&splt_count, glb_splt_cnts.data(), 1, comm);
++          omp_par::scan(glb_splt_cnts.data(),glb_splt_disp.data(),npes);
+          
+           glb_splt_count = glb_splt_cnts[npes-1] + glb_splt_disp[npes-1];
+ 
+           std::vector<T> glb_splitters(glb_splt_count);
+           
+-          MPI_Allgatherv(&splitters[0], splt_count, par::Mpi_datatype<T>::value(), 
+-                         &glb_splitters[0], &glb_splt_cnts[0], &glb_splt_disp[0], 
++          MPI_Allgatherv(splitters.data(), splt_count, par::Mpi_datatype<T>::value(), 
++                         glb_splitters.data(), glb_splt_cnts.data(), glb_splt_disp.data(), 
+                          par::Mpi_datatype<T>::value(), comm);
+ 
+           // Determine split key. O( log(N/p) + log(p) )
+@@ -921,17 +921,17 @@ return 1;
+           if(nelem>0){
+             #pragma omp parallel for
+             for(size_t i=0;i<glb_splt_count;i++){
+-              disp[i]=std::lower_bound(&arr[0], &arr[nelem], glb_splitters[i]) - &arr[0];
++              disp[i]=std::lower_bound(arr.data(), (arr.data()+nelem), glb_splitters[i]) - arr.data();
+             }
+           }
+           std::vector<long> glb_disp(glb_splt_count,0);
+-          MPI_Allreduce(&disp[0], &glb_disp[0], glb_splt_count, par::Mpi_datatype<long>::value(), MPI_SUM, comm);
++          MPI_Allreduce(disp.data(), glb_disp.data(), glb_splt_count, par::Mpi_datatype<long>::value(), MPI_SUM, comm);
+ 
+-          long* split_disp = &glb_disp[0];
++          long* split_disp = glb_disp.data();
+           for(size_t i=0; i<glb_splt_count; i++)
+             if ( abs(glb_disp[i] - totSize/2) < abs(*split_disp - totSize/2) ) 
+-							split_disp = &glb_disp[i];
+-          split_key = glb_splitters[split_disp - &glb_disp[0]];
++							split_disp = (glb_disp.data()+i);
++          split_key = glb_splitters[split_disp - glb_disp.data()];
+ 
+           totSize_new=(myrank<=(npes-1)/2?*split_disp:totSize-*split_disp);
+           //double err=(((double)*split_disp)/(totSize/2))-1.0;
+@@ -964,11 +964,11 @@ return 1;
+ 
+           int     rsize=0,     ssize=0, lsize=0;
+           int ext_rsize=0, ext_ssize=0;
+-          size_t split_indx=(nelem>0?std::lower_bound(&arr[0], &arr[nelem], split_key)-&arr[0]:0);
++          size_t split_indx=(nelem>0?std::lower_bound(arr.data(), (arr.data()+nelem), split_key)-arr.data():0);
+           ssize=       (myrank> split_id? split_indx: nelem-split_indx )*sizeof(T);
+-          sbuff=(char*)(myrank> split_id? &arr[0]   :  &arr[split_indx]);
++          sbuff=(char*)(myrank> split_id? arr.data()   :  (arr.data()+split_indx));
+           lsize=       (myrank<=split_id? split_indx: nelem-split_indx )*sizeof(T);
+-          lbuff=(char*)(myrank<=split_id? &arr[0]   :  &arr[split_indx]);
++          lbuff=(char*)(myrank<=split_id? arr.data()   :  (arr.data()+split_indx));
+ 
+           MPI_Status status;
+           MPI_Sendrecv                  (&    ssize,1,MPI_INT, partner,0,   &    rsize,1,MPI_INT, partner,   0,comm,&status);
+@@ -976,7 +976,7 @@ return 1;
+ 
+           // Exchange data.
+           commBuff.reserve(rsize/sizeof(T));
+-          char*     rbuff = (char *)(&commBuff[0]);
++          char*     rbuff = (char *)(commBuff.data());
+           char* ext_rbuff=(ext_rsize>0? new char[ext_rsize]: NULL);
+           MPI_Sendrecv                  (sbuff,ssize,MPI_BYTE, partner,0,       rbuff,    rsize,MPI_BYTE, partner,   0,comm,&status);
+           if(extra_partner) MPI_Sendrecv( NULL,    0,MPI_BYTE,split_id,0,   ext_rbuff,ext_rsize,MPI_BYTE,split_id,   0,comm,&status);
+@@ -988,7 +988,7 @@ return 1;
+ 
+           int nbuff_size=lsize+rsize+ext_rsize;
+           mergeBuff.reserve(nbuff_size/sizeof(T));
+-          char* nbuff= (char *)(&mergeBuff[0]);  // new char[nbuff_size];
++          char* nbuff= (char *)(mergeBuff.data());  // new char[nbuff_size];
+           omp_par::merge<T*>((T*)lbuff, (T*)&lbuff[lsize], (T*)rbuff, (T*)&rbuff[rsize], (T*)nbuff, omp_p, std::less<T>());
+           if(ext_rsize>0 && nbuff!=NULL){
+             // XXX case not handled 
+@@ -1065,7 +1065,7 @@ return 1;
+ #ifdef _PROFILE_SORT
+ 		 		seq_sort.start();
+ #endif        
+-				omp_par::merge_sort(&arr[0],&arr[arr.size()]);
++				omp_par::merge_sort(arr.data(),(arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+ 		 		seq_sort.stop();
+ #endif        
+@@ -1087,8 +1087,8 @@ return 1;
+ #ifdef _PROFILE_SORT
+ 		 	seq_sort.start();
+ #endif			
+-      T* arr_=new T[nelem]; memcpy (&arr_[0], &arr[0], nelem*sizeof(T));      
+-			omp_par::merge_sort(&arr_[0], &arr_[arr.size()]);
++      T* arr_=new T[nelem]; memcpy (arr_.data(), arr.data(), nelem*sizeof(T));      
++			omp_par::merge_sort(arr_.data(), (arr_.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+ 		 	seq_sort.stop();
+ #endif
+@@ -1115,12 +1115,12 @@ return 1;
+           int glb_splt_count;
+           std::vector<int> glb_splt_cnts(npes);
+           std::vector<int> glb_splt_disp(npes,0);
+-          par::Mpi_Allgather<int>(&splt_count, &glb_splt_cnts[0], 1, comm);
+-          omp_par::scan(&glb_splt_cnts[0],&glb_splt_disp[0],npes);
++          par::Mpi_Allgather<int>(&splt_count, glb_splt_cnts.data(), 1, comm);
++          omp_par::scan(glb_splt_cnts.data(),glb_splt_disp.data(),npes);
+           glb_splt_count=glb_splt_cnts[npes-1]+glb_splt_disp[npes-1];
+           std::vector<T> glb_splitters(glb_splt_count);
+-          MPI_Allgatherv(&    splitters[0], splt_count, par::Mpi_datatype<T>::value(), 
+-                         &glb_splitters[0], &glb_splt_cnts[0], &glb_splt_disp[0], 
++          MPI_Allgatherv(splitters.data(), splt_count, par::Mpi_datatype<T>::value(), 
++                         glb_splitters.data(), glb_splt_cnts.data(), glb_splt_disp.data(), 
+                          par::Mpi_datatype<T>::value(), comm);
+ 
+           // Determine split key. O( log(N/p) + log(p) )
+@@ -1128,16 +1128,16 @@ return 1;
+           if(nelem>0){
+             #pragma omp parallel for
+             for(size_t i=0;i<glb_splt_count;i++){
+-              disp[i]=std::lower_bound(&arr_[0], &arr_[nelem], glb_splitters[i])-&arr_[0];
++              disp[i]=std::lower_bound(arr_.data(), (arr_.data()+nelem), glb_splitters[i])-arr_.data();
+             }
+           }
+           std::vector<DendroIntL> glb_disp(glb_splt_count,0);
+-          MPI_Allreduce(&disp[0], &glb_disp[0], glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
++          MPI_Allreduce(disp.data(), glb_disp.data(), glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
+ 
+-          DendroIntL* split_disp=&glb_disp[0];
++          DendroIntL* split_disp=glb_disp.data();
+           for(size_t i=0;i<glb_splt_count;i++)
+-            if( labs(glb_disp[i]-totSize/2) < labs(*split_disp-totSize/2)) split_disp=&glb_disp[i];
+-          split_key=glb_splitters[split_disp-&glb_disp[0]];
++            if( labs(glb_disp[i]-totSize/2) < labs(*split_disp-totSize/2)) split_disp=(glb_disp.data()+i);
++          split_key=glb_splitters[split_disp-glb_disp.data()];
+ 
+           totSize_new=(myrank<=(npes-1)/2?*split_disp:totSize-*split_disp);
+           //double err=(((double)*split_disp)/(totSize/2))-1.0;
+@@ -1170,11 +1170,11 @@ return 1;
+           char *sbuff, *lbuff;
+           int     rsize=0,     ssize=0, lsize=0;
+           int ext_rsize=0, ext_ssize=0;
+-          size_t split_indx=(nelem>0?std::lower_bound(&arr_[0], &arr_[nelem], split_key)-&arr_[0]:0);
++          size_t split_indx=(nelem>0?std::lower_bound(arr_.data(), (arr_.data()+nelem), split_key)-arr_.data():0);
+           ssize=       (myrank> split_id? split_indx: nelem-split_indx )*sizeof(T);
+-          sbuff=(char*)(myrank> split_id? &arr_[0]   :  &arr_[split_indx]);
++          sbuff=(char*)(myrank> split_id? arr_.data()   :  (arr_.data()+split_indx));
+           lsize=       (myrank<=split_id? split_indx: nelem-split_indx )*sizeof(T);
+-          lbuff=(char*)(myrank<=split_id? &arr_[0]   :  &arr_[split_indx]);
++          lbuff=(char*)(myrank<=split_id? arr_.data()   :  (arr_.data()+split_indx));
+ 
+           MPI_Status status;
+           MPI_Sendrecv                  (&    ssize,1,MPI_INT, partner,0,   &    rsize,1,MPI_INT, partner,   0,comm,&status);
+@@ -1229,7 +1229,7 @@ return 1;
+       }
+ 
+       SortedElem.resize(nelem);
+-      SortedElem.assign(arr_, &arr_[nelem]);
++      SortedElem.assign(arr_, (arr_.data()+nelem));
+       if(arr_!=NULL) delete[] arr_;
+ 
+ #ifdef _PROFILE_SORT
+@@ -1283,7 +1283,7 @@ return 1;
+ #ifdef _PROFILE_SORT
+       seq_sort.start();
+ #endif
+-      omp_par::merge_sort(&arr[0], &arr[arr.size()]);
++      omp_par::merge_sort(arr.data(), (arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+       seq_sort.stop();
+ #endif
+@@ -1308,7 +1308,7 @@ return 1;
+ #endif
+           // Determine send_size.
+           std::vector<int> send_size(kway), send_disp(kway+1); send_disp[0]=0; send_disp[kway]=arr.size();
+-          for(int i=1;i<kway;i++) send_disp[i]=std::lower_bound(&arr[0], &arr[arr.size()], split_key[i-1])-&arr[0];
++          for(int i=1;i<kway;i++) send_disp[i]=std::lower_bound(arr.data(), (arr.data()+arr.size()), split_key[i-1])-arr.data();
+           for(int i=0;i<kway;i++) send_size[i]=send_disp[i+1]-send_disp[i];
+ 
+           // Get recv_size.
+@@ -1323,8 +1323,8 @@ return 1;
+             for(int j=0;j<(i_==0 || i_==kway/2?1:2);j++){
+               int i=(i_==0?i1:((j+blk_id/i_)%2?i1:i2));
+               int partner=blk_size*i+new_pid;
+-              MPI_Sendrecv(&send_size[     i   ], 1, MPI_INT, partner, 0,
+-                           &recv_size[recv_iter], 1, MPI_INT, partner, 0, comm, &status);
++              MPI_Sendrecv((send_size.data()+i), 1, MPI_INT, partner, 0,
++                           (recv_size.data()+recv_iter), 1, MPI_INT, partner, 0, comm, &status);
+               recv_disp[recv_iter+1]=recv_disp[recv_iter]+recv_size[recv_iter];
+               recv_ptr[recv_iter]=&arr_[recv_disp[recv_iter]];
+               recv_cnt[recv_iter]=recv_size[recv_iter];
+@@ -1347,16 +1347,16 @@ return 1;
+               int i=(i_==0?i1:((j+blk_id/i_)%2?i1:i2));
+               int partner=blk_size*i+new_pid;
+ 
+-              if(recv_iter-asynch_count-1>=0) MPI_Waitall(2, &reqst[(recv_iter-asynch_count-1)*2], &status[(recv_iter-asynch_count-1)*2]);
+-              par::Mpi_Irecv <T>(&arr_[recv_disp[recv_iter]], recv_size[recv_iter], partner, 1, comm, &reqst[recv_iter*2+0]);
+-              par::Mpi_Issend<T>(&arr [send_disp[     i   ]], send_size[     i   ], partner, 1, comm, &reqst[recv_iter*2+1]);
++              if(recv_iter-asynch_count-1>=0) MPI_Waitall(2, (reqst.data()+(recv_iter-asynch_count-1)*2), (status.data()+(recv_iter-asynch_count-1)*2));
++              par::Mpi_Irecv <T>(&arr_[recv_disp[recv_iter]], recv_size[recv_iter], partner, 1, comm, (reqst.data()+recv_iter*2+0));
++              par::Mpi_Issend<T>(&arr [send_disp[     i   ]], send_size[     i   ], partner, 1, comm, (reqst.data()+recv_iter*2+1));
+               recv_iter++;
+ 
+               int flag[2]={0,0};
+-              if(recv_iter>merg_indx) MPI_Test(&reqst[(merg_indx-1)*2],&flag[0],&status[(merg_indx-1)*2]);
+-              if(recv_iter>merg_indx) MPI_Test(&reqst[(merg_indx-2)*2],&flag[1],&status[(merg_indx-2)*2]);
++              if(recv_iter>merg_indx) MPI_Test((reqst.data()+(merg_indx-1)*2),&flag[0],(status.data()+(merg_indx-1)*2));
++              if(recv_iter>merg_indx) MPI_Test((reqst.data()+(merg_indx-2)*2),&flag[1],(status.data()+(merg_indx-2)*2));
+               if(flag[0] && flag[1]){
+-                T* A=&arr_[0]; T* B=&arr__[0];
++                T* A=arr_.data(); T* B=arr__.data();
+                 for(int s=2;merg_indx%s==0;s*=2){
+                   //std    ::merge(&A[recv_disp[merg_indx-s/2]],&A[recv_disp[merg_indx    ]],
+                   //               &A[recv_disp[merg_indx-s  ]],&A[recv_disp[merg_indx-s/2]], &B[recv_disp[merg_indx-s]]);
+@@ -1374,10 +1374,10 @@ return 1;
+ #endif
+ 					// Merge remaining parts.
+           while(merg_indx<=(int)kway){
+-              MPI_Waitall(1, &reqst[(merg_indx-1)*2], &status[(merg_indx-1)*2]);
+-              MPI_Waitall(1, &reqst[(merg_indx-2)*2], &status[(merg_indx-2)*2]);
++              MPI_Waitall(1, (reqst.data()+(merg_indx-1)*2), (status.data()+(merg_indx-1)*2));
++              MPI_Waitall(1, (reqst.data()+(merg_indx-2)*2), (status.data()+(merg_indx-2)*2));
+               {
+-                T* A=&arr_[0]; T* B=&arr__[0];
++                T* A=arr_.data(); T* B=arr__.data();
+                 for(int s=2;merg_indx%s==0;s*=2){
+                   //std    ::merge(&A[recv_disp[merg_indx-s/2]],&A[recv_disp[merg_indx    ]],
+                   //               &A[recv_disp[merg_indx-s  ]],&A[recv_disp[merg_indx-s/2]], &B[recv_disp[merg_indx-s]]);
+@@ -1462,7 +1462,7 @@ return 1;
+ #ifdef _PROFILE_SORT
+       seq_sort.start();
+ #endif
+-      omp_par::merge_sort(&arr[0], &arr[arr.size()]);
++      omp_par::merge_sort(arr.data(), (arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+       seq_sort.stop();
+ #endif
+@@ -1487,7 +1487,7 @@ return 1;
+ #endif
+           // Determine send_size.
+           std::vector<int> send_size(kway), send_disp(kway+1); send_disp[0] = 0; send_disp[kway] = arr.size();
+-          for(int i=1;i<kway;i++) send_disp[i] = std::lower_bound(&arr[0], &arr[arr.size()], split_key[i-1]) - &arr[0];
++          for(int i=1;i<kway;i++) send_disp[i] = std::lower_bound(arr.data(), (arr.data()+arr.size()), split_key[i-1]) - arr.data();
+           for(int i=0;i<kway;i++) send_size[i] = send_disp[i+1] - send_disp[i];
+ 
+           // Get recv_size.
+@@ -1502,10 +1502,10 @@ return 1;
+             for(int j=0;j<(i_==0 || i_==kway/2?1:2);j++){
+               int i=(i_==0?i1:((j+blk_id/i_)%2?i1:i2));
+               int partner=blk_size*i+new_pid;
+-              MPI_Sendrecv(&send_size[     i   ], 1, MPI_INT, partner, 0,
+-                           &recv_size[recv_iter], 1, MPI_INT, partner, 0, comm, &status);
++              MPI_Sendrecv((send_size.data()+i), 1, MPI_INT, partner, 0,
++                           (recv_size.data()+recv_iter), 1, MPI_INT, partner, 0, comm, &status);
+               recv_disp[recv_iter+1] = recv_disp[recv_iter]+recv_size[recv_iter];
+-              recv_ptr[recv_iter]=&arr_[0] + recv_disp[recv_iter]; //! @hari - only setting address, doesnt need to be allocated yet (except for 0)
++              recv_ptr[recv_iter]=arr_.data() + recv_disp[recv_iter]; //! @hari - only setting address, doesnt need to be allocated yet (except for 0)
+               recv_cnt[recv_iter]=recv_size[recv_iter];
+               recv_iter++;
+             }
+@@ -1526,18 +1526,18 @@ return 1;
+               int i=(i_==0?i1:((j+blk_id/i_)%2?i1:i2));
+               int partner=blk_size*i+new_pid;
+ 
+-              if(recv_iter-asynch_count-1>=0) MPI_Waitall(2, &reqst[(recv_iter-asynch_count-1)*2], &status[(recv_iter-asynch_count-1)*2]);
++              if(recv_iter-asynch_count-1>=0) MPI_Waitall(2, (reqst.data()+(recv_iter-asynch_count-1)*2), (status.data()+(recv_iter-asynch_count-1)*2));
+               
+-							par::Mpi_Irecv <T>(&arr_[recv_disp[recv_iter]], recv_size[recv_iter], partner, 1, comm, &reqst[recv_iter*2+0]);
+-              par::Mpi_Issend<T>(&arr [send_disp[     i   ]], send_size[     i   ], partner, 1, comm, &reqst[recv_iter*2+1]);
++							par::Mpi_Irecv <T>(&arr_[recv_disp[recv_iter]], recv_size[recv_iter], partner, 1, comm, (reqst.data()+recv_iter*2+0));
++              par::Mpi_Issend<T>(&arr [send_disp[     i   ]], send_size[     i   ], partner, 1, comm, (reqst.data()+recv_iter*2+1));
+               
+ 							recv_iter++;
+ 
+               int flag[2]={0,0};
+-              if ( recv_iter > merg_indx ) MPI_Test(&reqst[(merg_indx-1)*2], &flag[0], &status[(merg_indx-1)*2]);
+-              if ( recv_iter > merg_indx ) MPI_Test(&reqst[(merg_indx-2)*2], &flag[1], &status[(merg_indx-2)*2]);
++              if ( recv_iter > merg_indx ) MPI_Test((reqst.data()+(merg_indx-1)*2), &flag[0], (status.data()+(merg_indx-1)*2));
++              if ( recv_iter > merg_indx ) MPI_Test((reqst.data()+(merg_indx-2)*2), &flag[1], (status.data()+(merg_indx-2)*2));
+               if (flag[0] && flag[1]){
+-                T* A=&arr_[0]; T* B=&arr__[0];
++                T* A=arr_.data(); T* B=arr__.data();
+                 for(int s=2; merg_indx%s==0; s*=2){
+                   //std    ::merge(&A[recv_disp[merg_indx-s/2]],&A[recv_disp[merg_indx    ]],
+                   //               &A[recv_disp[merg_indx-s  ]],&A[recv_disp[merg_indx-s/2]], &B[recv_disp[merg_indx-s]]);
+@@ -1555,10 +1555,10 @@ return 1;
+ #endif
+ 					// Merge remaining parts.
+           while(merg_indx<=(int)kway){
+-              MPI_Waitall(1, &reqst[(merg_indx-1)*2], &status[(merg_indx-1)*2]);
+-              MPI_Waitall(1, &reqst[(merg_indx-2)*2], &status[(merg_indx-2)*2]);
++              MPI_Waitall(1, (reqst.data()+(merg_indx-1)*2), (status.data()+(merg_indx-1)*2));
++              MPI_Waitall(1, (reqst.data()+(merg_indx-2)*2), (status.data()+(merg_indx-2)*2));
+               {
+-                T* A=&arr_[0]; T* B=&arr__[0];
++                T* A=arr_.data(); T* B=arr__.data();
+                 for(int s=2;merg_indx%s==0;s*=2){
+                   //std    ::merge(&A[recv_disp[merg_indx-s/2]],&A[recv_disp[merg_indx    ]],
+                   //               &A[recv_disp[merg_indx-s  ]],&A[recv_disp[merg_indx-s/2]], &B[recv_disp[merg_indx-s]]);
+@@ -1622,7 +1622,7 @@ return 1;
+ #ifdef _PROFILE_SORT
+ 				seq_sort.start();
+ #endif
+-        omp_par::merge_sort(&arr[0],&arr[arr.size()]);
++        omp_par::merge_sort(arr.data(),(arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+   			seq_sort.stop();
+ 		 		total_sort.stop();
+@@ -1710,7 +1710,7 @@ if(comm!=new_comm)MPI_Comm_free(&new_comm);
+ #ifdef _PROFILE_SORT
+ 			seq_sort.start();
+ #endif
+-      omp_par::merge_sort(&arr[0],&arr[arr.size()]);
++      omp_par::merge_sort(arr.data(),(arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+ 			seq_sort.stop();
+ #endif
+@@ -1729,7 +1729,7 @@ if(comm!=new_comm)MPI_Comm_free(&new_comm);
+ 
+       splitters.push_back( IndexHolder<T>(key_last, zero) );
+       
+-      omp_par::merge_sort(&splitters[0], &splitters[splitters.size()]);
++      omp_par::merge_sort(splitters.data(), (splitters.data()+splitters.size()));
+       
+       IndexHolder<T> *splittersPtr = NULL;
+       if(!splitters.empty()) {
+@@ -1767,8 +1767,8 @@ if(comm!=new_comm)MPI_Comm_free(&new_comm);
+           IndexHolder<T> key( arr[i*(size_t)nelem/omp_p], idx);
+           proc_split[i] = std::upper_bound( &splittersPtr[0], &splittersPtr[npes-1], key, std::less<IndexHolder<T> >())  - &splittersPtr[0];
+           if(proc_split[i]<npes-1){
+-            //lst_split_indx[i]=seq::BinSearch(&arr[0],&arr[nelem],splittersPtr[proc_split[i]],std::less<T>());
+-            lst_split_indx[i] = std::upper_bound(&arr[0], &arr[nelem], splittersPtr[proc_split[i]].value , std::less<T>()) - &arr[0];
++            //lst_split_indx[i]=seq::BinSearch(arr.data(),(arr.data()+nelem),splittersPtr[proc_split[i]],std::less<T>());
++            lst_split_indx[i] = std::upper_bound(arr.data(), (arr.data()+nelem), splittersPtr[proc_split[i]].value , std::less<T>()) - arr.data();
+           }else{
+             proc_split[i]     = npes-1;
+             lst_split_indx[i] = nelem;
+@@ -1852,7 +1852,7 @@ if(comm!=new_comm)MPI_Comm_free(&new_comm);
+ #ifdef _PROFILE_SORT
+ 	 		seq_sort.start();
+ #endif
+-      omp_par::merge_sort(&arr[0], &arr[nsorted]);
++      omp_par::merge_sort(arr.data(), (arr.data()+nsorted));
+ #ifdef _PROFILE_SORT
+ 	 		seq_sort.stop();
+ #endif
+@@ -1886,7 +1886,7 @@ if(comm!=new_comm)MPI_Comm_free(&new_comm);
+ #ifdef _PROFILE_SORT
+ 				seq_sort.start();
+ #endif
+-        omp_par::merge_sort(&arr[0],&arr[arr.size()]);
++        omp_par::merge_sort(arr.data(),(arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+   			seq_sort.stop();
+ #endif        
+@@ -1981,7 +1981,7 @@ if(comm!=new_comm) MPI_Comm_free(&new_comm);
+ #ifdef _PROFILE_SORT
+ 			seq_sort.start();
+ #endif
+-      omp_par::merge_sort(&arr[0],&arr[arr.size()]);
++      omp_par::merge_sort(arr.data(),(arr.data()+arr.size()));
+ #ifdef _PROFILE_SORT
+ 			seq_sort.stop();
+ #endif
+@@ -2049,8 +2049,8 @@ if(comm!=new_comm) MPI_Comm_free(&new_comm);
+           //proc_split[i] = seq::BinSearch(&splittersPtr[0],&splittersPtr[npes-1],arr[i*nelem/omp_p],std::less<T>());
+           proc_split[i] = std::upper_bound(&splittersPtr[0],&splittersPtr[npes-1],arr[i*(size_t)nelem/omp_p],std::less<T>())-&splittersPtr[0];
+           if(proc_split[i]<npes-1){
+-            //lst_split_indx[i]=seq::BinSearch(&arr[0],&arr[nelem],splittersPtr[proc_split[i]],std::less<T>());
+-            lst_split_indx[i]=std::upper_bound(&arr[0],&arr[nelem],splittersPtr[proc_split[i]],std::less<T>())-&arr[0];
++            //lst_split_indx[i]=seq::BinSearch(arr.data(),(arr.data()+nelem),splittersPtr[proc_split[i]],std::less<T>());
++            lst_split_indx[i]=std::upper_bound(arr.data(),(arr.data()+nelem),splittersPtr[proc_split[i]],std::less<T>())-arr.data();
+           }else{
+             proc_split[i]=npes-1;
+             lst_split_indx[i]=nelem;
+@@ -2133,7 +2133,7 @@ if(comm!=new_comm) MPI_Comm_free(&new_comm);
+ #ifdef _PROFILE_SORT
+ 	 		seq_sort.start();
+ #endif
+-      omp_par::merge_sort(&SortedElem[0], &SortedElem[nsorted]);
++      omp_par::merge_sort(SortedElem.data(), (SortedElem.data()+nsorted));
+ #ifdef _PROFILE_SORT
+ 	 		seq_sort.stop();
+ #endif
+@@ -2316,7 +2316,7 @@ if(comm!=new_comm) MPI_Comm_free(&new_comm);
+ 
+       assert(!(in.empty()));
+ 
+-      omp_par::merge_sort(&in[0],&in[in.size()]);
++      omp_par::merge_sort(in.data(),(in.data()+in.size()));
+       MPI_Barrier(comm);
+       
+       if(npes > 1) {
+@@ -2442,12 +2442,12 @@ MPI_Comm_free(&new_comm);
+       int glb_splt_count;
+       std::vector<int> glb_splt_cnts(npes);
+       std::vector<int> glb_splt_disp(npes,0);
+-      par::Mpi_Allgather<int>(&splt_count, &glb_splt_cnts[0], 1, comm);
+-      omp_par::scan(&glb_splt_cnts[0],&glb_splt_disp[0],npes);
++      par::Mpi_Allgather<int>(&splt_count, glb_splt_cnts.data(), 1, comm);
++      omp_par::scan(glb_splt_cnts.data(),glb_splt_disp.data(),npes);
+       glb_splt_count = glb_splt_cnts[npes-1] + glb_splt_disp[npes-1];
+       std::vector<T> glb_splitters(glb_splt_count);
+-      MPI_Allgatherv(&    splitters[0], splt_count, par::Mpi_datatype<T>::value(), 
+-                     &glb_splitters[0], &glb_splt_cnts[0], &glb_splt_disp[0], 
++      MPI_Allgatherv(splitters.data(), splt_count, par::Mpi_datatype<T>::value(), 
++                     glb_splitters.data(), glb_splt_cnts.data(), glb_splt_disp.data(), 
+                      par::Mpi_datatype<T>::value(), comm);
+ 
+       // rank splitters. O( log(N/p) + log(p) )
+@@ -2455,11 +2455,11 @@ MPI_Comm_free(&new_comm);
+       if(nelem>0){
+         #pragma omp parallel for
+         for(size_t i=0; i<glb_splt_count; i++){
+-          disp[i] = std::lower_bound(&arr[0], &arr[nelem], glb_splitters[i]) - &arr[0];
++          disp[i] = std::lower_bound(arr.data(), (arr.data()+nelem), glb_splitters[i]) - arr.data();
+         }
+       }
+       std::vector<DendroIntL> glb_disp(glb_splt_count, 0);
+-      MPI_Allreduce(&disp[0], &glb_disp[0], glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
++      MPI_Allreduce(disp.data(), glb_disp.data(), glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
+         
+ 			splitter_ranks.clear(); splitter_ranks.resize(kway);	
+ 			min_idx.clear(); min_idx.resize(kway);
+@@ -2467,25 +2467,25 @@ MPI_Comm_free(&new_comm);
+ 	    std::vector<T> split_keys(kway);
+ 			#pragma omp parallel for
+       for (unsigned int qq=0; qq<kway; qq++) {
+-				DendroIntL* _disp = &glb_disp[0];
+-				DendroIntL* _mind = &glb_disp[0];
+-				DendroIntL* _maxd = &glb_disp[0];
++				DendroIntL* _disp = glb_disp.data();
++				DendroIntL* _mind = glb_disp.data();
++				DendroIntL* _maxd = glb_disp.data();
+ 				DendroIntL optSplitter = ((qq+1)*totSize)/(kway+1);
+         // if (!rank) std::cout << "opt " << qq << " - " << optSplitter << std::endl;
+         for(size_t i=0; i<glb_splt_count; i++) {
+         	if(labs(glb_disp[i] - optSplitter) < labs(*_disp - optSplitter)) {
+-						_disp = &glb_disp[i];
++						_disp = (glb_disp.data()+i);
+ 					}
+         	if( (glb_disp[i] > optSplitter) && ( labs(glb_disp[i] - optSplitter) < labs(*_maxd - optSplitter))  ) {
+-						_maxd = &glb_disp[i];
++						_maxd = (glb_disp.data()+i);
+ 					}
+         	if( (glb_disp[i] < optSplitter) && ( labs(optSplitter - glb_disp[i]) < labs(optSplitter - *_mind))  ) {
+-						_mind = &glb_disp[i];
++						_mind = (glb_disp.data()+i);
+ 					}
+ 				}
+-        split_keys[qq] = glb_splitters[_disp - &glb_disp[0]];
+-				min_idx[qq] = std::lower_bound(&arr[0], &arr[nelem], glb_splitters[_mind - &glb_disp[0]]) - &arr[0];
+-				max_idx[qq] = std::upper_bound(&arr[0], &arr[nelem], glb_splitters[_maxd - &glb_disp[0]]) - &arr[0];
++        split_keys[qq] = glb_splitters[_disp - glb_disp.data()];
++				min_idx[qq] = std::lower_bound(arr.data(), (arr.data()+nelem), glb_splitters[_mind - glb_disp.data()]) - arr.data();
++				max_idx[qq] = std::upper_bound(arr.data(), (arr.data()+nelem), glb_splitters[_maxd - glb_disp.data()]) - arr.data();
+ 				splitter_ranks[qq] = optSplitter - *_mind;
+ 			}
+ 			
+@@ -2503,7 +2503,7 @@ MPI_Comm_free(&new_comm);
+       int kway=exp_rank.size();
+       std::vector<size_t> locSize(kway), totSize(kway);
+       for(int i=0;i<kway;i++) locSize[i]=end[i]-start[i];
+-      par::Mpi_Allreduce<size_t>(&locSize[0], &totSize[0], kway, MPI_SUM, comm);
++      par::Mpi_Allreduce<size_t>(locSize.data(), &totSize[0], kway, MPI_SUM, comm);
+   
+       //-------------------------------------------
+       std::vector<T> loc_splt;
+@@ -2511,7 +2511,7 @@ MPI_Comm_free(&new_comm);
+         int splt_count = (totSize[i]==0?1:(beta*(end[i]-start[i]))/totSize[i]);
+         if (npes>beta) splt_count = (((float)rand()/(float)RAND_MAX)*totSize[i]<(beta*locSize[i])?1:0);
+         for(int j=0;j<splt_count;j++) loc_splt.push_back(arr[start[i]+rand()%(locSize[i]+1)]);
+-        std::sort(&loc_splt[loc_splt.size()-splt_count],&loc_splt[loc_splt.size()]);
++        std::sort((loc_splt.data()+loc_splt.size()-splt_count),(loc_splt.data()+loc_splt.size()));
+       }
+   
+ 			int splt_count=loc_splt.size();
+@@ -2520,14 +2520,14 @@ MPI_Comm_free(&new_comm);
+       int glb_splt_count;
+       std::vector<int> glb_splt_cnts(npes);
+       std::vector<int> glb_splt_disp(npes,0);
+-      par::Mpi_Allgather<int>(&splt_count, &glb_splt_cnts[0], 1, comm);
+-      omp_par::scan(&glb_splt_cnts[0],&glb_splt_disp[0],npes);
++      par::Mpi_Allgather<int>(&splt_count, glb_splt_cnts.data(), 1, comm);
++      omp_par::scan(glb_splt_cnts.data(),glb_splt_disp.data(),npes);
+       glb_splt_count = glb_splt_cnts[npes-1] + glb_splt_disp[npes-1];
+       std::vector<T> glb_splt(glb_splt_count);
+-      MPI_Allgatherv(&loc_splt[0], splt_count, par::Mpi_datatype<T>::value(), 
+-                     &glb_splt[0], &glb_splt_cnts[0], &glb_splt_disp[0], par::Mpi_datatype<T>::value(), comm);
++      MPI_Allgatherv(loc_splt.data(), splt_count, par::Mpi_datatype<T>::value(), 
++                     glb_splt.data(), glb_splt_cnts.data(), glb_splt_disp.data(), par::Mpi_datatype<T>::value(), comm);
+       //MPI_Barrier(comm); tt[dbg_cnt]+=omp_get_wtime(); dbg_cnt++; //////////////////////////////////////////////////////////////////////
+-      std::sort(&glb_splt[0],&glb_splt[glb_splt_count]);
++      std::sort(glb_splt.data(),(glb_splt.data()+glb_splt_count));
+       //MPI_Barrier(comm); tt[dbg_cnt]+=omp_get_wtime(); dbg_cnt++; //////////////////////////////////////////////////////////////////////
+ 
+       // rank splitters. O( log(N/p) + log(p) )
+@@ -2535,19 +2535,19 @@ MPI_Comm_free(&new_comm);
+       if(nelem>0){
+         #pragma omp parallel for
+         for(size_t i=0; i<glb_splt_count; i++){
+-          loc_rank[i] = std::lower_bound(&arr[0], &arr[nelem], glb_splt[i]) - &arr[0];
++          loc_rank[i] = std::lower_bound(arr.data(), (arr.data()+nelem), glb_splt[i]) - arr.data();
+         }
+       }
+       //MPI_Barrier(comm); tt[dbg_cnt]+=omp_get_wtime(); dbg_cnt++; //////////////////////////////////////////////////////////////////////
+       std::vector<size_t> glb_rank(glb_splt_count, 0);
+-      MPI_Allreduce(&loc_rank[0], &glb_rank[0], glb_splt_count, par::Mpi_datatype<size_t>::value(), MPI_SUM, comm);
++      MPI_Allreduce(loc_rank.data(), glb_rank.data(), glb_splt_count, par::Mpi_datatype<size_t>::value(), MPI_SUM, comm);
+       //MPI_Barrier(comm); tt[dbg_cnt]+=omp_get_wtime(); dbg_cnt++; //////////////////////////////////////////////////////////////////////
+ 
+       size_t new_max_err=0;
+       std::vector<T> split_keys(kway);
+       // #pragma omp parallel for
+       for (int i=0; i<kway; i++) {
+-        int ub_indx=std::upper_bound(&glb_rank[0], &glb_rank[glb_splt_count], exp_rank[i])-&glb_rank[0];
++        int ub_indx=std::upper_bound(glb_rank.data(), (glb_rank.data()+glb_splt_count), exp_rank[i])-glb_rank.data();
+         int lb_indx=ub_indx-1; if(lb_indx<0) lb_indx=0;
+         size_t err=labs(glb_rank[lb_indx]-exp_rank[i]);
+ 
+@@ -2611,12 +2611,12 @@ MPI_Comm_free(&new_comm);
+       int glb_splt_count;
+       std::vector<int> glb_splt_cnts(npes);
+       std::vector<int> glb_splt_disp(npes,0);
+-      par::Mpi_Allgather<int>(&splt_count, &glb_splt_cnts[0], 1, comm);
+-      omp_par::scan(&glb_splt_cnts[0],&glb_splt_disp[0],npes);
++      par::Mpi_Allgather<int>(&splt_count, glb_splt_cnts.data(), 1, comm);
++      omp_par::scan(glb_splt_cnts.data(),glb_splt_disp.data(),npes);
+       glb_splt_count = glb_splt_cnts[npes-1] + glb_splt_disp[npes-1];
+       std::vector<T> glb_splitters(glb_splt_count);
+-      MPI_Allgatherv(&    splitters[0], splt_count, par::Mpi_datatype<T>::value(), 
+-                     &glb_splitters[0], &glb_splt_cnts[0], &glb_splt_disp[0], 
++      MPI_Allgatherv(splitters.data(), splt_count, par::Mpi_datatype<T>::value(), 
++                     glb_splitters.data(), glb_splt_cnts.data(), glb_splt_disp.data(), 
+                      par::Mpi_datatype<T>::value(), comm);
+ 
+       // rank splitters. O( log(N/p) + log(p) )
+@@ -2624,24 +2624,24 @@ MPI_Comm_free(&new_comm);
+       if(nelem>0){
+         #pragma omp parallel for
+         for(size_t i=0; i<glb_splt_count; i++){
+-          disp[i] = std::lower_bound(&arr[0], &arr[nelem], glb_splitters[i]) - &arr[0];
++          disp[i] = std::lower_bound(arr.data(), (arr.data()+nelem), glb_splitters[i]) - arr.data();
+         }
+       }
+       std::vector<DendroIntL> glb_disp(glb_splt_count, 0);
+-      MPI_Allreduce(&disp[0], &glb_disp[0], glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
++      MPI_Allreduce(disp.data(), glb_disp.data(), glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
+         
+ 	    std::vector<T> split_keys(kway);
+ 			#pragma omp parallel for
+       for (unsigned int qq=0; qq<kway; qq++) {
+-				DendroIntL* _disp = &glb_disp[0];
++				DendroIntL* _disp = glb_disp.data();
+ 				DendroIntL optSplitter = ((qq+1)*totSize)/(kway+1);
+         // if (!rank) std::cout << "opt " << qq << " - " << optSplitter << std::endl;
+         for(size_t i=0; i<glb_splt_count; i++) {
+         	if(labs(glb_disp[i] - optSplitter) < labs(*_disp - optSplitter)) {
+-						_disp = &glb_disp[i];
++						_disp = (glb_disp.data()+i);
+ 					}
+ 				}
+-        split_keys[qq] = glb_splitters[_disp - &glb_disp[0]];
++        split_keys[qq] = glb_splitters[_disp - glb_disp.data()];
+ 			}
+ 			
+ 			return split_keys;
+@@ -2678,17 +2678,17 @@ MPI_Comm_free(&new_comm);
+       std::vector<int> glb_splt_cnts(npes);
+       std::vector<int> glb_splt_disp(npes,0);
+       
+-      par::Mpi_Allgather<int>(&splt_count, &glb_splt_cnts[0], 1, comm);
+-      omp_par::scan(&glb_splt_cnts[0],&glb_splt_disp[0],npes);
++      par::Mpi_Allgather<int>(&splt_count, glb_splt_cnts.data(), 1, comm);
++      omp_par::scan(glb_splt_cnts.data(),glb_splt_disp.data(),npes);
+       glb_splt_count = glb_splt_cnts[npes-1] + glb_splt_disp[npes-1];
+       
+       std::vector<T>          glb_splitters (glb_splt_count);
+       std::vector<DendroIntL> glb_dup_ranks (glb_splt_count);
+-      MPI_Allgatherv(&    dup_ranks[0], splt_count, par::Mpi_datatype<DendroIntL>::value(), 
+-                     &glb_dup_ranks[0], &glb_splt_cnts[0], &glb_splt_disp[0], 
++      MPI_Allgatherv(dup_ranks.data(), splt_count, par::Mpi_datatype<DendroIntL>::value(), 
++                     glb_dup_ranks.data(), glb_splt_cnts.data(), glb_splt_disp.data(), 
+                      par::Mpi_datatype<DendroIntL>::value(), comm);
+-      MPI_Allgatherv(&    splitters[0], splt_count, par::Mpi_datatype<T>::value(), 
+-                     &glb_splitters[0], &glb_splt_cnts[0], &glb_splt_disp[0], 
++      MPI_Allgatherv(splitters.data(), splt_count, par::Mpi_datatype<T>::value(), 
++                     glb_splitters.data(), glb_splt_cnts.data(), glb_splt_disp.data(), 
+                      par::Mpi_datatype<T>::value(), comm);
+ 
+ 
+@@ -2699,9 +2699,9 @@ MPI_Comm_free(&new_comm);
+       if(nelem>0){
+         #pragma omp parallel for
+         for(size_t i=0; i<glb_splt_count; i++){
+-          // disp[i] = std::lower_bound(&arr[0], &arr[nelem], glb_splitters[i]) - &arr[0];
+-          dLow = std::lower_bound(&arr[0], &arr[nelem], glb_splitters[i]) - &arr[0];
+-          dHigh = std::upper_bound(&arr[0], &arr[nelem], glb_splitters[i]) - &arr[0];
++          // disp[i] = std::lower_bound(arr.data(), (arr.data()+nelem), glb_splitters[i]) - arr.data();
++          dLow = std::lower_bound(arr.data(), (arr.data()+nelem), glb_splitters[i]) - arr.data();
++          dHigh = std::upper_bound(arr.data(), (arr.data()+nelem), glb_splitters[i]) - arr.data();
+           if ( (dHigh-dLow) > 1 ) {
+             DendroIntL sRank = glb_dup_ranks[i]*npes/2/totSize;
+             if (sRank < rank ) {
+@@ -2719,23 +2719,23 @@ MPI_Comm_free(&new_comm);
+       std::vector<DendroIntL> glb_disp(glb_splt_count, 0);
+      
+       // std::cout << rank << ": all reduce " << std::endl;
+-      MPI_Allreduce(&disp[0], &glb_disp[0], glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
++      MPI_Allreduce(disp.data(), glb_disp.data(), glb_splt_count, par::Mpi_datatype<DendroIntL>::value(), MPI_SUM, comm);
+         
+ 	    std::vector< std::pair<T, DendroIntL> > split_keys(kway);
+       std::pair<T, DendroIntL> key_pair;
+       #pragma omp parallel for
+       for (unsigned int qq=0; qq<kway; qq++) {
+-				DendroIntL* _disp = &glb_disp[0];
++				DendroIntL* _disp = glb_disp.data();
+ 				DendroIntL optSplitter = ((qq+1)*totSize)/(kway+1);
+         // if (!rank) std::cout << "opt " << qq << " - " << optSplitter << std::endl;
+         for(size_t i=0; i<glb_splt_count; i++) {
+         	if(labs(glb_disp[i] - optSplitter) < labs(*_disp - optSplitter)) {
+-						_disp = &glb_disp[i];
++						_disp = (glb_disp.data()+i);
+ 					}
+ 				}
+         
+-        key_pair.first  = glb_splitters[_disp - &glb_disp[0]];
+-        key_pair.second = glb_dup_ranks[_disp - &glb_disp[0]];
++        key_pair.first  = glb_splitters[_disp - glb_disp.data()];
++        key_pair.second = glb_dup_ranks[_disp - glb_disp.data()];
+         split_keys[qq]  = key_pair; // 
+ 			}
+ 			

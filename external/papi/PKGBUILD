@@ -1,0 +1,114 @@
+# Maintainer: Alonso Rodríguez <alonso.rodriguez (at) udc.es>
+# Contributor: Carlos Aznarán <caznaranl@uni.pe>
+# Contributor: wuxb <wuxb45@gmail.com>
+# Contributor: eolianoe <eolianoe At GoogleMAIL DoT com>
+# Contributor: Jed Brown <jed@59A2.org>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=papi
+pkgver=7.2.0
+pkgrel=3
+pkgdesc="Performance Application Programming Interface"
+arch=('x86_64')
+url="https://github.com/icl-utk-edu/$pkgname"
+license=('BSD-3-Clause')
+depends=('glibc'
+         'libgcc'
+         'libstdc++'
+         'libpfm')
+makedepends=('gcc-fortran'
+             'cuda'
+             'hsa-rocr'
+             'rocprofiler'
+             'rocm-smi-lib'
+             'level-zero-headers'
+             'intel-metrics-discovery'
+             'lm_sensors'
+             'pcp')
+checkdepends=('nvidia-utils'
+              'hip-runtime-amd'
+              'rocblas'
+              'level-zero-loader')
+optdepends=('cuda: cuda and nvml components'
+            'nvidia-utils: cuda and nvml components'
+
+            'rocprofiler: rocp_sdk component'
+
+            'rocm-smi-lib: rocm_smi component'
+
+            'level-zero-loader: intel_gpu component'
+            'intel-metrics-discovery: intel_gpu component'
+
+            'lm_sensors: lmsensors component'
+
+            'pcp: pcp component'
+
+            'python: papi_hl_output_writer.py')
+options=('staticlibs')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgname-${pkgver//./-}-t.tar.gz"
+        'rocm7.patch'
+        'gcc16.patch'
+        'net-test.patch'
+        'lmsensors-no-sensors.patch'
+        'topdown-perf-metrics.patch')
+sha256sums=('f806e77e8cd08a0d3e4c002d8a8d3fefc64840ff663c2ac46bd66398c779c6db'
+            '69a1958dc01d794a25c6f3ee9fdea16cb2378d1c6266c893035ba3a8d61173e6'
+            '1d33ba5c623026bf4dbbfc1be7e7cfa2eba5df37ecf59bd51c569571b9a5c9a8'
+            'a37cb1fcfa3d57028440d47f3a98de9b3212cf5c58d1f049afeb793894200b83'
+            '269aa4b3d10445fd378bcd56081e66281b9c4bacbe8890736ccf3dbc1a8de497'
+            '45c0096eff5540b1dee4119e1f7c3073c712c79240ede477fe482072601606f2')
+
+prepare() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  # Use the rocprofiler-sdk 1.x (ROCm 7) callback types in the rocp_sdk component (upstream commit 589c09de)
+  patch -Np2 -i ../../rocm7.patch
+  # Drop the unused <chrono> include, which breaks with GCC 16 after HIP's __noinline__ macro (upstream commit 0f522a4b)
+  patch -Np2 -i ../../gcc16.patch
+  # Add the net events to net_values_by_name by their full names instead of the unqualified lo:rx:bytes names (upstream commit a23a07e8)
+  patch -Np2 -i ../../net-test.patch
+  # Disable the lmsensors component when no sensors are found instead of exposing a bogus event 0
+  patch -Np2 -i ../../lmsensors-no-sensors.patch
+  # Disable the topdown component when the kernel doesn't expose PERF_METRICS (no slots event), e.g. in VMs
+  patch -Np2 -i ../../topdown-perf-metrics.patch
+  # Look for librocm_smi64.so in /opt/rocm when PAPI_ROCMSMI_ROOT/PAPI_ROCM_ROOT are unset
+  sed -i 's|getenv("PAPI_ROCM\(SMI\)\?_ROOT")|(getenv("PAPI_ROCM\1_ROOT") ? getenv("PAPI_ROCM\1_ROOT") : "/opt/rocm")|' components/rocm_smi/rocs.c components/sysdetect/amd_gpu.c
+  # PCP 7 split pmUnits.pad into extraUnit and extraScale
+  sed -i 's/desc\.units\.pad,/desc.units.extraScale,/' components/pcp/linux-pcp.c
+  # CUDA 13 added a CUctxCreateParams argument to cuCtxCreate
+  sed -i 's/cuCtxCreate( *\(&\(([^)]*)\|\w*\)\), /cuCtxCreate(\1, NULL, /' components/cuda/tests/*.cu
+  # The nvml tests link libpapi.a without LDFLAGS, so add the system libpfm to their PAPILIB
+  sed -i 's|^PAPILIB := ../../../libpapi.a  -ldl$|& -lpfm|' components/nvml/tests/Makefile
+  # hipcc rejects the host-only CFLAGS (-std=gnu17, -fcf-protection) when building the rocm_smi tests
+  sed -i 's/$(HIPCC) $(CFLAGS)/$(HIPCC)/' components/rocm_smi/tests/Makefile
+  # The rocm_smi tests replace LDFLAGS when linking libpapi.a, so add the system libpfm there
+  sed -i 's/^LDFLAGS = -ldl -g -pthread$/& -lpfm/' components/rocm_smi/tests/Makefile
+  # The sde tests link libpapi.a, which holds the C++ intel_gpu code, with the C compiler, so add libpfm and libstdc++
+  sed -i 's/^\(\tLDFLAGS += -Llib .*\)$/\1 -lpfm -lstdc++/' components/sde/tests/Makefile
+  # Overflow_Static_Test links libpapi.a without LDFLAGS, so add libpfm and libstdc++ after the archives
+  sed -i 's|^\t$(CC) .* $(datadir)/libsde\.a -ldl -lrt$|& -lpfm -lstdc++|' components/sde/tests/Makefile
+  # Don't overflow the 129-byte error buffer with ROCm SMI's long status string when rsmi_init fails (no AMD GPU)
+  sed -i 's/strcpy(error_string, status_string);/snprintf(error_string, sizeof(error_string), "%s", status_string);/' components/rocm_smi/rocs.c
+}
+
+build() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  export CFLAGS="-fPIC -std=gnu17 -ffat-lto-objects $CFLAGS" LDFLAGS="$LDFLAGS -lpfm" PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
+  ./configure --prefix=/usr --mandir=/usr/share/man --with-perf-events --with-pfm-prefix=/usr --with-components="appio coretemp cuda infiniband intel_gpu io lmsensors lustre net nvml pcp powercap rapl rocm_smi rocp_sdk sde stealtime topdown"
+  make all
+}
+
+check() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  export PAPI_CUDA_ROOT=/opt/cuda PAPI_ROCM_ROOT=/opt/rocm PAPI_ROCP_SDK_ROOT=/opt/rocm PAPI_ROCMSMI_ROOT=/opt/rocm PAPI_LMSENSORS_ROOT=/usr PAPI_PCP_ROOT=/usr INTEL_L0_HEADERS=/usr/include INTEL_L0_LIB64=/usr/lib
+  make tests
+  make fulltest | tee fulltest.log
+  ! grep -q FAILED fulltest.log
+}
+
+package() {
+  cd "$pkgname-$pkgname-${pkgver//./-}-t/src"
+  install -d "$pkgdir"/usr/bin
+  make DESTDIR="$pkgdir" install
+  chmod 644 "$pkgdir"/usr/share/papi/papi_events.csv
+  install -Dm644 ../LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

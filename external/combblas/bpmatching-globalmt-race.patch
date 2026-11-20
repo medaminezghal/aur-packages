@@ -1,0 +1,40 @@
+diff --git a/Applications/BipartiteMatchings/BPMaximalMatching.h b/Applications/BipartiteMatchings/BPMaximalMatching.h
+index 365b7c70..d5c8660e 100644
+--- a/Applications/BipartiteMatchings/BPMaximalMatching.h
++++ b/Applications/BipartiteMatchings/BPMaximalMatching.h
+@@ -91,7 +91,14 @@ void MaximalMatching(Par_DCSC_Bool & A, Par_DCSC_Bool & AT, FullyDistVec<IT, IT>
+         }
+         else if(rand)
+         {
+-            unmatchedCol.Apply([](VertexType vtx){return VertexType(vtx.parent, static_cast<IT>((GlobalMT.rand() * 9999999)+1));});
++            unmatchedCol.Apply([](VertexType vtx){
++                double r;
++#ifdef _OPENMP
++#pragma omp critical(GlobalMT)
++#endif
++                r = GlobalMT.rand();
++                return VertexType(vtx.parent, static_cast<IT>((r * 9999999)+1));
++            });
+         }
+         
+         // ======================== step1: One step of BFS =========================
+diff --git a/Applications/BipartiteMatchings/BPMaximumMatching.h b/Applications/BipartiteMatchings/BPMaximumMatching.h
+index 86ff625f..fa7e6d58 100644
+--- a/Applications/BipartiteMatchings/BPMaximumMatching.h
++++ b/Applications/BipartiteMatchings/BPMaximumMatching.h
+@@ -285,7 +285,14 @@ void maximumMatching(SpParMat < IT, NT, DER > & A, FullyDistVec<IT, IT>& mateRow
+         
+         if(randMM) //select rand
+         {
+-            fringeCol.ApplyInd([](VertexType vtx, IT idx){return VertexType(idx,idx,GlobalMT.rand());});
++            fringeCol.ApplyInd([](VertexType vtx, IT idx){
++                double r;
++#ifdef _OPENMP
++#pragma omp critical(GlobalMT)
++#endif
++                r = GlobalMT.rand();
++                return VertexType(idx,idx,r);
++            });
+         }
+         else
+         {
