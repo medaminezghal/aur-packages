@@ -64,8 +64,10 @@ jobs:
         id: pkg
         if: '!inputs.package'
         run: |
-          dir=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+          # A PKGBUILD moved to another folder without changes (R100) needs no new build
+          dir=$(git diff --name-status -M "origin/${{ github.base_ref }}...HEAD" \
                   -- '*/PKGBUILD' \
+                | awk '$1 != "R100" { print $NF }' \
                 | head -n1 \
                 | sed 's|/PKGBUILD||')
 
