@@ -33,7 +33,7 @@ checkdepends=(
   'python-vcrpy'
 )
 optdepends=('python-dspy: instruments')
-source=("$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('199aa76465bb6de1a1ce042367b8b1809bc8d835fc7523a2e1474ef1db1c7294')
 
 build() {
