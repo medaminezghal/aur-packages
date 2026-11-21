@@ -1,9 +1,7 @@
 diff --git a/src/sparse/CSRMatrixMPI.cpp b/src/sparse/CSRMatrixMPI.cpp
-index 0000000..0000000 100644
 --- a/src/sparse/CSRMatrixMPI.cpp
 +++ b/src/sparse/CSRMatrixMPI.cpp
 @@ -24,11 +24,13 @@
-  */
  #include <cstddef>
 +#include <cmath>
  #include <sstream>
@@ -35,4 +33,3 @@ index 0000000..0000000 100644
 +        ratio = numerator / denominator;
 +      }
 +      m = std::max(m, ratio);
-     }
