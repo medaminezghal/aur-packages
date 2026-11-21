@@ -40,7 +40,8 @@ source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         "$_mm/TOKAMAK/utm300.tar.gz"
         'hss-extract-empty-blocks.patch'
         'deterministic-symmetrize.patch'
-        'gmres-verify-backward-error.patch')
+        'gmres-verify-backward-error.patch'
+        'strumpack-8.1.0-finite-safe-backward-error.patch')
 sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             'ee6e2b85a8bd0f13bacd3ac8e16bc29b7548e99952143f1448fbf865d8cb4a2d'
             'eb7df6302572a0c5077ec0e1061670d7f5f42467408103bc849d4a1257512622'
@@ -55,7 +56,8 @@ sha256sums=('f86a05d3ad9e87ad8a6e1008d15bf3e628f133bfe0a52d4268354a342cbe03d0'
             '38ca1ca01b8e91a15559d6cad51f35cb9287207b61ad8698d39f34e9b6e6b226'
             'fed3b23167887d696260156d03f51d0404392223d32a31f0f7f59656ccd3244b'
             'a0aab8a5c4cd28cbcb40b0be1552ff2cbb7ae6a457113170b1a0b24befbdf351'
-            'f552ce3c417d394be1da6ae657296c5a9a19779d644acdddcf4c92184da68358')
+            'f552ce3c417d394be1da6ae657296c5a9a19779d644acdddcf4c92184da68358'
+            '017df99c37cbdabd42c9ce23d31ef3c56a4163758e22b42fbf78a85e55a39f4c')
 
 prepare() {
   cd "$_name-$pkgver"
@@ -65,6 +67,8 @@ prepare() {
   patch -Np1 -i ../deterministic-symmetrize.patch
   # Check the componentwise backward error after GMRES: restart GMRES while it still decreases, then fall back to iterative refinement if GMRES stagnates, since left-preconditioned GMRES stops on the preconditioned residual (SPARSE_mpi_22 and SPARSE_mpi_2)
   patch -Np1 -i ../gmres-verify-backward-error.patch
+  # Add fix for SPARSE_HODLR_mpi_1 
+  patch -Np1 -i ../strumpack-8.1.0-finite-safe-backward-error.patch
   # ButterflyPACK 5.0.0 merged its per-precision libraries into the single ButterflyPACK::butterflypack target
   sed -i '/^if(ButterflyPACK_FOUND)/,/^endif()/{/ButterflyPACK::[sdc]butterflypack$/d;s/ButterflyPACK::zbutterflypack)/ButterflyPACK::butterflypack)/}' CMakeLists.txt
   # Set PAPI_LIBRARIES from PAPI_LIBRARY instead of METIS_LIBRARY in the bundled FindPAPI.cmake, which shadows PaRSEC's when PaRSECConfig.cmake (pulled in by ButterflyPACK) looks for PAPI
