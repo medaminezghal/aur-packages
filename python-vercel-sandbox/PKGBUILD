@@ -11,8 +11,10 @@ url="$_repo/tree/main/src/$_name"
 license=('MIT')
 depends=('python'
          'python-vercel-internal-core'
+         'python-vercel-drives'
          'python-vercel-oidc'
          'python-anyio'
+         'python-cbor2'
          'python-httpx2'
          'python-wsproto'
          'python-pydantic')
