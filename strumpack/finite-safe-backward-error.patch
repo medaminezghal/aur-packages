@@ -1,7 +1,7 @@
 diff --git a/src/sparse/CSRMatrixMPI.cpp b/src/sparse/CSRMatrixMPI.cpp
 --- a/src/sparse/CSRMatrixMPI.cpp
 +++ b/src/sparse/CSRMatrixMPI.cpp
-@@ -27,11 +27,13 @@
+@@ -28,11 +28,13 @@
  #include <cstddef>
 +#include <cmath>
  #include <sstream>
@@ -15,7 +15,7 @@ diff --git a/src/sparse/CSRMatrixMPI.cpp b/src/sparse/CSRMatrixMPI.cpp
 
 
  #include "CSRMatrixMPI.hpp"
-@@ -1096,4 +1096,16 @@
+@@ -1093,4 +1095,16 @@
          abs_res += std::abs(val_[j]) * std::abs(spmv_bufs_.rbuf[*pbuf]);
          pbuf++;
        }
