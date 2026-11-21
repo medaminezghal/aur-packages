@@ -15,7 +15,7 @@ diff --git a/src/sparse/CSRMatrixMPI.cpp b/src/sparse/CSRMatrixMPI.cpp
 
 
  #include "CSRMatrixMPI.hpp"
-@@ -1093,4 +1095,16 @@
+@@ -1093,7 +1095,19 @@
          abs_res += std::abs(val_[j]) * std::abs(spmv_bufs_.rbuf[*pbuf]);
          pbuf++;
        }
@@ -33,3 +33,6 @@ diff --git a/src/sparse/CSRMatrixMPI.cpp b/src/sparse/CSRMatrixMPI.cpp
 +        ratio = numerator / denominator;
 +      }
 +      m = std::max(m, ratio);
+     }
+     // wait for all send messages to finish
+     wait_all(sreq);
