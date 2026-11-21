@@ -23,7 +23,6 @@ makedepends=(
   'python-hatchling'
   'python-build'
   'python-installer'
-  'python-wheel'
 )
 checkdepends=(
   'python-dspy'
