@@ -1,0 +1,47 @@
+# Maintainer: Smoolak <smoolak@gmail.com>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name1=lance-namespace
+_name2=$_name1-urllib3-client
+pkgbase=python-$_name1
+pkgname=(python-$_name1 python-$_name2)
+pkgver=0.13.0
+pkgrel=2
+arch=('any')
+_repo="https://github.com/lance-format/lance-namespace"
+license=('Apache-2.0')
+depends=('python')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer')
+checkdepends=('python-pytest')
+source=("$pkgname-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('8250cd149a3d860ac26772f37fe806c7660b8d60f35d2bab1cbdc2e8327d41f5')
+
+build() {
+  cd $_name-$pkgver/python/${_name2//-/_}
+  python -m build --wheel --no-isolation
+  cd $_name-$pkgver/python/${_name1//-/_}
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+  )
+  cd $_name-$pkgver/python/${_name2//-/_}
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+  cd $_name-$pkgver/python/${_name1//-/_}
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" ../../tests
+}
+
+package_python-lance-namespace-urllib3-client()() {
+  cd $_name-$pkgver/python/${_name2//-/_}
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+package_python-lance-namespace()() {
+  cd $_name-$pkgver/python/${_name1//-/_}
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
