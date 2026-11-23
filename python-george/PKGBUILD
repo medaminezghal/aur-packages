@@ -24,9 +24,9 @@ makedepends=('python-scikit-build-core'
 			 'eigen')
 checkdepends=('python-pytest')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
-				"python-george-system-eigen.patch")
+		"python-george-system-eigen.patch")
 sha256sums=('ab89513c4eb3f34764dfe82babca8f8b7e09c856fc385f19f19a4149b76e60cb'
-						'30fc45339c9b1479941c8614e602077c68f1f3e400d040e9783cb6f3c1cc48f7')
+			'30fc45339c9b1479941c8614e602077c68f1f3e400d040e9783cb6f3c1cc48f7')
 
 prepare() {
   cd "$_name-$pkgver"
