@@ -49,7 +49,7 @@ package_python-lance-namespace-urllib3-client() {
 
 package_python-lance-namespace() {
   pkgdesc='Lance Namespace interface and plugin registry.'
-  depends+=('python--lance-namespace-urllib3-client')
+  depends+=('python-lance-namespace-urllib3-client')
   url="$_repo/blob/main/python/${_name1//-/_}"
   cd $_name1-$pkgver/python/${_name1//-/_}
   python -m installer --destdir="$pkgdir" dist/*.whl
