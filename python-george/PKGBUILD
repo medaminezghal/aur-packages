@@ -20,7 +20,8 @@ makedepends=('python-scikit-build-core'
              'pybind11'
 			 'python-setuptools-scm'
              'python-build'
-             'python-installer')
+             'python-installer'
+			 'eigen')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('ab89513c4eb3f34764dfe82babca8f8b7e09c856fc385f19f19a4149b76e60cb')
 
