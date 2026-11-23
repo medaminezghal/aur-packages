@@ -36,12 +36,12 @@ check() {
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" ../../tests
 }
 
-package_python-lance-namespace-urllib3-client()() {
+package_python-lance-namespace-urllib3-client() {
   cd $_name-$pkgver/python/${_name2//-/_}
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
 
-package_python-lance-namespace()() {
+package_python-lance-namespace() {
   cd $_name-$pkgver/python/${_name1//-/_}
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
