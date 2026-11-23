@@ -18,6 +18,7 @@ depends=('python-numpy'
          'libgcc')
 makedepends=('python-scikit-build-core'
              'pybind11'
+			 'python-setuptools-scm'
              'python-build'
              'python-installer')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
@@ -25,6 +26,7 @@ sha256sums=('ab89513c4eb3f34764dfe82babca8f8b7e09c856fc385f19f19a4149b76e60cb')
 
 build() {
 	cd "$_name-$pkgver"
+	export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
 	python -m build --wheel --no-isolation
 }
 
