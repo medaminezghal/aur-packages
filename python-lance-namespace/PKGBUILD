@@ -31,7 +31,7 @@ check() {
     --disable-warnings
   )
   cd $_name1-$pkgver/python/${_name2//-/_}
-  PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+  PYTHONPATH=$PWD pytest "${pytest_options[@]}" test
   cd ../${_name1//-/_}
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" ../../tests
 }
