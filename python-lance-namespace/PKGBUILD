@@ -21,7 +21,7 @@ sha256sums=('8250cd149a3d860ac26772f37fe806c7660b8d60f35d2bab1cbdc2e8327d41f5')
 build() {
   cd $_name1-$pkgver/python/${_name2//-/_}
   python -m build --wheel --no-isolation
-  cd $_name1-$pkgver/python/${_name1//-/_}
+  cd ../${_name1//-/_}
   python -m build --wheel --no-isolation
 }
 
@@ -32,16 +32,25 @@ check() {
   )
   cd $_name1-$pkgver/python/${_name2//-/_}
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
-  cd $_name1-$pkgver/python/${_name1//-/_}
+  cd ../${_name1//-/_}
   PYTHONPATH=$PWD pytest "${pytest_options[@]}" ../../tests
 }
 
 package_python-lance-namespace-urllib3-client() {
+  pkgdesc='Lance Namespace Specification.'
+  depends+=('python-urllib3'
+            'python-dateutil'
+            'python-pydantic'
+            'python-typing_extensions')
+  url="$_repo/blob/main/python/${_name2//-/_}"
   cd $_name1-$pkgver/python/${_name2//-/_}
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
 
 package_python-lance-namespace() {
+  pkgdesc='Lance Namespace interface and plugin registry.'
+  depends+=('python--lance-namespace-urllib3-client')
+  url="$_repo/blob/main/python/${_name1//-/_}"
   cd $_name1-$pkgver/python/${_name1//-/_}
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
