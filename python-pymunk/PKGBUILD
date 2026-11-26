@@ -6,11 +6,12 @@ pkgname=python-$_name
 pkgver=7.4.0
 pkgrel=1
 pkgdesc='Pymunk is a easy-to-use pythonic 2D physics library.'
-arch=('any')
+arch=('x86_64' 'aarch64')
 url='https://github.com/viblo/pymunk'
 license=('MIT')
 depends=('python'
-         'python-cffi')
+         'python-cffi'
+         'glibc')
 makedepends=('python-setuptools'
              'python-cffi'
              'python-build'
