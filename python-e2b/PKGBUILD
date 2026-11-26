@@ -40,6 +40,8 @@ prepare() {
   git clean -dfx
   # Add stream_type to the generated connect stubs for connectrpc 0.13
   patch -Np1 -i ../../../connectrpc-0.13.patch
+  # Use the uv_build version shipped by Arch
+  sed -i '/^requires = /s/"uv_build[<>=!~][^"]*"/"uv_build"/' pyproject.toml
 }
 
 build() {
