@@ -9,29 +9,23 @@ arch=('any')
 _repo="https://github.com/Arize-ai/openinference"
 url="$_repo/tree/main/${pkgname/-//instrumentation/}"
 license=('Apache-2.0')
-depends=(
-  'python'
-  'python-opentelemetry-api'
-  'python-opentelemetry-instrumentation'
-  'python-opentelemetry-semantic-conventions'
-  'python-openinference-instrumentation'
-  'python-openinference-semantic-conventions'
-  'python-wrapt'
-  'python-typing_extensions'
-)
-makedepends=(
-  'python-hatchling'
-  'python-build'
-  'python-installer'
-)
-checkdepends=(
-  'python-dspy'
-  'python-opentelemetry-sdk'
-  'python-pytest-recording'
-  'python-litellm'
-  'python-urllib3'
-  'python-vcrpy'
-)
+depends=('python'
+         'python-opentelemetry-api'
+         'python-opentelemetry-instrumentation'
+         'python-opentelemetry-semantic-conventions'
+         'python-openinference-instrumentation'
+         'python-openinference-semantic-conventions'
+         'python-wrapt'
+         'python-typing_extensions')
+makedepends=('python-hatchling'
+             'python-build'
+             'python-installer')
+checkdepends=('python-dspy'
+              'python-opentelemetry-sdk'
+              'python-pytest-recording'
+              'python-litellm'
+              'python-urllib3'
+              'python-vcrpy')
 optdepends=('python-dspy: instruments')
 source=("$pkgname-$pkgver.tar.gz::$_repo/archive/refs/tags/$pkgname-v$pkgver.tar.gz")
 sha256sums=('199aa76465bb6de1a1ce042367b8b1809bc8d835fc7523a2e1474ef1db1c7294')
