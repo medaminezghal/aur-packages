@@ -18,15 +18,18 @@ makedepends=('python-setuptools'
              'python-installer')
 checkdepends=('python-gobject'
               'python-pytest'
+              'libsecret'
               'org.freedesktop.secrets'
-              'libsecret')
+              'xorg-server-xvfb')
 optdepends=('python-gobject: libsecret persistence'
             'libsecret: libsecret persistence'
             'org.freedesktop.secrets: libsecret persistence'
 
             'python-portalocker: portalocker')
-source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('4fd784f391e19a56d1f86c2288f878fb00b2f9e8658b6396dea5eea6baace58b')
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
+        'secret-service.py')
+sha256sums=('4fd784f391e19a56d1f86c2288f878fb00b2f9e8658b6396dea5eea6baace58b'
+            '553e09ceca3e9e8480b186ad4cd63d5240e0fa7c8db572846ffd8b4d9cda35e1')
 
 prepare() {
   cd "microsoft-authentication-extensions-for-python-$pkgver"
@@ -48,7 +51,7 @@ check() {
   if [[ -n $DBUS_SESSION_BUS_ADDRESS ]]; then
     PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
   else
-    PYTHONPATH=$PWD XDG_DATA_HOME="$PWD/keyring" dbus-run-session -- bash -c 'gnome-keyring-daemon --unlock <<< secret > /dev/null && exec pytest "$@"' bash "${pytest_options[@]}" tests
+    PYTHONPATH=$PWD dbus-run-session -- python ../secret-service.py pytest "${pytest_options[@]}" tests
   fi
 }
 
