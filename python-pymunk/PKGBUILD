@@ -1,7 +1,7 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=pymunk
-_munk2d_commit=47b0e6b200c1aedb7b9ee09a998a2ef0bbad8f82
+_munk2d_commit=47e051689dcd747ad0cc329669d0768767279101
 pkgname=python-$_name
 pkgver=7.4.0
 pkgrel=1
@@ -26,10 +26,10 @@ checkdepends=('python-pyglet'
 optdepends=('python-pyglet'
             'python-pygame'
             'python-matplotlib')
-source=("$url/archive/refs/tags/$pkgver.tar.gz"
+source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
         "Munk2D::git+https://github.com/viblo/Munk2D.git#commit=$_munk2d_commit")
 sha256sums=('969a62f8517739208fe42eb31561260535be3735884295b483ed91a14546bd81'
-            '8de048933171aee3f10f925a85b297b5b10cafbc247845c6595c969f7506bf14')
+            '4b721a7efced1c3eacd2589ce5a6c01bb4119376339beef86f0e74c655b5ff66')
 
 prepare(){
   cd "$srcdir"
