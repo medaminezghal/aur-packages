@@ -36,7 +36,8 @@ checkdepends=('python-aiohttp'
               'libstdc++'
               'zlib'
               'icu'
-              'openssl-3')
+              'openssl-3'
+              'git')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/${_name}_$pkgver.tar.gz"
         "$_name-recordings-$_assetstag.tar.gz::https://github.com/Azure/azure-sdk-assets/archive/refs/tags/python/identity/${_name}_$_assetstag.tar.gz")
 source_x86_64=("test-proxy-$_proxyver-x86_64.tar.gz::https://github.com/Azure/azure-sdk-tools/releases/download/Azure.Sdk.Tools.TestProxy_$_proxyver/test-proxy-standalone-linux-x64.tar.gz")
