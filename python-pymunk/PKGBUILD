@@ -16,6 +16,7 @@ makedepends=('python-setuptools'
              'python-cffi'
              'python-build'
              'python-installer'
+             'git'
              'cmake'
              'gcc')
 checkdepends=('python-pyglet'
@@ -28,14 +29,14 @@ optdepends=('python-pyglet'
             'python-matplotlib')
 _munk2d_commit=47e051689dcd747ad0cc329669d0768767279101
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
-        "Munk2D-$_munk2d_commit.tar.gz::https://github.com/viblo/Munk2D/archive/$_munk2d_commit.tar.gz")
+        "Munk2D::git+https://github.com/viblo/Munk2D.git#commit=$_munk2d_commit")
 sha256sums=('969a62f8517739208fe42eb31561260535be3735884295b483ed91a14546bd81'
-            'f295b8877125d9c47dbe2e2058e0171dcc569ecdbb4616cb8e4782e212cf6d29')
+            '4b721a7efced1c3eacd2589ce5a6c01bb4119376339beef86f0e74c655b5ff66')
 
 prepare(){
   cd "$_name-$pkgver"
   rm -rf Munk2D
-  mv "$srcdir"/Munk2D-$_munk2d_commit Munk2D
+  mv "$srcdir"/Munk2D Munk2D
   # Use the cffi version shipped by Arch
   sed -i '/^requires = \[/,/\]/s/"cffi *[<>=!~][^;"]*/"cffi/' pyproject.toml
 }
