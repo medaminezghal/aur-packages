@@ -35,6 +35,8 @@ prepare(){
   cd "$_name-$pkgver"
   rm -rf Munk2D
   mv "$srcdir"/Munk2D Munk2D
+  # Use the cffi version shipped by Arch
+  sed -i '/^requires = \[/,/\]/s/"cffi *[<>=!~][^;"]*/"cffi/' pyproject.toml
 }
 
 build(){
