@@ -1,0 +1,438 @@
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+_name4=graph
+_name3=slim
+_name2=evals
+_name1=clai
+_name0=pydantic-ai
+pkgbase=python-$_name0
+pkgname=(python-${_name0//-ai/}-$_name4 python-$_name0-$_name3 python-${_name0//-ai/}-$_name2 python-$_name0 python-$_name1)
+pkgver=2.65.0
+pkgrel=1
+arch=('any')
+_repo='https://github.com/pydantic/pydantic-ai'
+license=('MIT')
+depends=('python')
+makedepends=('python-hatchling'
+             'python-uv-dynamic-versioning'
+             'python-build'
+             'python-installer')
+checkdepends=('python-anyio'
+              'python-trio'
+              'python-httpx'
+              'python-coverage'
+              'python-dirty-equals'
+              'python-exa-py'
+              'python-tavily-python'
+              'python-markdownify'
+              'python-inline-snapshot'
+              'python-pytest'
+              'python-pytest-codspeed'
+              'python-pytest-examples'
+              'python-pytest-mock'
+              'python-pytest-xdist'
+              'python-genai-prices'
+              'python-brotli'
+              'python-opentelemetry-instrumentation-logging'
+              'python-fastmcp'
+              'python-mcp-types'
+              'python-blockbuster'
+              'python-redis'
+              'python-cassetter'
+              'python-hypothesis'
+              'python-logfire-api'
+              'python-pydantic'
+              'python-typing-inspection'
+              'python-griffelib'
+              'python-httpx2'
+              'python-opentelemetry-api'
+              'python-rich'
+              'python-pyyaml'
+              'python-logfire'
+              'python-opentelemetry-instrumentation-httpx'
+              'python-openai'
+              'python-tiktoken'
+              'python-cohere'
+              'python-google-genai'
+              'python-anthropic'
+              'python-groq'
+              'python-mistralai'
+              'python-boto3'
+              'python-botocore'
+              'python-huggingface-hub'
+              'python-sentence-transformers'
+              'python-ddgs'
+              'python-prompt_toolkit'
+              'python-argcomplete'
+              'python-pyperclip'
+              'python-websockets'
+              'python-fastmcp-slim'
+              'python-authlib'
+              'python-mcp'
+              'python-py-key-value-aio'
+              'python-aiofile'
+              'python-cachetools'
+              'python-starlette'
+              'python-fastmcp-tasks'
+              'python-ag-ui-protocol'
+              'uvicorn'
+              'python-tenacity'
+              'python-pydantic-handlebars'
+              'ruff'
+              'git'
+              'procps-ng')
+source=("$_name0-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz"
+        'mcp-v2-test-server.patch')
+sha256sums=('0283a0a2cf74022daeca8cf8dc4ef85bf53806b5be2739e6d9990b79a97649de'
+            '530697bdaea5cb65201cba2a77a4acf671d25ed7979ffc8b4e0b8bde3fb00837')
+
+prepare() {
+  cd "$_name0-$pkgver"
+  # Remove the devtools import: python-devtools is not a checkdepends and test_examples.py is skipped without pydantic_ai_examples
+  sed -i '/^from devtools import debug$/d' tests/test_examples.py
+  # Map the Qwen VL models to ovhcloud instead of nebius in the HF provider fixture, as huggingface-hub >= 1.25 dropped the nebius provider
+  sed -i "s/('nebius', 'Qwen/('ovhcloud', 'Qwen/" tests/conftest.py
+  # Allow huggingface-hub's one-time package version lookup (importlib.metadata) in the event loop, as huggingface-hub 2 does it while building request headers
+  sed -i "/('os.getcwd', 'logfire\/_internal\/stack_info.py', 'is_user_code'),/a\    ('os.stat', 'huggingface_hub\/utils\/_runtime.py', '_get_version'),\n    ('io.TextIOWrapper.read', 'huggingface_hub\/utils\/_runtime.py', '_get_version')," tests/conftest.py
+  # Replay the nebius image tests through ovhcloud (same plain conversational task), with ovhcloud's genai-prices cost
+  sed -i "s/provider_name='nebius', api_key=huggingface_api_key/provider_name='ovhcloud', api_key=huggingface_api_key/;s|router.huggingface.co/nebius'|router.huggingface.co/ovhcloud'|;s/cost=Decimal('0.00008750')/cost=Decimal('0.00029896')/" tests/models/test_huggingface.py
+  # Point the two image cassettes at the ovhcloud route to match
+  sed -i 's|router.huggingface.co/nebius/|router.huggingface.co/ovhcloud/|' tests/models/cassettes/test_huggingface/test_image_url_input.yaml tests/models/cassettes/test_huggingface/test_image_as_binary_content_input.yaml
+  # Raise an httpx2 timeout in the mock transport, as huggingface-hub 2 only converts httpx2.TimeoutException to InferenceTimeoutError
+  sed -i "s/^import httpx$/import httpx\nimport httpx2/;s/^    raise TimeoutError$/    raise httpx2.TimeoutException('timed out')/" tests/models/test_huggingface.py
+  # Port the stdio test MCP server to mcp 2 (FastMCP was renamed MCPServer and the low-level handlers are registered with add_request_handler)
+  patch -Np1 -i ../mcp-v2-test-server.patch
+  # Allow pydantic-ai's mcp version lookup (importlib.metadata) in the event loop, as only the mcp 2 code path calls it during a run
+  sed -i "/('os.getcwd', 'logfire\/_internal\/stack_info.py', 'is_user_code'),/a\    ('os.stat', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2'),\n    ('os.listdir', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2'),\n    ('io.TextIOWrapper.read', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2'),\n    ('io.BufferedReader.read', 'pydantic_ai\/_mcp_compat.py', 'is_mcp_sdk_v2')," tests/conftest.py
+  # Count the mcp 2 handshake (server/discover replaced initialize) in the durable session tests
+  sed -i "s/snapshot({'initialize': /snapshot({'server\/discover': /" tests/durable_exec/test_durable_operation.py
+  # Send tools/list_changed on the request's stream, as the 2026-07-28 MCP protocol drops notifications not tied to a request
+  sed -i "s/^        await ctx.session.send_tool_list_changed()$/        from mcp.types import ToolListChangedNotification\n\n        await ctx.send_notification(ToolListChangedNotification())/" tests/test_tool_population_diff.py
+  # Ignore tenacity 9.2's deprecation of the 'initial' parameter, which google-genai still passes
+  sed -i "/^    \"ignore::DeprecationWarning:botocore\.\*\",$/a\    \"ignore:The 'initial' parameter is deprecated, use 'multiplier' instead:DeprecationWarning\"," pyproject.toml
+  # Define the session-scoped sentence-transformers fixture as a classmethod, as pytest 9.2 deprecates instance-method session fixtures
+  sed -i "s/^    def stsb_bert_tiny_model(self):$/    @classmethod\n    def stsb_bert_tiny_model(cls):/;s/^        return self._load_stsb_bert_tiny_model()$/        return cls()._load_stsb_bert_tiny_model()/" tests/test_embeddings.py
+  # Mock httpx2 instead of httpx in the Hugging Face client lifecycle tests, as huggingface-hub 2 builds httpx2 clients
+  sed -i '/^def test_unentered_huggingface_model_gets_new_client_on_new_event_loop($/,/^    return clients$/ s/\bhttpx\.\(AsyncHTTPTransport\|Request\|Response\)\b/httpx2.\1/g' tests/test_http_client_lifecycle.py
+  # Start multiprocessing's resource tracker before the tests, as Python 3.14's forkserver default makes tqdm's lock in sentence-transformers launch it mid-test
+  sed -i "s/^def pytest_configure(config: pytest.Config) -> None:$/def pytest_configure(config: pytest.Config) -> None:\n    import multiprocessing.resource_tracker\n\n    multiprocessing.resource_tracker.ensure_running()/" tests/conftest.py
+  # Import ddgs when the tests load, like upstream does for pandas, as its first import scans its engines folder (blocking) inside whichever async test needs it first
+  sed -i 's/^\(    import pandas  # pyright: ignore\[reportUnusedImport\] # noqa: F401\)$/\1\n\nwith suppress(ImportError):\n    import ddgs.ddgs  # pyright: ignore[reportUnusedImport] # noqa: F401/' tests/conftest.py
+  # Expect httpx2 in huggingface-hub's requirements, as huggingface-hub 2 replaced httpx with httpx2 (pydantic-ai still imports legacy httpx for it)
+  sed -i "s/^    assert 'httpx' in _requirement_names('huggingface-hub')$/    assert 'httpx2' in _requirement_names('huggingface-hub')/" tests/test_httpx2_sdk_readiness.py
+}
+
+build() {
+  cd "$_name0-$pkgver"
+  export UV_DYNAMIC_VERSIONING_BYPASS=$pkgver
+  python -m build --wheel --no-isolation ${_name0//-ai/_}$_name4
+  python -m build --wheel --no-isolation ${_name0//-/_}_$_name3
+  python -m build --wheel --no-isolation ${_name0//-ai/_}$_name2
+  python -m build --wheel --no-isolation
+  python -m build --wheel --no-isolation $_name1
+}
+
+check() {
+  local pytest_options=(
+    -vv
+    --disable-warnings
+    -p 'no:benchmark'
+    -n auto
+  )
+  cd "$_name0-$pkgver"
+  python -m venv --system-site-packages test-env
+  ln -sf /usr/bin/ruff test-env/bin/ruff
+  ln -sf /usr/bin/pytest test-env/bin/pytest
+  test-env/bin/python -m installer ${_name0//-ai/_}$_name4/dist/*.whl
+  test-env/bin/python -m installer ${_name0//-/_}_$_name3/dist/*.whl
+  rm -rf test-env/bin/pai
+  test-env/bin/python -m installer ${_name0//-ai/_}$_name2/dist/*.whl
+  test-env/bin/python -m installer dist/*.whl
+  test-env/bin/python -m installer $_name1/dist/*.whl
+  PATH="$srcdir"/$_name0-$pkgver/test-env/bin:$PATH test-env/bin/python -m pytest "${pytest_options[@]}" tests
+}
+
+package_python-pydantic-graph() {
+  pkgdesc='Graph and state machine library.'
+  depends+=('python-anyio'
+            'python-logfire-api'
+            'python-pydantic'
+            'python-typing-inspection')
+  url="$_repo/tree/main/${_name0//-ai/_}$_name4"
+  cd "$_name0-$pkgver"
+  python -m installer --destdir="$pkgdir" ${_name0//-ai/_}$_name4/dist/*.whl
+  install -Dm644 ${_name0//-ai/_}$_name4/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_python-pydantic-ai-slim() {
+  pkgdesc='Agent Framework / shim to use Pydantic with LLMs, slim package.'
+  depends+=('python-anyio'
+            'python-griffelib'
+            'python-httpx2'
+            'python-pydantic'
+            'python-pydantic-graph'
+            'python-opentelemetry-api'
+            'python-typing-inspection'
+            'python-genai-prices')
+  optdepends=('python-logfire: logfire'
+              'python-opentelemetry-instrumentation-httpx: logfire'
+
+              'python-openai: openai'
+              'python-tiktoken: openai'
+
+              'python-cohere: cohere'
+
+              'python-google-genai: google'
+
+              'python-anthropic: anthropic'
+
+              'python-xai-sdk: xai'
+
+              'python-groq: groq'
+
+              'python-openai: openrouter'
+
+              'python-mistralai: mistral'
+
+              'python-boto3: bedrock'
+
+              'python-openai: bedrock-mantle'
+              'python-botocore: bedrock-mantle'
+
+              'python-openai: zai'
+
+              'python-openai: snowflake'
+
+              'python-openai: crusoe'
+
+              'python-openai: cerebras'
+
+              'python-typesafe-sdk: typesafe'
+
+              'python-huggingface-hub: huggingface'
+              'python-hf-xet: huggingface'
+
+              'python-sentence-transformers: sentence-transformers'
+
+              'python-voyageai: voyageai'
+
+              'python-ddgs: duckduckgo'
+
+              'python-tavily-python: tavily'
+
+              'python-exa-py: exa'
+
+              'python-markdownify: web-fetch'
+
+              'python-rich: cli'
+              'python-prompt_toolkit: cli'
+              'python-argcomplete: cli'
+              'python-pyperclip: cli'
+              'python-pyyaml: cli'
+
+              'python-websockets: realtime'
+
+              'python-openai: openai-realtime'
+              'python-tiktoken: openai-realtime'
+              'python-websockets: openai-realtime'
+
+              'python-google-genai: google-realtime'
+              'python-websockets: google-realtime'
+
+              'python-xai-sdk: xai-realtime'
+              'python-openai: xai-realtime'
+              'python-tiktoken: xai-realtime'
+              'python-websockets: xai-realtime'
+
+              'python-websockets: elevenlabs-agents-realtime'
+
+              'python-openai: elevenlabs-realtime'
+              'python-tiktoken: elevenlabs-realtime'
+              'python-websockets: elevenlabs-realtime'
+
+              'python-fastmcp-slim: mcp'
+              'python-authlib: mcp'
+              'python-httpx2: mcp'
+              'python-mcp: mcp'
+              'python-opentelemetry-api: mcp'
+              'python-py-key-value-aio: mcp'
+              'python-aiofile: mcp'
+              'python-anyio: mcp'
+              'python-cachetools: mcp'
+              'python-starlette: mcp'
+
+              'python-fastmcp-tasks: mcp-tasks'
+              'python-fastmcp-slim: mcp-tasks'
+              'python-authlib: mcp-tasks'
+              'python-httpx2: mcp-tasks'
+              'python-mcp: mcp-tasks'
+              'python-opentelemetry-api: mcp-tasks'
+              'python-py-key-value-aio: mcp-tasks'
+              'python-aiofile: mcp-tasks'
+              'python-anyio: mcp-tasks'
+              'python-cachetools: mcp-tasks'
+              'python-starlette: mcp-tasks'
+
+              'python-pydantic-evals: evals'
+
+              'python-starlette: ui'
+
+              'python-ag-ui-protocol: ag-ui'
+              'python-starlette: ag-ui'
+
+              'python-starlette: web'
+              'uvicorn: web'
+
+              'python-tenacity: retries'
+              'python-httpx: retries'
+
+              'python-temporalio: temporal'
+
+              'python-dbos: dbos'
+
+              'python-prefect: prefect'
+
+              'python-pyyaml: spec'
+              'python-pydantic-handlebars: spec')
+  url="$_repo/tree/main/${_name0//-/_}_$_name3"
+  cd "$_name0-$pkgver"
+  python -m installer --destdir="$pkgdir" ${_name0//-/_}_$_name3/dist/*.whl
+  install -Dm644 ${_name0//-/_}_$_name3/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_python-pydantic-evals() {
+  pkgdesc='Framework for evaluating stochastic code execution, especially code making use of LLMs.'
+  depends+=('python-rich'
+            'python-logfire-api'
+            'python-pydantic'
+            'python-pydantic-ai-slim'
+            'python-anyio'
+            'python-pyyaml')
+  optdepends=('python-logfire: logfire')
+  url="$_repo/tree/main/${_name0//-ai/_}$_name2"
+  cd "$_name0-$pkgver"
+  python -m installer --destdir="$pkgdir" ${_name0//-ai/_}$_name2/dist/*.whl
+  install -Dm644 ${_name0//-ai/_}$_name2/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_python-pydantic-ai() {
+  pkgdesc='Agent Framework / shim to use Pydantic with LLMs.'
+  depends+=('python-pydantic-ai-slim'
+            'python-openai'
+            'python-tiktoken'
+            'python-anthropic'
+            'python-google-genai'
+            'python-rich'
+            'python-prompt_toolkit'
+            'python-argcomplete'
+            'python-pyperclip'
+            'python-pyyaml'
+            'python-fastmcp-slim'
+            'python-authlib'
+            'python-httpx2'
+            'python-mcp'
+            'python-opentelemetry-api'
+            'python-py-key-value-aio'
+            'python-aiofile'
+            'python-anyio'
+            'python-cachetools'
+            'python-starlette'
+            'python-pydantic-evals'
+            'uvicorn'
+            'python-logfire'
+            'python-opentelemetry-instrumentation-httpx')
+  optdepends=('python-dbos: dbos'
+
+              'python-prefect: prefect'
+
+              'python-sentence-transformers: sentence-transformers'
+
+              'python-voyageai: voyageai'
+
+              'python-cohere: cohere'
+
+              'python-mistralai: mistral'
+
+              'python-boto3: bedrock'
+
+              'python-openai: bedrock-mantle'
+              'python-botocore: bedrock-mantle'
+
+              'python-xai-sdk: xai'
+
+              'python-groq: groq'
+
+              'python-openai: openrouter'
+
+              'python-huggingface-hub: huggingface'
+              'python-hf-xet: huggingface'
+
+              'python-typesafe-sdk: typesafe'
+
+              'python-ag-ui-protocol: ag-ui'
+              'python-starlette: ag-ui'
+
+              'python-starlette: ui'
+
+              'python-ddgs: duckduckgo'
+
+              'python-tavily-python: tavily'
+
+              'python-exa-py: exa'
+
+              'python-markdownify: web-fetch'
+
+              'python-tenacity: retries'
+              'python-httpx: retries'
+
+              'python-temporalio: temporal'
+
+              'python-pyyaml: spec'
+              'python-pydantic-handlebars: spec'
+
+              'python-fastmcp-tasks: mcp-tasks'
+              'python-fastmcp-slim: mcp-tasks'
+              'python-authlib: mcp-tasks'
+              'python-httpx2: mcp-tasks'
+              'python-mcp: mcp-tasks'
+              'python-opentelemetry-api: mcp-tasks'
+              'python-py-key-value-aio: mcp-tasks'
+              'python-aiofile: mcp-tasks'
+              'python-anyio: mcp-tasks'
+              'python-cachetools: mcp-tasks'
+              'python-starlette: mcp-tasks'
+
+              'python-websockets: realtime'
+
+              'python-openai: openai-realtime'
+              'python-tiktoken: openai-realtime'
+              'python-websockets: openai-realtime'
+
+              'python-google-genai: google-realtime'
+              'python-websockets: google-realtime'
+
+              'python-xai-sdk: xai-realtime'
+              'python-openai: xai-realtime'
+              'python-tiktoken: xai-realtime'
+              'python-websockets: xai-realtime'
+
+              'python-websockets: elevenlabs-agents-realtime'
+
+              'python-openai: elevenlabs-realtime'
+              'python-tiktoken: elevenlabs-realtime'
+              'python-websockets: elevenlabs-realtime')
+  url="$_repo"
+  cd "$_name0-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  rm "$pkgdir"/usr/bin/pai
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_python-clai() {
+  pkgdesc='PydanticAI CLI: command line interface to chat to LLMs.'
+  depends+=('python-pydantic-ai')
+  url="$_repo/tree/main/$_name1"
+  cd "$_name0-$pkgver"
+  python -m installer --destdir="$pkgdir" $_name1/dist/*.whl
+  install -Dm644 $_name1/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
