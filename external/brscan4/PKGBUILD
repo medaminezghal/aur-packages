@@ -1,0 +1,32 @@
+# Maintainer: Harvey <harv@gmx.de>
+# Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
+
+pkgname=brscan4
+pkgver=0.4.11_1
+pkgrel=6
+pkgdesc="SANE drivers from Brother for compatible models"
+arch=('x86_64')
+url="http://support.brother.com"
+license=('GPL' 'custom:Brother')
+depends=('sane')
+optdepends=('gtk2: for using brscan_gnetconfig')
+install=$pkgname.install
+source=("https://download.brother.com/welcome/dlf105203/$pkgname-${pkgver/_/-}.x86_64.rpm"
+        "agree.html"
+        "mk-udev-hwdb")
+sha256sums=('7d7dcbe8349ae4d4ab816e4551017f2f1fd9fd6bf3f4f3c570fbd9576248dd9f'
+            '3434bca1936d6a5fd6afd810cde7e1876dd4d1496722b09af180278480f464f2'
+            '542bbeb4194352f313f43006b0998da48d22bf09a5b239d4f710324c00237131')
+
+build() {
+  ./mk-udev-hwdb opt/brother/scanner/$pkgname/{Brsane4.ini,models4/*.ini} > hwdb
+}
+
+package() {
+  cp -r etc opt usr "$pkgdir"
+  mv "$pkgdir"/usr/lib64 "$pkgdir"/usr/lib
+  install -Dm644 agree.html "$pkgdir"/usr/share/licenses/$pkgname/LICENSE.html
+  install -Dm644 hwdb "$pkgdir"/usr/lib/udev/hwdb.d/20-$pkgname.hwdb
+  ln -sf libsane-brother4.so.1.0.7 "$pkgdir"/usr/lib/sane/libsane-brother4.so.1
+  ln -sf libsane-brother4.so.1 "$pkgdir"/usr/lib/sane/libsane-brother4.so
+}
