@@ -2,7 +2,7 @@
 
 _name=openai-agents
 pkgname=python-$_name
-pkgver=0.24.0
+pkgver=0.26.0
 pkgrel=1
 pkgdesc="OpenAI Agents SDK."
 arch=('any')
@@ -16,6 +16,7 @@ depends=('python'
          'python-requests'
          'python-websockets'
          'python-mcp'
+         'python-certifi'
          'python-httpx2'
          'python-pyjwt'
          'python-python-multipart'
@@ -52,7 +53,6 @@ checkdepends=('python-pytest'
               'python-e2b'
               'python-h2'
               'python-pygments'
-              'python-runloop_api_client'
               'python-vercel-sandbox'
               'python-cbor2'
               'git')
@@ -109,8 +109,6 @@ optdepends=('python-numpy: voice'
             'python-protobuf: modal'
             'python-pygments: modal'
 
-            'python-runloop_api_client: runloop'
-
             'python-vercel-sandbox: vercel'
             'python-cbor2: vercel'
 
@@ -122,7 +120,7 @@ optdepends=('python-numpy: voice'
             'python-pygments: temporal')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
         'worker-os.patch')
-sha256sums=('ac86357b9453d84a20565f2e80ba29df441e37a2f12a1b1c18d0be51109748de'
+sha256sums=('288bed7889bf4d753883e2497beb7ae02c0abc457cab820e35cc9e97a8ec27bf'
             '747579a1b48742e083e716991c7cc4d9c9d15cb0ea86b0dbb5c32361be38c150')
 
 prepare() {
