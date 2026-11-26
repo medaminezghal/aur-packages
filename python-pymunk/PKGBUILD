@@ -32,24 +32,23 @@ sha256sums=('969a62f8517739208fe42eb31561260535be3735884295b483ed91a14546bd81'
             '4b721a7efced1c3eacd2589ce5a6c01bb4119376339beef86f0e74c655b5ff66')
 
 prepare(){
-  cd "$srcdir"
-  rm -rf $_name-$pkgver/Munk2D
-  mv Munk2D $_name-$pkgver/Munk2D
+  cd "$_name-$pkgver"
+  rm -rf Munk2D
+  mv "$srcdir"/Munk2D Munk2D
 }
 
 build(){
-  cd "$srcdir"/$_name-$pkgver
+  cd "$_name-$pkgver"
   python -m build --wheel --no-isolation
 }
 
-
 check(){
   local python_version=$(python -c 'import sys; print("".join(map(str, sys.version_info[:2])))')
-  cd "$srcdir"/$_name-$pkgver/build/lib.linux-$CARCH-cpython-$python_version
+  cd "$_name-$pkgver/build/lib.linux-$CARCH-cpython-$python_version"
   python -m pymunk.tests
 }
 
 package(){
-  cd "$srcdir"/$_name-$pkgver
+  cd "$_name-$pkgver"
   python -m installer --destdir="$pkgdir" dist/*.whl
 }
