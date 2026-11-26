@@ -12,6 +12,7 @@ license=('MIT')
 depends=('python'
          'python-cffi')
 makedepends=('python-setuptools'
+             'python-cffi'
              'python-build'
              'python-installer'
              'python-wheel'
