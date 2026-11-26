@@ -20,7 +20,11 @@ checkdepends=('python-gobject'
               'python-pytest'
               'org.freedesktop.secrets'
               'libsecret')
-optdepends=('python-portalocker: portalocker')
+optdepends=('python-gobject: libsecret persistence'
+            'libsecret: libsecret persistence'
+            'org.freedesktop.secrets: libsecret persistence'
+
+            'python-portalocker: portalocker')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('4fd784f391e19a56d1f86c2288f878fb00b2f9e8658b6396dea5eea6baace58b')
 
