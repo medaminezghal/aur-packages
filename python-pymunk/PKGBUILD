@@ -1,7 +1,6 @@
 # Maintainer: Mohamed Amine Zghal (medaminezghal) <medaminezghal at outlook dot com>
 
 _name=pymunk
-_munk2d_commit=47e051689dcd747ad0cc329669d0768767279101
 pkgname=python-$_name
 pkgver=7.4.0
 pkgrel=1
@@ -27,6 +26,7 @@ checkdepends=('python-pyglet'
 optdepends=('python-pyglet'
             'python-pygame'
             'python-matplotlib')
+_munk2d_commit=47e051689dcd747ad0cc329669d0768767279101
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz"
         "Munk2D-$_munk2d_commit.tar.gz::https://github.com/viblo/Munk2D/archive/$_munk2d_commit.tar.gz")
 sha256sums=('969a62f8517739208fe42eb31561260535be3735884295b483ed91a14546bd81'
@@ -46,8 +46,9 @@ build(){
 }
 
 check(){
+  cd "$_name-$pkgver"
   local python_version=$(python -c 'import sys; print("".join(map(str, sys.version_info[:2])))')
-  cd "$_name-$pkgver/build/lib.linux-$CARCH-cpython-$python_version"
+  cd "build/lib.linux-$CARCH-cpython-$python_version"
   python -m pymunk.tests
 }
 
