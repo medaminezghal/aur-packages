@@ -18,7 +18,7 @@ makedepends=('python-setuptools'
              'python-installer')
 checkdepends=('python-gobject'
               'python-pytest'
-              'gnome-keyring'
+              'org.freedesktop.secrets'
               'libsecret')
 optdepends=('python-portalocker: portalocker')
 source=("$_name-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
@@ -41,7 +41,11 @@ check() {
     --disable-warnings
   )
   cd "microsoft-authentication-extensions-for-python-$pkgver"
-  PYTHONPATH=$PWD dbus-run-session -- bash -c 'gnome-keyring-daemon --unlock <<< secret > /dev/null && exec pytest "$@"' bash "${pytest_options[@]}" tests
+  if [[ -n $DBUS_SESSION_BUS_ADDRESS ]]; then
+    PYTHONPATH=$PWD pytest "${pytest_options[@]}" tests
+  else
+    PYTHONPATH=$PWD XDG_DATA_HOME="$PWD/keyring" dbus-run-session -- bash -c 'gnome-keyring-daemon --unlock <<< secret > /dev/null && exec pytest "$@"' bash "${pytest_options[@]}" tests
+  fi
 }
 
 package() {
