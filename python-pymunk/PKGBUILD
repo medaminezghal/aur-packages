@@ -13,10 +13,10 @@ depends=('python'
          'python-cffi'
          'glibc')
 makedepends=('python-setuptools'
+             'python-wheel'
              'python-cffi'
              'python-build'
              'python-installer'
-             'python-wheel'
              'cmake'
              'gcc')
 checkdepends=('python-pyglet'
