@@ -43,7 +43,7 @@ optdepends=('python-opentelemetry-api: otel'
 
             'python-geoarrow-rust-core: geo'
             'python-geoarrow-rust-io: geo')
-options=('!debug')
+options=('!debug' '!lto')
 source=("${_name#py}-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('b04f172dd509f7f266d0adc3725874a5e8baf1a504440df5eb0da33f4bc11618')
 
