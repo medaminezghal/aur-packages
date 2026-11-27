@@ -2,49 +2,65 @@ name: Notify Claude routine
 
 on:
   workflow_run:
-    workflows: ["Build and check in clean chroot", "Publish to AUR"]
+    workflows: ["Build and check in clean chroot", "Publish to AUR", "Publish to pacman repository"]
     types: [completed]
   pull_request:
-    types: [closed]
+    types: [opened]
     branches: [main]
-    paths:
-      - "**/PKGBUILD"
-
-# Debounce: a new event cancels the one still waiting below, so a burst of
-# events (merges, update-branch rebuilds, failures) starts a single routine run.
-concurrency:
-  group: notify-claude
-  cancel-in-progress: true
 
 jobs:
   fire:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      issues: read
     if: >-
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure' &&
-       !startsWith(github.event.workflow_run.head_branch, 'claude/') &&
-       github.event.workflow_run.head_branch != 'bump/add-python-pydantic-ai' &&
-       github.event.workflow_run.head_branch != 'bump/add-python-livekit-agents') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Build and check in clean chroot' && github.event.workflow_run.conclusion == 'failure') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Publish to AUR' && github.event.workflow_run.conclusion == 'failure') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'Publish to pacman repository' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'aur-release-bumper[bot]')
     steps:
-      - name: Wait for more events
-        run: sleep 600
-      - name: Fire routine
+      - name: Decide
+        id: decide
         env:
-          URL: ${{ secrets.CLAUDE_ROUTINE_URL }}
-          TOKEN: ${{ secrets.CLAUDE_ROUTINE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           EVENT: ${{ github.event_name }}
           WF_NAME: ${{ github.event.workflow_run.name }}
           WF_RUN: ${{ github.event.workflow_run.html_url }}
           WF_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          WF_PR: ${{ github.event.workflow_run.pull_requests[0].number }}
           PR_NUM: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          if [ "$EVENT" = "workflow_run" ]; then
-            TEXT="Workflow '$WF_NAME' failed on branch $WF_BRANCH: $WF_RUN"
+          fire=true
+          if [ "$EVENT" = "pull_request" ]; then
+            TEXT="New bot PR #$PR_NUM: $PR_TITLE"
+          elif [ "$WF_NAME" = "Build and check in clean chroot" ]; then
+            pr="$WF_PR"
+            [ -n "$pr" ] || pr=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:$WF_BRANCH" --jq '.[0].number // empty')
+            if [ -z "$pr" ]; then
+              fire=false
+            elif gh api "repos/$REPO/issues/$pr/labels" --jq '.[].name' | grep -qxE 'chat|routine-skip'; then
+              fire=false
+            fi
+            TEXT="Build failed on PR #$pr (branch $WF_BRANCH): $WF_RUN"
+          elif [ "$WF_NAME" = "Publish to AUR" ]; then
+            TEXT="Publish to AUR failed: $WF_RUN"
           else
-            TEXT="PR #$PR_NUM merged into main: $PR_TITLE"
+            waiting=$(gh api "repos/$REPO/issues?state=open&labels=needs-dependency" --jq 'map(.number) | join(" ")')
+            [ -n "$waiting" ] || fire=false
+            TEXT="Publish to pacman repository succeeded: $WF_RUN. PRs labeled needs-dependency: $waiting"
           fi
-          TEXT="$TEXT (latest of possibly several events in the last 10 minutes)"
+          echo "fire=$fire" >> "$GITHUB_OUTPUT"
+          { echo 'text<<EOF'; echo "$TEXT"; echo EOF; } >> "$GITHUB_OUTPUT"
+      - name: Fire routine
+        if: steps.decide.outputs.fire == 'true'
+        env:
+          URL: ${{ secrets.CLAUDE_ROUTINE_URL }}
+          TOKEN: ${{ secrets.CLAUDE_ROUTINE_TOKEN }}
+          TEXT: ${{ steps.decide.outputs.text }}
+        run: |
           jq -n --arg text "$TEXT" '{text: $text}' |
           curl -sS --fail -X POST "$URL" \
             -H "Authorization: Bearer $TOKEN" \
