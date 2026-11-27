@@ -10,13 +10,24 @@ on:
     paths:
       - "**/PKGBUILD"
 
+# Debounce: a new event cancels the one still waiting below, so a burst of
+# events (merges, update-branch rebuilds, failures) starts a single routine run.
+concurrency:
+  group: notify-claude
+  cancel-in-progress: true
+
 jobs:
   fire:
     runs-on: ubuntu-latest
     if: >-
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure' &&
+       !startsWith(github.event.workflow_run.head_branch, 'claude/') &&
+       github.event.workflow_run.head_branch != 'bump/add-python-pydantic-ai' &&
+       github.event.workflow_run.head_branch != 'bump/add-python-livekit-agents') ||
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     steps:
+      - name: Wait for more events
+        run: sleep 600
       - name: Fire routine
         env:
           URL: ${{ secrets.CLAUDE_ROUTINE_URL }}
@@ -33,6 +44,7 @@ jobs:
           else
             TEXT="PR #$PR_NUM merged into main: $PR_TITLE"
           fi
+          TEXT="$TEXT (latest of possibly several events in the last 10 minutes)"
           jq -n --arg text "$TEXT" '{text: $text}' |
           curl -sS --fail -X POST "$URL" \
             -H "Authorization: Bearer $TOKEN" \

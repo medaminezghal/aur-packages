@@ -10,6 +10,14 @@ To change a rule: edit this file on main, or let Claude open a
 `rules/<topic>` PR editing only this file. A change takes effect on the first
 run after it is merged.
 
+## Cost control
+- Event-started runs (routine-fire-payload): the payload is only the latest of possibly several events (notify-claude.yml waits 10 minutes and keeps the last one). Handle steps A, B and D for everything currently failing or newly merged (every open PR whose latest "Build and check in clean chroot" run failed, every failed publish-to-aur.yml run since the last successful one of the same package), then stop. Steps C and E run only in scheduled runs.
+- Skip PRs that haven't changed: after you check a PR (steps C/E) and finish, keep ONE status comment on it, `🤖 Claude: checked <head sha>`, editing your previous one (PATCH /issues/comments/{id}) instead of posting a new one. In later runs skip steps C/E for a PR whose head sha still matches that comment.
+- Don't diagnose the same failure twice: in step D, skip a PR whose failing head sha you already diagnosed (your comment or fix commit is on that sha) unless something it was blocked on changed.
+- Retry limit: if two of your fix pushes for the same failure on a branch haven't made CI pass, comment your diagnosis and leave that PR alone until the owner pushes or comments.
+- PRs you must not change (Package-specific notes) are skipped in steps C/E entirely.
+- Keep tool output small: save job logs to a file and read only the relevant part (`grep -nE "FAILED|ERROR|error:|==> ERROR" log | head -50`, then the lines around each hit); never print a whole log. Run dry-runs with output redirected to a file and pytest's `-q --tb=short`, and read only the failures and the summary line.
+
 ## Package-specific notes
 - python-logfire: don't touch it (the owner handles it).
 - The owner's own "Add <package>" work-in-progress PRs (#435 pydantic-ai,
