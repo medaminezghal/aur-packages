@@ -73,7 +73,7 @@ optdepends=('python-pylance: pylance'
             'python-sentencepiece: embeddings'
 
             'python-adlfs: azure')
-options=('!debug')
+options=('!debug' '!lto')
 source=("$_name-$pkgver.tar.gz::$_repo/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('5e2820bedee7556af2a1194488784a517622cb7c4ead366704e95ea874739358')
 
