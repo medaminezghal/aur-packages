@@ -83,6 +83,8 @@ prepare() {
   sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' python/pyproject.toml
   # Build for the generic Arch target instead of forcing Haswell CPUs
   sed -i '/target-cpu=haswell/d' .cargo/config.toml
+  # Use thin LTO for release builds, fat LTO of the extension runs out of memory on 16 GB builders
+  sed -i '/^\[profile.release\]$/,/^\[/s/^lto = "fat"$/lto = "thin"/' .cargo/config.toml
 }
 
 build() {
