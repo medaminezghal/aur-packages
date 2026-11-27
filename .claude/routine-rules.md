@@ -10,6 +10,16 @@ To change a rule: edit this file on main, or let Claude open a
 `rules/<topic>` PR editing only this file. A change takes effect on the first
 run after it is merged.
 
+## Scope and labels
+- The routine works only on the PR (or publish run) that started it, never on other PRs. Merges start no run.
+- `chat`: a PR opened or being worked on in a chat session (not the routine). Every chat session that opens or works on a PR in this repo adds this label to it. The routine never touches a PR labeled `chat`, and notify-claude.yml doesn't start the routine for it. Only the owner removes it.
+- `routine-skip`: the routine adds it, with a comment saying why, when it finds no fix it may apply (a decision left to the owner, rule 8, another maintainer's package), or when two of its fix pushes for the same failure didn't make CI pass. It never touches a PR with this label, and notify-claude.yml doesn't start it for one. The owner hands the PR back by removing the label (with a hint in a comment if useful); the next failed build starts the routine again.
+- `needs-dependency`: the routine adds it, with a comment naming the package and its PR, to a PR that waits for another open PR of this repo to be merged (step D 2). When "Publish to pacman repository" succeeds, notify-claude.yml starts the routine only if some open PR has this label; the routine then runs update-branch only on the labeled PRs whose awaited package that publish run built, and removes the label from them.
+
+## Keeping runs small
+- Save job logs to a file and read only the relevant part (`grep -nE "FAILED|ERROR|error:|==> ERROR" log | head -50`, then the lines around each hit); never print a whole log.
+- Dry-runs re-run only the tests that failed in CI (their node ids from the log), with output redirected to a file and pytest's `-q --tb=short`; CI runs the full suite.
+
 ## Package-specific notes
 - python-logfire: don't touch it (the owner handles it).
 - The owner's own "Add <package>" work-in-progress PRs (#435 pydantic-ai,
