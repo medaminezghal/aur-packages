@@ -37,6 +37,7 @@ checkdepends=('python-aiohttp'
               'python-polars'
               'python-pylance'
               'python-requests'
+              'python-datafusion'
               'python-opentelemetry-sdk'
               'python-opentelemetry-api'
               'python-pillow')
