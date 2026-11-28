@@ -52,6 +52,8 @@ prepare() {
   sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' python/pyproject.toml
   # Build for the generic Arch target instead of forcing Haswell CPUs
   sed -i '/target-cpu=haswell/d' .cargo/config.toml python/.cargo/config.toml
+  # Give the index build enough rows to still be running when the progress callback raises, optimized builds finish 1500 rows within one 100 ms callback interval
+  sed -i 's/"vector_progress_post_commit_error", 1500, 128/"vector_progress_post_commit_error", 150_000, 128/' python/python/tests/test_vector_index.py
 }
 
 build() {
