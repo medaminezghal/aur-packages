@@ -24,6 +24,7 @@ checkdepends=('python-arro3-core'
               'python-nanoarrow'
               'python-numpy'
               'python-pytest-asyncio'
+              'python-pytest-timeout'
               'python-pytest')
 options=('!lto')
 source=("$_name::git+$url.git#tag=$pkgver"
