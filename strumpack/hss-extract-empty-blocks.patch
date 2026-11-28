@@ -1,0 +1,37 @@
+Don't index an empty vector in HSSMatrixMPI::triplets_to_DistM. When all
+the blocks extracted on a process are empty (maxBrows + maxBcols == 0),
+nb_destr is empty and &nb_destr[0] trips _GLIBCXX_ASSERTIONS (Arch's
+default CXXFLAGS) in the distributed HSS extraction (SPARSE_mpi_24,
+SPARSE_mpi_31). Use pointer arithmetic on data() instead.
+
+diff --git a/src/HSS/HSSMatrixMPI.extract_blocks.hpp b/src/HSS/HSSMatrixMPI.extract_blocks.hpp
+index e065070a..02a8fbdb 100644
+--- a/src/HSS/HSSMatrixMPI.extract_blocks.hpp
++++ b/src/HSS/HSSMatrixMPI.extract_blocks.hpp
+@@ -103,7 +103,7 @@ namespace strumpack {
+       std::vector<int> nb_destr(nb*(maxBrows+maxBcols), -1);
+       std::vector<int> ssize(P, 0);
+       for (std::size_t k=0; k<nb; k++) {
+-        auto destr = &nb_destr[k*(maxBrows+maxBcols)];
++        auto destr = nb_destr.data() + k*(maxBrows+maxBcols);
+         auto destc = destr + maxBrows;
+         for (auto& t : triplets[k]) {
+           assert(t.r >= 0 && t.c >= 0);
+@@ -119,7 +119,7 @@ namespace strumpack {
+       for (int p=0; p<P; p++)
+         sbuf[p].reserve(ssize[p]);
+       for (std::size_t k=0; k<nb; k++) {
+-        auto destr = &nb_destr[k*(maxBrows+maxBcols)];
++        auto destr = nb_destr.data() + k*(maxBrows+maxBcols);
+         auto destc = destr + maxBrows;
+         for (auto& t : triplets[k])
+           sbuf[destr[t.r]+destc[t.c]].emplace_back(t, k);
+@@ -129,7 +129,7 @@ namespace strumpack {
+       std::fill(nb_destr.begin(), nb_destr.end(), -1);
+       for (auto& q : rbuf) {
+         auto k = q.k;
+-        auto lr = &nb_destr[k*(maxBrows+maxBcols)];
++        auto lr = nb_destr.data() + k*(maxBrows+maxBcols);
+         auto lc = lr + maxBrows;
+         int locr = lr[q.r];
+         if (locr == -1) locr = lr[q.r] = B[k].rowg2l_fixed(q.r);

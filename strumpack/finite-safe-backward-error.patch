@@ -1,0 +1,38 @@
+diff --git a/src/sparse/CSRMatrixMPI.cpp b/src/sparse/CSRMatrixMPI.cpp
+--- a/src/sparse/CSRMatrixMPI.cpp
++++ b/src/sparse/CSRMatrixMPI.cpp
+@@ -28,11 +28,13 @@
+ #include <cstddef>
++#include <cmath>
+ #include <sstream>
+ #include <fstream>
+ #include <vector>
+ #include <tuple>
+ #include <memory>
+ #include <algorithm>
+ #include <exception>
++#include <limits>
+
+
+ #include "CSRMatrixMPI.hpp"
+@@ -1093,7 +1095,19 @@
+         abs_res += std::abs(val_[j]) * std::abs(spmv_bufs_.rbuf[*pbuf]);
+         pbuf++;
+       }
+-      m = std::max(m, std::abs(true_res) / std::abs(abs_res));
++      const auto numerator = std::abs(true_res);
++      const auto denominator = std::abs(abs_res);
++      real_t ratio;
++      if (!std::isfinite(numerator) || !std::isfinite(denominator)) {
++        ratio = std::numeric_limits<real_t>::infinity();
++      } else if (denominator == real_t(0)) {
++        ratio = numerator == real_t(0)
++          ? real_t(0)
++          : std::numeric_limits<real_t>::infinity();
++      } else {
++        ratio = numerator / denominator;
++      }
++      m = std::max(m, ratio);
+     }
+     // wait for all send messages to finish
+     wait_all(sreq);
