@@ -39,7 +39,6 @@ checkdepends=('python-aiohttp'
               'python-requests'
               'python-opentelemetry-sdk'
               'python-opentelemetry-api'
-              'python-pytorch'
               'python-pillow')
 optdepends=('python-pylance: pylance'
 
