@@ -20,19 +20,19 @@ checkdepends=('python-geoarrow-types'
               'python-pandas'
               'python-pyarrow'
               'python-pytest')
-options=('!lto')
 source=("${_name%-core}-$pkgver.tar.gz::$_repo/archive/refs/tags/py-v$pkgver.tar.gz")
 sha256sums=('ed1cd4f44e51f6d4c657f5b1723b422d0f69cd167100a71daa90847e1cc11746')
 
 prepare() {
-  cd "${_name%-core}-py-v$pkgver/$_name"
+  cd "${_name%-core}-py-v$pkgver"
   # Use the maturin version shipped by Arch
-  sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' pyproject.toml
+  sed -i '/^requires = /s/"maturin[<>=!~][^"]*"/"maturin"/' $_name/pyproject.toml ${_name%-core}-compute/pyproject.toml
 }
 
 build() {
-  cd "${_name%-core}-py-v$pkgver/$_name"
-  python -m build --wheel --no-isolation
+  cd "${_name%-core}-py-v$pkgver"
+  python -m build --wheel --no-isolation $_name
+  python -m build --wheel --no-isolation ${_name%-core}-compute
 }
 
 check() {
@@ -43,6 +43,7 @@ check() {
   cd "${_name%-core}-py-v$pkgver"
   python -m venv --system-site-packages test-env
   test-env/bin/python -m installer $_name/dist/*.whl
+  test-env/bin/python -m installer ${_name%-core}-compute/dist/*.whl
   test-env/bin/python -P -m pytest "${pytest_options[@]}" tests/core
 }
 
