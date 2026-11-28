@@ -55,6 +55,8 @@ prepare() {
   sed -i '/target-cpu=haswell/d' .cargo/config.toml python/.cargo/config.toml
   # Give the index build enough rows to still be running when the progress callback raises, optimized builds finish 1500 rows within one 100 ms callback interval
   sed -i 's/"vector_progress_post_commit_error", 1500, 128/"vector_progress_post_commit_error", 150_000, 128/' python/python/tests/test_vector_index.py
+  # Measure anonymous memory in the leak test, total RSS also counts the extension's file-backed pages that some kernels map in large chunks on first use
+  sed -i 's/return psutil.Process(os.getpid()).memory_info().rss$/mi = psutil.Process(os.getpid()).memory_info(); return mi.rss - mi.shared/' python/python/tests/test_memory_leaks.py
 }
 
 build() {
